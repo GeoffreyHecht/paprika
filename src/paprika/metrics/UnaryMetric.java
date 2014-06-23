@@ -6,7 +6,7 @@ import paprika.entities.Entity;
  * Created by Geoffrey Hecht on 20/05/14.
  */
 public abstract class UnaryMetric<E> extends Metric{
-    private Entity entity;
+    protected Entity entity;
 
     public Entity getEntity() {
         return entity;
@@ -17,7 +17,7 @@ public abstract class UnaryMetric<E> extends Metric{
     }
 
     public String toString() {
-        return this.getEntity() + " " + this.getName() + " : "+ this.getValue();
+        return this.entity + " " + this.name + " : "+ this.value;
     }
 
     protected void updateEntity(){

@@ -8,8 +8,8 @@ import paprika.entities.PaprikaMethod;
 public class CyclomaticComplexity extends UnaryMetric<Integer> {
 
     private CyclomaticComplexity(PaprikaMethod paprikaMethod, int value) {
-        this.setValue(value);
-        this.setEntity(paprikaMethod);
+        this.value = value;
+        this.entity = paprikaMethod;
         this.name = "Cyclomatic Complexity";
     }
 

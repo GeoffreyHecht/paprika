@@ -8,8 +8,8 @@ import paprika.entities.PaprikaClass;
 public class NumberOfImplementedInterfaces extends UnaryMetric<Integer> {
 
     private NumberOfImplementedInterfaces(PaprikaClass paprikaClass, int value) {
-        this.setValue(value);
-        this.setEntity(paprikaClass);
+        this.value = value;
+        this.entity = paprikaClass;
         this.name = "Number of Implemented Interfaces";
     }
 

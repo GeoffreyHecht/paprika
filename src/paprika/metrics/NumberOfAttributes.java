@@ -8,8 +8,8 @@ import paprika.entities.PaprikaClass;
 public class NumberOfAttributes extends UnaryMetric<Integer> {
 
     private NumberOfAttributes(PaprikaClass paprikaClass, int value) {
-        this.setValue(value);
-        this.setEntity(paprikaClass);
+        this.value = value;
+        this.entity = paprikaClass;
         this.name = "Number of Attributes";
     }
 

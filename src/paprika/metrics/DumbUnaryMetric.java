@@ -8,8 +8,8 @@ public class DumbUnaryMetric<E> extends UnaryMetric<E> {
     private String description;
 
     private DumbUnaryMetric(Entity entity, E value, String description) {
-        this.setValue(value);
-        this.setEntity(entity);
+        this.value = value;
+        this.entity = entity;
         this.description = description;
     }
 

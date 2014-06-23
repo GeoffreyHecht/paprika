@@ -9,6 +9,7 @@ import java.util.List;
 public class PaprikaClass extends Entity{
     private PaprikaApp paprikaApp;
     private int complexity;
+    private int children;
 
     public List<PaprikaMethod> getPaprikaMethods() {
         return paprikaMethods;
@@ -20,6 +21,7 @@ public class PaprikaClass extends Entity{
         this.setName(name);
         this.paprikaApp = paprikaApp;
         this.complexity = 0;
+        this.children = 0;
         this.paprikaMethods  = new ArrayList<PaprikaMethod>();
     }
 
@@ -45,8 +47,12 @@ public class PaprikaClass extends Entity{
         complexity += value;
     }
 
+    public void addChildren() { children += 1;}
+
     public int getComplexity() {
         return complexity;
     }
+
+    public int getChildren() { return children; }
 
 }

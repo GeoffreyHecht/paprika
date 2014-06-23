@@ -8,8 +8,8 @@ import paprika.entities.PaprikaClass;
 public class ClassComplexity extends UnaryMetric<Integer> {
 
     private ClassComplexity(PaprikaClass paprikaClass) {
-        this.setValue(paprikaClass.getComplexity());
-        this.setEntity(paprikaClass);
+        this.value = paprikaClass.getComplexity();
+        this.entity = paprikaClass;
         this.name = "Class Complexity";
     }
 

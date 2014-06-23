@@ -9,8 +9,8 @@ import paprika.entities.PaprikaMethod;
 public class NumberOfDeclaredLocals extends UnaryMetric<Integer> {
 
     private NumberOfDeclaredLocals(PaprikaMethod paprikaMethod, int value) {
-        this.setValue(value);
-        this.setEntity(paprikaMethod);
+        this.value = value;
+        this.entity = paprikaMethod;
         this.name = "Number of Declared Locals";
     }
 

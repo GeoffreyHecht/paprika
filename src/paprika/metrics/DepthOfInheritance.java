@@ -7,8 +7,8 @@ import paprika.entities.PaprikaClass;
  */
 public class DepthOfInheritance extends UnaryMetric<Integer> {
     private DepthOfInheritance(PaprikaClass paprikaClass, int value) {
-        this.setValue(value);
-        this.setEntity(paprikaClass);
+        this.value = value;
+        this.entity = paprikaClass;
         this.name = "Depth of Inheritance";
     }
 

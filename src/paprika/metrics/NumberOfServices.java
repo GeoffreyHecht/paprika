@@ -8,8 +8,8 @@ import paprika.entities.PaprikaApp;
 public class NumberOfServices extends UnaryMetric<Integer> {
 
     private NumberOfServices(PaprikaApp paprikaApp, int value) {
-        this.setValue(value);
-        this.setEntity(paprikaApp);
+        this.value = value;
+        this.entity = paprikaApp;
         this.name = "Number of Services";
     }
 

@@ -93,7 +93,10 @@ public class SootAnalyzer extends Analyzer {
 
         }));
         PackManager.v().runPacks();
+
+        allMetrics.addAll(computeMetrics());
         //PackManager.v().writeOutput();
+
     }
 
     @Override
@@ -133,13 +136,24 @@ public class SootAnalyzer extends Analyzer {
         for(SootClass sootClass : sootClasses){
             metrics.addAll(collectClassMetrics(sootClass));
         }
+        // Now that all classes have been processed at least once (and the map filled) we can process NOC
+        for(SootClass sootClass : sootClasses){
+            if(sootClass.hasSuperclass()){
+                SootClass superClass = sootClass.getSuperclass();
+                PaprikaClass paprikaClass = classMap.get(superClass);
+                if(paprikaClass !=  null) classMap.get(superClass).addChildren();
+            }
+        }
         return metrics;
     }
 
     public List<? extends Metric> computeMetrics(){
         List<Metric> metrics = new ArrayList<Metric>();
         for (PaprikaClass paprikaClass : paprikaApp.getPaprikaClasses()){
+            // Create complexity with the final value
             metrics.add(ClassComplexity.createClassComplexity(paprikaClass));
+            // Create NOC with the final value
+            metrics.add(NumberOfChildren.createNumberOfChildren(paprikaClass));
         }
         return metrics;
     }
@@ -159,6 +173,7 @@ public class SootAnalyzer extends Analyzer {
             int nbOfLines =  activeBody.getUnits().size() - sootMethod.getParameterCount() - 1;
             metrics.add(NumberOfDeclaredLocals.createNumberOfDeclaredLocals(paprikaMethod, activeBody.getLocals().size()));
             metrics.add(NumberOfInstructions.createNumberOfInstructions(paprikaMethod, nbOfLines));
+            // Cyclomatic complexity
             int nbOfBranches = 1;
             for (Unit sootUnit : activeBody.getUnits()){
                 if (sootUnit.branches()){
