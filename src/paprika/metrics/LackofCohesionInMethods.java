@@ -4,6 +4,7 @@ import paprika.entities.PaprikaClass;
 
 /**
  * Created by Geoffrey Hecht on 20/05/14.
+ * LCOM2 (Chidamber et Kemerer 1991)
  */
 public class LackofCohesionInMethods extends UnaryMetric<Integer> {
 

@@ -2,10 +2,12 @@ package paprika.analyzer;
 
 import paprika.entities.PaprikaApp;
 import paprika.entities.PaprikaClass;
+import paprika.entities.PaprikaField;
 import paprika.entities.PaprikaMethod;
 import paprika.metrics.*;
 import soot.*;
 import soot.grimp.GrimpBody;
+import soot.grimp.internal.GInstanceFieldRef;
 import soot.grimp.internal.GLookupSwitchStmt;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
@@ -149,11 +151,16 @@ public class SootAnalyzer extends Analyzer {
 
     public List<? extends Metric> computeMetrics(){
         List<Metric> metrics = new ArrayList<Metric>();
+        computeInheritance();
         for (PaprikaClass paprikaClass : paprikaApp.getPaprikaClasses()){
             // Create complexity with the final value
             metrics.add(ClassComplexity.createClassComplexity(paprikaClass));
             // Create NOC with the final value
             metrics.add(NumberOfChildren.createNumberOfChildren(paprikaClass));
+            // CBO with final value
+            metrics.add(CouplingBetweenObjects.createCouplingBetweenObjects(paprikaClass));
+            //LCOM
+            metrics.add(LackofCohesionInMethods.createLackofCohesionInMethods(paprikaClass));
         }
         return metrics;
     }
@@ -166,6 +173,7 @@ public class SootAnalyzer extends Analyzer {
             classMap.put(sootClass, paprikaClass);
         }
         PaprikaMethod paprikaMethod = PaprikaMethod.createPaprikaMethod(sootMethod.getName(),paprikaClass);
+        if(sootMethod.isPublic()) paprikaMethod.setIsPublic(true);
         metrics.add(NumberOfParameters.createNumberOfParameters(paprikaMethod, sootMethod.getParameterCount()));
         if(sootMethod.hasActiveBody()){
             GrimpBody activeBody = (GrimpBody) sootMethod.getActiveBody();
@@ -173,9 +181,25 @@ public class SootAnalyzer extends Analyzer {
             int nbOfLines =  activeBody.getUnits().size() - sootMethod.getParameterCount() - 1;
             metrics.add(NumberOfDeclaredLocals.createNumberOfDeclaredLocals(paprikaMethod, activeBody.getLocals().size()));
             metrics.add(NumberOfInstructions.createNumberOfInstructions(paprikaMethod, nbOfLines));
-            // Cyclomatic complexity
+            // Cyclomatic complexity & Lack of Cohesion methods
             int nbOfBranches = 1;
             for (Unit sootUnit : activeBody.getUnits()){
+                //LCOM
+                List<ValueBox> boxes = sootUnit.getUseAndDefBoxes();
+                for (ValueBox valueBox : boxes){
+                    Value value = valueBox.getValue();
+                    if (value instanceof GInstanceFieldRef) {
+                        SootFieldRef field = ((GInstanceFieldRef) value).getFieldRef();
+                        if(field.declaringClass() == sootClass){
+                            PaprikaField paprikaField = paprikaClass.findField(field.name());
+                            //If we don't find the field it's inherited and thus not used for LCOM2
+                            if(paprikaField != null){
+                                paprikaMethod.useField(paprikaField);
+                            }
+                        }
+                    }
+                }
+                //Cyclomatic complexity
                 if (sootUnit.branches()){
                     if(sootUnit.fallsThrough()) nbOfBranches++;
                     else if(sootUnit instanceof GLookupSwitchStmt) nbOfBranches += ((GLookupSwitchStmt) sootUnit).getLookupValues().size();
@@ -196,10 +220,14 @@ public class SootAnalyzer extends Analyzer {
         int edgeOutCount = 0, edgeIntoCount = 0;
         Iterator<Edge> edgeOutIterator = callGraph.edgesOutOf(sootMethod);
         Iterator<Edge> edgeIntoIterator = callGraph.edgesInto(sootMethod);
-        //callGraph = null;
+        callGraph = null;
+        PaprikaClass currentClass = paprikaMethod.getPaprikaClass();
         while(edgeOutIterator.hasNext()) {
             Edge e = edgeOutIterator.next();
+            PaprikaClass targetClass = classMap.get(e.tgt().getDeclaringClass());
             if (e.isVirtual() || e.isSpecial() || e.isStatic()) edgeOutCount++;
+            //Detecting coupling (may include calls to inherited methods)
+            if (targetClass != null && targetClass != currentClass) currentClass.coupledTo(targetClass);
         }
         while(edgeIntoIterator.hasNext()){
             Edge e = edgeIntoIterator.next();
@@ -213,6 +241,16 @@ public class SootAnalyzer extends Analyzer {
     public List<? extends Metric> collectClassMetrics(SootClass sootClass){
         List<Metric> metrics = new ArrayList<>();
         PaprikaClass paprikaClass = PaprikaClass.createPaprikaClass(sootClass.getName(), this.paprikaApp);
+        // Field associated with classes
+        for(SootField sootField : sootClass.getFields()){
+            PaprikaField.Modifiers modifiers = PaprikaField.Modifiers.PRIVATE;
+            if(sootField.isPublic()){
+                modifiers = PaprikaField.Modifiers.PUBLIC;
+            }else if(sootField.isProtected()){
+                modifiers = PaprikaField.Modifiers.PROTECTED;
+            }
+            PaprikaField.createPaprikaField(sootField.getName(), sootField.getType().toString(), modifiers, paprikaClass);
+        }
         this.classMap.put(sootClass, paprikaClass);
         // Number of methods including constructors
         metrics.add(NumberOfMethods.createNumberOfMethods(paprikaClass, sootClass.getMethodCount()));
@@ -231,7 +269,17 @@ public class SootAnalyzer extends Analyzer {
         return doi;
     }
 
-
+    public void computeInheritance(){
+        for (Map.Entry entry : classMap.entrySet()) {
+            SootClass sClass = (SootClass) entry.getKey();
+            PaprikaClass pClass = (PaprikaClass) entry.getValue();
+            SootClass sParent = sClass.getSuperclass();
+            PaprikaClass pParent  = classMap.get(sParent);
+            if(pParent != null){
+               pClass.setParent(pParent);
+            }
+        }
+    }
     private boolean isActivity(SootClass sootClass){
         return isSubClass(sootClass,"android.app.Activity");
     }

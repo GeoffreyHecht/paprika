@@ -10,5 +10,6 @@ public enum RelationTypes implements RelationshipType {
     CLASS_OWNS_METHOD,
     APP_OWNS_METRIC,
     CLASS_OWNS_METRIC,
-    METHOD_OWNS_METRIC
+    METHOD_OWNS_METRIC,
+    EXTENDS
 }
