@@ -8,6 +8,7 @@ import org.neo4j.graphdb.RelationshipType;
 public enum RelationTypes implements RelationshipType {
     APP_OWNS_CLASS,
     CLASS_OWNS_METHOD,
+    CLASS_OWNS_VARIABLE,
     APP_OWNS_METRIC,
     CLASS_OWNS_METRIC,
     METHOD_OWNS_METRIC,

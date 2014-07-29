@@ -13,7 +13,11 @@ public class PaprikaClass extends Entity{
     private int children;
     private Set<PaprikaClass> coupled;
     private Set<PaprikaMethod> paprikaMethods;
-    private Set<PaprikaField> paprikaFields;
+    private Set<PaprikaVariable> paprikaVariables;
+
+    public Set<PaprikaVariable> getPaprikaVariables() {
+        return paprikaVariables;
+    }
 
     public Set<PaprikaMethod> getPaprikaMethods() {
         return paprikaMethods;
@@ -25,7 +29,7 @@ public class PaprikaClass extends Entity{
         this.complexity = 0;
         this.children = 0;
         this.paprikaMethods  = new HashSet<>();
-        this.paprikaFields  = new HashSet<>();
+        this.paprikaVariables = new HashSet<>();
         this.coupled = new HashSet<>();
     }
 
@@ -90,14 +94,14 @@ public class PaprikaClass extends Entity{
         return LCOM > 0 ? LCOM : 0;
     }
 
-    public void addPaprikaField(PaprikaField paprikaField) {
-        paprikaFields.add(paprikaField);
+    public void addPaprikaVariable(PaprikaVariable paprikaVariable) {
+        paprikaVariables.add(paprikaVariable);
     }
 
-    public PaprikaField findField(String name){
+    public PaprikaVariable findVariable(String name){
         // First we are looking to the field declared by this class (any modifiers)
-        for (PaprikaField field : paprikaFields){
-            if (field.getName().equals(name)) return field;
+        for (PaprikaVariable paprikaVariable : paprikaVariables){
+            if (paprikaVariable.getName().equals(name)) return paprikaVariable;
         }
         //otherwise we return null
         return null;

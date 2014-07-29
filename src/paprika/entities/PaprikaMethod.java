@@ -11,7 +11,7 @@ public class PaprikaMethod extends Entity{
     private Boolean isPublic;
     private Boolean isOverride;
     private String returnType;
-    private Set<PaprikaField> usedFields;
+    private Set<PaprikaVariable> usedVariables;
 
     public Boolean getIsPublic() {
         return isPublic;
@@ -32,7 +32,7 @@ public class PaprikaMethod extends Entity{
     private PaprikaMethod(String name, PaprikaClass paprikaClass) {
         this.setName(name);
         this.paprikaClass = paprikaClass;
-        this.usedFields = new HashSet<>();
+        this.usedVariables = new HashSet<>();
     }
 
     public static PaprikaMethod createPaprikaMethod(String name, PaprikaClass paprikaClass) {
@@ -54,19 +54,19 @@ public class PaprikaMethod extends Entity{
         return this.getName() + "#" + paprikaClass;
     }
 
-    public void useField(PaprikaField paprikaField) {
-        usedFields.add(paprikaField);
+    public void useVariable(PaprikaVariable paprikaVariable) {
+        usedVariables.add(paprikaVariable);
     }
 
 
-    public Set<PaprikaField> getUsedFields(){
-        return this.usedFields;
+    public Set<PaprikaVariable> getUsedVariables(){
+        return this.usedVariables;
     }
 
     public boolean haveCommonFields(PaprikaMethod paprikaMethod){
-        Set<PaprikaField> otherFields = paprikaMethod.getUsedFields();
-        for(PaprikaField paprikaField : usedFields){
-            if(otherFields.contains(paprikaField)) return true;
+        Set<PaprikaVariable> otherVariables = paprikaMethod.getUsedVariables();
+        for(PaprikaVariable paprikaVariable : usedVariables){
+            if(otherVariables.contains(paprikaVariable)) return true;
         }
         return false;
     }

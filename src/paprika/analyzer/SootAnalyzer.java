@@ -1,9 +1,6 @@
 package paprika.analyzer;
 
-import paprika.entities.PaprikaApp;
-import paprika.entities.PaprikaClass;
-import paprika.entities.PaprikaField;
-import paprika.entities.PaprikaMethod;
+import paprika.entities.*;
 import paprika.metrics.*;
 import soot.*;
 import soot.grimp.GrimpBody;
@@ -191,10 +188,10 @@ public class SootAnalyzer extends Analyzer {
                     if (value instanceof GInstanceFieldRef) {
                         SootFieldRef field = ((GInstanceFieldRef) value).getFieldRef();
                         if(field.declaringClass() == sootClass){
-                            PaprikaField paprikaField = paprikaClass.findField(field.name());
+                            PaprikaVariable paprikaVariable = paprikaClass.findVariable(field.name());
                             //If we don't find the field it's inherited and thus not used for LCOM2
-                            if(paprikaField != null){
-                                paprikaMethod.useField(paprikaField);
+                            if(paprikaVariable != null){
+                                paprikaMethod.useVariable(paprikaVariable);
                             }
                         }
                     }
@@ -241,15 +238,16 @@ public class SootAnalyzer extends Analyzer {
     public List<? extends Metric> collectClassMetrics(SootClass sootClass){
         List<Metric> metrics = new ArrayList<>();
         PaprikaClass paprikaClass = PaprikaClass.createPaprikaClass(sootClass.getName(), this.paprikaApp);
-        // Field associated with classes
+        // Variable associated with classes
         for(SootField sootField : sootClass.getFields()){
-            PaprikaField.Modifiers modifiers = PaprikaField.Modifiers.PRIVATE;
+            PaprikaModifiers modifiers = PaprikaModifiers.PRIVATE;
             if(sootField.isPublic()){
-                modifiers = PaprikaField.Modifiers.PUBLIC;
+                modifiers = PaprikaModifiers.PUBLIC;
             }else if(sootField.isProtected()){
-                modifiers = PaprikaField.Modifiers.PROTECTED;
+                modifiers = PaprikaModifiers.PROTECTED;
             }
-            PaprikaField.createPaprikaField(sootField.getName(), sootField.getType().toString(), modifiers, paprikaClass);
+
+            PaprikaVariable.createPaprikaVariable(sootField.getName(), sootField.getType().toString(), modifiers, paprikaClass);
         }
         this.classMap.put(sootClass, paprikaClass);
         // Number of methods including constructors

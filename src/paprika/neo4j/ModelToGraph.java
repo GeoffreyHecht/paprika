@@ -3,13 +3,11 @@ package paprika.neo4j;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.*;
-import org.neo4j.helpers.collection.IteratorUtil;
 import paprika.entities.PaprikaApp;
 import paprika.entities.PaprikaClass;
 import paprika.entities.PaprikaMethod;
+import paprika.entities.PaprikaVariable;
 import paprika.metrics.Metric;
-
-import java.util.Iterator;
 
 /**
  * Created by Geoffrey Hecht on 05/06/14.
@@ -21,6 +19,7 @@ public class ModelToGraph {
     private static final Label appLabel = DynamicLabel.label("App");
     private static final Label classLabel = DynamicLabel.label("Class");
     private static final Label methodLabel = DynamicLabel.label("Method");
+    private static final Label variableLabel = DynamicLabel.label("Variable");
 
     public ModelToGraph(String DatabasePath){
         this.databaseManager = new DatabaseManager(DatabasePath);
@@ -53,17 +52,32 @@ public class ModelToGraph {
         Node classNode = graphDatabaseService.createNode(classLabel);
         classNode.setProperty("name",paprikaClass.getName());
         appNode.createRelationshipTo(classNode,RelationTypes.APP_OWNS_CLASS);
+        for(PaprikaVariable paprikaVariable : paprikaClass.getPaprikaVariables()){
+            insertVariable(paprikaVariable, classNode);
+        }
         for(PaprikaMethod paprikaMethod : paprikaClass.getPaprikaMethods()){
             insertMethod(paprikaMethod,classNode);
         }
+
         for(Metric metric : paprikaClass.getMetrics()){
             insertMetric(metric,classNode);
         }
     }
 
+    public void insertVariable(PaprikaVariable paprikaVariable, Node classNode){
+        Node variableNode = graphDatabaseService.createNode(variableLabel);
+        variableNode.setProperty("name", paprikaVariable.getName());
+        variableNode.setProperty("modifier", paprikaVariable.getModifier().toString());
+        variableNode.setProperty("type", paprikaVariable.getType());
+        classNode.createRelationshipTo(variableNode,RelationTypes.CLASS_OWNS_VARIABLE);
+        for(Metric metric : paprikaVariable.getMetrics()){
+            insertMetric(metric, variableNode);
+        }
+    }
     public void insertMethod(PaprikaMethod paprikaMethod, Node classNode ){
         Node methodNode = graphDatabaseService.createNode(methodLabel);
         methodNode.setProperty("name",paprikaMethod.getName());
+        //methodNode.setProperty("public",paprikaMethod.getIsPublic());
         classNode.createRelationshipTo(methodNode,RelationTypes.CLASS_OWNS_METHOD);
         for(Metric metric : paprikaMethod.getMetrics()){
             insertMetric(metric, methodNode);
@@ -75,17 +89,10 @@ public class ModelToGraph {
         for (PaprikaClass paprikaClass : paprikaApp.getPaprikaClasses()) {
             PaprikaClass parent = paprikaClass.getParent();
             if (parent != null) {
-                result = engine.execute("MATCH (n:`Class`) WHERE n.name ='" + paprikaClass.getName() + "' return n");
-                Iterator<Node> n_column = result.columnAs("n");
-                Node currentNode = null;
-                for (Node node : IteratorUtil.asIterable(n_column)) {
-                    currentNode = node;
-                }
-                result = engine.execute("MATCH (n:`Class`) WHERE n.name ='" + parent.getName() + "' return n");
-                n_column = result.columnAs("n");
-                for (Node node : IteratorUtil.asIterable(n_column)) {
-                    currentNode.createRelationshipTo(node, RelationTypes.EXTENDS);
-                }
+                //Cypher Query to crate the relationship
+                engine.execute("MATCH (c:Class),(p:Class) WHERE c.name ='" + paprikaClass.getName() +
+                        "' AND p.name ='" + parent.getName() +
+                        "'  CREATE (c)-[r:"+RelationTypes.EXTENDS+" ]->(p)  RETURN r");
             }
         }
     }
