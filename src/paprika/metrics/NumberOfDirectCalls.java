@@ -10,7 +10,7 @@ public class NumberOfDirectCalls extends UnaryMetric<Integer> {
     private NumberOfDirectCalls(PaprikaMethod paprikaMethod, int value) {
         this.value = value;
         this.entity = paprikaMethod;
-        this.name = "Number of Direct Calls";
+        this.name = "number_of_direct_calls";
     }
 
     public static NumberOfDirectCalls createNumberOfDirectCalls(PaprikaMethod paprikaMethod, int value) {

@@ -10,7 +10,7 @@ public class NumberOfServices extends UnaryMetric<Integer> {
     private NumberOfServices(PaprikaApp paprikaApp, int value) {
         this.value = value;
         this.entity = paprikaApp;
-        this.name = "Number of Services";
+        this.name = "number_of_services";
     }
 
     public static NumberOfServices createNumberOfServices(PaprikaApp paprikaApp, int value) {

@@ -10,7 +10,7 @@ public class NumberOfAbstractClasses extends UnaryMetric<Integer> {
     private NumberOfAbstractClasses(PaprikaApp paprikaApp, int value) {
         this.value = value;
         this.entity = paprikaApp;
-        this.name = "Number of Abstract Classes";
+        this.name = "number_of_abstract_classes";
     }
 
     public static NumberOfAbstractClasses createNumberOfAbstractClasses(PaprikaApp paprikaApp, int value) {

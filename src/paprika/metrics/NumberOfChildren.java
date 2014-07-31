@@ -10,7 +10,7 @@ public class NumberOfChildren extends UnaryMetric<Integer> {
     private NumberOfChildren(PaprikaClass paprikaClass) {
         this.value = paprikaClass.getChildren();
         this.entity = paprikaClass;
-        this.name = "Number of Children";
+        this.name = "number_of_children";
     }
 
     public static NumberOfChildren createNumberOfChildren(PaprikaClass paprikaClass) {

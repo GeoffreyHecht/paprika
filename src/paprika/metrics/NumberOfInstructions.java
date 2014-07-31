@@ -10,7 +10,7 @@ public class NumberOfInstructions extends UnaryMetric<Integer> {
     private NumberOfInstructions(PaprikaMethod paprikaMethod, int value) {
         this.value = value;
         this.entity = paprikaMethod;
-        this.name = "Number of Instructions";
+        this.name = "number_of_instructions";
     }
 
     public static NumberOfInstructions createNumberOfInstructions(PaprikaMethod paprikaMethod, int value) {

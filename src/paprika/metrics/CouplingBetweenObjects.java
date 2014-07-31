@@ -10,7 +10,7 @@ public class CouplingBetweenObjects extends UnaryMetric<Integer> {
     private CouplingBetweenObjects(PaprikaClass paprikaClass) {
         this.value = paprikaClass.getCouplingValue();
         this.entity = paprikaClass;
-        this.name = "Coupling Between Object Classes";
+        this.name = "coupling_between_object_classes";
     }
 
     public static CouplingBetweenObjects createCouplingBetweenObjects(PaprikaClass paprikaClass) {

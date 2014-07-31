@@ -10,7 +10,7 @@ public class NumberOfImplementedInterfaces extends UnaryMetric<Integer> {
     private NumberOfImplementedInterfaces(PaprikaClass paprikaClass, int value) {
         this.value = value;
         this.entity = paprikaClass;
-        this.name = "Number of Implemented Interfaces";
+        this.name = "number_of_implemented_interfaces";
     }
 
     public static NumberOfImplementedInterfaces createNumberOfImplementedInterfaces(PaprikaClass paprikaClass, int value) {

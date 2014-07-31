@@ -4,14 +4,13 @@ import paprika.entities.PaprikaMethod;
 
 /**
  * Created by Geoffrey Hecht on 23/05/14.
- * TODO: Verifier la pertinence de cette métrique (en Jimple tout du moins)
  */
 public class NumberOfDeclaredLocals extends UnaryMetric<Integer> {
 
     private NumberOfDeclaredLocals(PaprikaMethod paprikaMethod, int value) {
         this.value = value;
         this.entity = paprikaMethod;
-        this.name = "Number of Declared Locals";
+        this.name = "number_of_declared_locals";
     }
 
     public static NumberOfDeclaredLocals createNumberOfDeclaredLocals(PaprikaMethod paprikaMethod, int value) {

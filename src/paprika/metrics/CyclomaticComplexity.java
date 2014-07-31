@@ -10,7 +10,7 @@ public class CyclomaticComplexity extends UnaryMetric<Integer> {
     private CyclomaticComplexity(PaprikaMethod paprikaMethod, int value) {
         this.value = value;
         this.entity = paprikaMethod;
-        this.name = "Cyclomatic Complexity";
+        this.name = "cyclomatic_complexity";
     }
 
     public static CyclomaticComplexity createCyclomaticComplexity(PaprikaMethod paprikaMethod, int value) {

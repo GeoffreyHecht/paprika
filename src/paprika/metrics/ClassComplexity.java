@@ -10,7 +10,7 @@ public class ClassComplexity extends UnaryMetric<Integer> {
     private ClassComplexity(PaprikaClass paprikaClass) {
         this.value = paprikaClass.getComplexity();
         this.entity = paprikaClass;
-        this.name = "Class Complexity";
+        this.name = "class_complexity";
     }
 
     public static ClassComplexity createClassComplexity(PaprikaClass paprikaClass) {

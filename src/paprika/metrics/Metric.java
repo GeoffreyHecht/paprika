@@ -5,7 +5,7 @@ package paprika.metrics;
  */
 public abstract class  Metric<E> {
     protected Object value;
-    protected String name = "Anonymous metric";
+    protected String name = "anonymous_metric";
 
     public Object getValue() {
         return value;

@@ -96,7 +96,7 @@ public class ModelToGraph {
     public void insertVariable(PaprikaVariable paprikaVariable, Node classNode){
         Node variableNode = graphDatabaseService.createNode(variableLabel);
         variableNode.setProperty("name", paprikaVariable.getName());
-        variableNode.setProperty("modifier", paprikaVariable.getModifier().toString());
+        variableNode.setProperty("modifier", paprikaVariable.getModifier().toString().toLowerCase());
         variableNode.setProperty("type", paprikaVariable.getType());
         classNode.createRelationshipTo(variableNode,RelationTypes.CLASS_OWNS_VARIABLE);
         for(Metric metric : paprikaVariable.getMetrics()){
@@ -107,8 +107,8 @@ public class ModelToGraph {
         Node methodNode = graphDatabaseService.createNode(methodLabel);
         methodNodeMap.put(paprikaMethod,methodNode);
         methodNode.setProperty("name",paprikaMethod.getName());
-        methodNode.setProperty("fullName",paprikaMethod.toString());
-        //methodNode.setProperty("public",paprikaMethod.getIsPublic());
+        methodNode.setProperty("modifier", paprikaMethod.getModifier().toString().toLowerCase());
+        methodNode.setProperty("full_name",paprikaMethod.toString());
         classNode.createRelationshipTo(methodNode,RelationTypes.CLASS_OWNS_METHOD);
         for(Metric metric : paprikaMethod.getMetrics()){
             insertMetric(metric, methodNode);
@@ -138,7 +138,7 @@ public class ModelToGraph {
                     /*Map<String, Object> params = new HashMap<>();
                     params.put( "methodName", paprikaMethod.toString());
                     params.put( "calledName", calledMethod.toString());
-                    String query = "MATCH (m:Method),(c:Method) WHERE m.fullName ={methodName} AND c.fullName ={calledName} CREATE UNIQUE (m)-[r:"+RelationTypes.CALLS+" ]->(c)  RETURN r LIMIT 1";
+                    String query = "MATCH (m:Method),(c:Method) WHERE m.full_name ={methodName} AND c.full_name ={calledName} CREATE UNIQUE (m)-[r:"+RelationTypes.CALLS+" ]->(c)  RETURN r LIMIT 1";
                     engine.execute( query, params );*/
                     methodNodeMap.get(calledMethod).createRelationshipTo(methodNodeMap.get(paprikaMethod),RelationTypes.CALLS);
                 }
