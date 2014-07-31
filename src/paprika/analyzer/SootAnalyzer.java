@@ -177,7 +177,8 @@ public class SootAnalyzer extends Analyzer {
         }else if(sootMethod.isProtected()){
             modifiers = PaprikaModifiers.PROTECTED;
         }
-        PaprikaMethod paprikaMethod = PaprikaMethod.createPaprikaMethod(sootMethod.getName(),modifiers,paprikaClass);
+
+        PaprikaMethod paprikaMethod = PaprikaMethod.createPaprikaMethod(sootMethod.getName(),modifiers,sootMethod.getReturnType().toString(),paprikaClass);
         methodMap.put(sootMethod, paprikaMethod);
         metrics.add(NumberOfParameters.createNumberOfParameters(paprikaMethod, sootMethod.getParameterCount()));
         if(sootMethod.hasActiveBody()){

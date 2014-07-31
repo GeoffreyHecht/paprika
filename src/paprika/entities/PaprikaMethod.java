@@ -8,36 +8,30 @@ import java.util.Set;
  */
 public class PaprikaMethod extends Entity{
     private PaprikaClass paprikaClass;
-    private Boolean isPublic;
-    private Boolean isOverride;
     private String returnType;
     private Set<PaprikaVariable> usedVariables;
     private Set<PaprikaMethod> calledMethods;
     private PaprikaModifiers modifier;
 
+    public String getReturnType() {
+        return returnType;
+    }
 
     public PaprikaModifiers getModifier() {
         return modifier;
     }
 
-    public Boolean getIsOverride() {
-        return isOverride;
-    }
-
-    public void setIsOverride(Boolean isOverride) {
-        this.isOverride = isOverride;
-    }
-
-    private PaprikaMethod(String name, PaprikaModifiers modifier, PaprikaClass paprikaClass) {
+    private PaprikaMethod(String name, PaprikaModifiers modifier, String returnType, PaprikaClass paprikaClass) {
         this.setName(name);
         this.paprikaClass = paprikaClass;
         this.usedVariables = new HashSet<>();
         this.calledMethods = new HashSet<>();
         this.modifier = modifier;
+        this.returnType = returnType;
     }
 
-    public static PaprikaMethod createPaprikaMethod(String name, PaprikaModifiers modifier,  PaprikaClass paprikaClass) {
-        PaprikaMethod paprikaMethod = new PaprikaMethod(name, modifier, paprikaClass);
+    public static PaprikaMethod createPaprikaMethod(String name, PaprikaModifiers modifier, String returnType,  PaprikaClass paprikaClass) {
+        PaprikaMethod paprikaMethod = new PaprikaMethod(name, modifier, returnType, paprikaClass);
         paprikaClass.addPaprikaMethod(paprikaMethod);
         return  paprikaMethod;
     }

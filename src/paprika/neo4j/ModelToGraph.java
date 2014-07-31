@@ -109,6 +109,7 @@ public class ModelToGraph {
         methodNode.setProperty("name",paprikaMethod.getName());
         methodNode.setProperty("modifier", paprikaMethod.getModifier().toString().toLowerCase());
         methodNode.setProperty("full_name",paprikaMethod.toString());
+        methodNode.setProperty("return_type",paprikaMethod.getReturnType());
         classNode.createRelationshipTo(methodNode,RelationTypes.CLASS_OWNS_METHOD);
         for(Metric metric : paprikaMethod.getMetrics()){
             insertMetric(metric, methodNode);
