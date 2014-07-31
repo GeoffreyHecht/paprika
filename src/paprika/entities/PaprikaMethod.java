@@ -12,13 +12,12 @@ public class PaprikaMethod extends Entity{
     private Boolean isOverride;
     private String returnType;
     private Set<PaprikaVariable> usedVariables;
+    private Set<PaprikaMethod> calledMethods;
+    private PaprikaModifiers modifier;
 
-    public Boolean getIsPublic() {
-        return isPublic;
-    }
 
-    public void setIsPublic(Boolean isPublic) {
-        this.isPublic = isPublic;
+    public PaprikaModifiers getModifier() {
+        return modifier;
     }
 
     public Boolean getIsOverride() {
@@ -29,14 +28,16 @@ public class PaprikaMethod extends Entity{
         this.isOverride = isOverride;
     }
 
-    private PaprikaMethod(String name, PaprikaClass paprikaClass) {
+    private PaprikaMethod(String name, PaprikaModifiers modifier, PaprikaClass paprikaClass) {
         this.setName(name);
         this.paprikaClass = paprikaClass;
         this.usedVariables = new HashSet<>();
+        this.calledMethods = new HashSet<>();
+        this.modifier = modifier;
     }
 
-    public static PaprikaMethod createPaprikaMethod(String name, PaprikaClass paprikaClass) {
-        PaprikaMethod paprikaMethod = new PaprikaMethod(name, paprikaClass);
+    public static PaprikaMethod createPaprikaMethod(String name, PaprikaModifiers modifier,  PaprikaClass paprikaClass) {
+        PaprikaMethod paprikaMethod = new PaprikaMethod(name, modifier, paprikaClass);
         paprikaClass.addPaprikaMethod(paprikaMethod);
         return  paprikaMethod;
     }
@@ -58,10 +59,13 @@ public class PaprikaMethod extends Entity{
         usedVariables.add(paprikaVariable);
     }
 
-
     public Set<PaprikaVariable> getUsedVariables(){
         return this.usedVariables;
     }
+
+    public void callMethod(PaprikaMethod paprikaMethod) { calledMethods.add(paprikaMethod);}
+
+    public Set<PaprikaMethod> getCalledMethods() { return this.calledMethods; }
 
     public boolean haveCommonFields(PaprikaMethod paprikaMethod){
         Set<PaprikaVariable> otherVariables = paprikaMethod.getUsedVariables();

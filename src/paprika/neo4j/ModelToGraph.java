@@ -1,13 +1,15 @@
 package paprika.neo4j;
 
 import org.neo4j.cypher.javacompat.ExecutionEngine;
-import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.*;
 import paprika.entities.PaprikaApp;
 import paprika.entities.PaprikaClass;
 import paprika.entities.PaprikaMethod;
 import paprika.entities.PaprikaVariable;
 import paprika.metrics.Metric;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Geoffrey Hecht on 05/06/14.
@@ -21,12 +23,33 @@ public class ModelToGraph {
     private static final Label methodLabel = DynamicLabel.label("Method");
     private static final Label variableLabel = DynamicLabel.label("Variable");
 
+    private Map<PaprikaMethod,Node> methodNodeMap;
+    private Map<PaprikaClass,Node> classNodeMap;
+
     public ModelToGraph(String DatabasePath){
         this.databaseManager = new DatabaseManager(DatabasePath);
         databaseManager.start();
         this.graphDatabaseService = databaseManager.getGraphDatabaseService();
         engine = new ExecutionEngine(graphDatabaseService);
+        methodNodeMap = new HashMap<>();
+        classNodeMap = new HashMap<>();
     }
+
+   /* public void createIndex(){
+        IndexDefinition indexDefinition;
+        try ( Transaction tx = graphDatabaseService.beginTx() )
+        {
+            Schema schema = graphDatabaseService.schema();
+            indexDefinition = schema.indexFor(classLabel)
+                    .on( "name" )
+                    .create();
+            indexDefinition = schema.indexFor(methodLabel)
+                    .on( "fullName" )
+                    .create();
+            schema.awaitIndexesOnline(10, TimeUnit.MINUTES);
+            tx.success();
+        }
+    } */
 
     public void insertApp(PaprikaApp paprikaApp){
         try ( Transaction tx = graphDatabaseService.beginTx() ){
@@ -36,9 +59,14 @@ public class ModelToGraph {
                 insertClass(paprikaClass,appNode);
             }
             for(Metric metric : paprikaApp.getMetrics()){
-                insertMetric(metric,appNode);
+                insertMetric(metric, appNode);
             }
+            tx.success();
+        }
+        //createIndex();
+        try ( Transaction tx = graphDatabaseService.beginTx() ){
             createHierarchy(paprikaApp);
+            createCallGraph(paprikaApp);
             tx.success();
         }
     }
@@ -50,6 +78,7 @@ public class ModelToGraph {
 
     public void insertClass(PaprikaClass paprikaClass, Node appNode){
         Node classNode = graphDatabaseService.createNode(classLabel);
+        classNodeMap.put(paprikaClass,classNode);
         classNode.setProperty("name",paprikaClass.getName());
         appNode.createRelationshipTo(classNode,RelationTypes.APP_OWNS_CLASS);
         for(PaprikaVariable paprikaVariable : paprikaClass.getPaprikaVariables()){
@@ -76,7 +105,9 @@ public class ModelToGraph {
     }
     public void insertMethod(PaprikaMethod paprikaMethod, Node classNode ){
         Node methodNode = graphDatabaseService.createNode(methodLabel);
+        methodNodeMap.put(paprikaMethod,methodNode);
         methodNode.setProperty("name",paprikaMethod.getName());
+        methodNode.setProperty("fullName",paprikaMethod.toString());
         //methodNode.setProperty("public",paprikaMethod.getIsPublic());
         classNode.createRelationshipTo(methodNode,RelationTypes.CLASS_OWNS_METHOD);
         for(Metric metric : paprikaMethod.getMetrics()){
@@ -85,14 +116,32 @@ public class ModelToGraph {
     }
 
     public void createHierarchy(PaprikaApp paprikaApp) {
-        ExecutionResult result;
         for (PaprikaClass paprikaClass : paprikaApp.getPaprikaClasses()) {
             PaprikaClass parent = paprikaClass.getParent();
             if (parent != null) {
                 //Cypher Query to crate the relationship
-                engine.execute("MATCH (c:Class),(p:Class) WHERE c.name ='" + paprikaClass.getName() +
-                        "' AND p.name ='" + parent.getName() +
-                        "'  CREATE (c)-[r:"+RelationTypes.EXTENDS+" ]->(p)  RETURN r");
+                /*Map<String, Object> params = new HashMap<>();
+                params.put( "className", paprikaClass.getName());
+                params.put( "parentName", parent.getName());
+                String query = "MATCH (c:Class),(p:Class) WHERE c.name={className} AND p.name={parentName} CREATE UNIQUE (c)-[r:"+RelationTypes.EXTENDS+"]->(p)  RETURN r LIMIT 1";
+                engine.execute( query, params );*/
+                classNodeMap.get(paprikaClass).createRelationshipTo(classNodeMap.get(parent),RelationTypes.EXTENDS);
+            }
+        }
+    }
+
+    public void createCallGraph(PaprikaApp paprikaApp) {
+        for (PaprikaClass paprikaClass : paprikaApp.getPaprikaClasses()) {
+            for (PaprikaMethod paprikaMethod : paprikaClass.getPaprikaMethods()){
+                for(PaprikaMethod calledMethod : paprikaMethod.getCalledMethods()){
+                    //Cypher Query to create the relationship
+                    /*Map<String, Object> params = new HashMap<>();
+                    params.put( "methodName", paprikaMethod.toString());
+                    params.put( "calledName", calledMethod.toString());
+                    String query = "MATCH (m:Method),(c:Method) WHERE m.fullName ={methodName} AND c.fullName ={calledName} CREATE UNIQUE (m)-[r:"+RelationTypes.CALLS+" ]->(c)  RETURN r LIMIT 1";
+                    engine.execute( query, params );*/
+                    methodNodeMap.get(calledMethod).createRelationshipTo(methodNodeMap.get(paprikaMethod),RelationTypes.CALLS);
+                }
             }
         }
     }

@@ -2,6 +2,7 @@ package paprika.neo4j;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 
 import java.io.File;
 
@@ -18,7 +19,12 @@ public class DatabaseManager {
     }
 
     public void start(){
-        graphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabase( DB_PATH );
+        //graphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabase( DB_PATH );
+        graphDatabaseService = new GraphDatabaseFactory().
+                newEmbeddedDatabaseBuilder( DB_PATH ).
+                setConfig( GraphDatabaseSettings.node_keys_indexable, "fullName" ).
+                setConfig( GraphDatabaseSettings.node_auto_indexing, "true" ).
+                newGraphDatabase();
         registerShutdownHook(graphDatabaseService);
     }
 

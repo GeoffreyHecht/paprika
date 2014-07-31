@@ -24,6 +24,7 @@ public class SootAnalyzer extends Analyzer {
     private static String androidJAR;
     private PaprikaApp paprikaApp;
     private Map<SootClass,PaprikaClass>classMap;
+    private Map<SootMethod,PaprikaMethod>methodMap;
     private  List<Metric> allMetrics;
 
     public SootAnalyzer(String apk, String androidJAR) {
@@ -74,8 +75,9 @@ public class SootAnalyzer extends Analyzer {
         //Options.v().setPhaseOption("cg.cha", "on");
         Scene.v().loadNecessaryClasses();
         this.paprikaApp = PaprikaApp.createPaprikaApp(apk);
-        this.classMap = new HashMap<SootClass, PaprikaClass>();
-        this.allMetrics = new ArrayList<Metric>();
+        this.classMap = new HashMap<>();
+        this.methodMap = new HashMap<>();
+        this.allMetrics = new ArrayList<>();
     }
     private static boolean done = false;
     @Override
@@ -169,8 +171,14 @@ public class SootAnalyzer extends Analyzer {
             paprikaClass = PaprikaClass.createPaprikaClass(sootClass.getName(), this.paprikaApp);
             classMap.put(sootClass, paprikaClass);
         }
-        PaprikaMethod paprikaMethod = PaprikaMethod.createPaprikaMethod(sootMethod.getName(),paprikaClass);
-        if(sootMethod.isPublic()) paprikaMethod.setIsPublic(true);
+        PaprikaModifiers modifiers = PaprikaModifiers.PRIVATE;
+        if(sootMethod.isPublic()){
+            modifiers = PaprikaModifiers.PUBLIC;
+        }else if(sootMethod.isProtected()){
+            modifiers = PaprikaModifiers.PROTECTED;
+        }
+        PaprikaMethod paprikaMethod = PaprikaMethod.createPaprikaMethod(sootMethod.getName(),modifiers,paprikaClass);
+        methodMap.put(sootMethod, paprikaMethod);
         metrics.add(NumberOfParameters.createNumberOfParameters(paprikaMethod, sootMethod.getParameterCount()));
         if(sootMethod.hasActiveBody()){
             GrimpBody activeBody = (GrimpBody) sootMethod.getActiveBody();
@@ -221,6 +229,10 @@ public class SootAnalyzer extends Analyzer {
         PaprikaClass currentClass = paprikaMethod.getPaprikaClass();
         while(edgeOutIterator.hasNext()) {
             Edge e = edgeOutIterator.next();
+            PaprikaMethod targetMethod =  methodMap.get(e.tgt());
+            if(targetMethod != null){
+                paprikaMethod.callMethod(targetMethod);
+            }
             PaprikaClass targetClass = classMap.get(e.tgt().getDeclaringClass());
             if (e.isVirtual() || e.isSpecial() || e.isStatic()) edgeOutCount++;
             //Detecting coupling (may include calls to inherited methods)
