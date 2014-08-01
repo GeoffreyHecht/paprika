@@ -69,8 +69,9 @@ public class SootAnalyzer extends Analyzer {
         excludeList.add("android.");
         excludeList.add("org.apache.");
         excludeList.add("javax.");
+        //excludeList.add("com.example.myapplication3.app.r");
         Options.v().set_exclude(excludeList);
-        //Options.v().set_no_bodies_for_excluded(true);
+        Options.v().set_no_bodies_for_excluded(true);
         //Options.v().setPhaseOption("cg","verbose:true");
         //Options.v().setPhaseOption("cg.cha", "on");
         Scene.v().loadNecessaryClasses();
