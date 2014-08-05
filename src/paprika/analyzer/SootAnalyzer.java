@@ -11,6 +11,7 @@ import soot.jimple.toolkits.callgraph.Edge;
 import soot.options.Options;
 import soot.util.Chain;
 
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
 import java.util.logging.Logger;
@@ -27,20 +28,27 @@ public class SootAnalyzer extends Analyzer {
     private Map<SootMethod,PaprikaMethod>methodMap;
     private  List<Metric> allMetrics;
 
-    public SootAnalyzer(String apk, String androidJAR) {
+    private String Rclass;
+
+    public SootAnalyzer(String apk, String androidJAR,String name,String key,String pack,String date,int size,String dev,String cat,String price,double rating,String nbDownload) {
         Analyzer.apk = apk;
         this.androidJAR = androidJAR;
+        this.paprikaApp = PaprikaApp.createPaprikaApp(name,key,pack,date,size,dev,cat,price,rating,nbDownload);
+        this.Rclass = pack.concat(".R");
+        this.classMap = new HashMap<>();
+        this.methodMap = new HashMap<>();
+        this.allMetrics = new ArrayList<>();
     }
 
     @Override
     public void init() {
         //Hack to prevent soot to print on System.out
         PrintStream originalStream = System.out;
-        /*System.setOut(new PrintStream(new OutputStream() {
+        System.setOut(new PrintStream(new OutputStream() {
             public void write(int b) {
                 // NO-OP
             }
-        }));*/
+        }));
 
         G.reset();
         Options.v().set_verbose(false);
@@ -71,16 +79,13 @@ public class SootAnalyzer extends Analyzer {
         excludeList.add("javax.");
         //excludeList.add("com.example.myapplication3.app.r");
         Options.v().set_exclude(excludeList);
-        Options.v().set_no_bodies_for_excluded(true);
+        //Options.v().set_no_bodies_for_excluded(true);
         //Options.v().setPhaseOption("cg","verbose:true");
         //Options.v().setPhaseOption("cg.cha", "on");
+
         Scene.v().loadNecessaryClasses();
-        this.paprikaApp = PaprikaApp.createPaprikaApp(apk);
-        this.classMap = new HashMap<>();
-        this.methodMap = new HashMap<>();
-        this.allMetrics = new ArrayList<>();
     }
-    private static boolean done = false;
+
     @Override
     public void runAnalysis() {
         allMetrics.addAll(collectAppMetrics());
@@ -136,7 +141,12 @@ public class SootAnalyzer extends Analyzer {
         List<Metric> metrics = new ArrayList<Metric>();
         Chain<SootClass> sootClasses = Scene.v().getApplicationClasses();
         for(SootClass sootClass : sootClasses){
-            metrics.addAll(collectClassMetrics(sootClass));
+            //Excluding R class from the analysis
+            if(sootClass.getName().startsWith(Rclass)){
+                //sootClass.setLibraryClass();
+            }else{
+                metrics.addAll(collectClassMetrics(sootClass));
+            }
         }
         // Now that all classes have been processed at least once (and the map filled) we can process NOC
         for(SootClass sootClass : sootClasses){
@@ -169,8 +179,13 @@ public class SootAnalyzer extends Analyzer {
         SootClass sootClass = sootMethod.getDeclaringClass();
         PaprikaClass paprikaClass = classMap.get(sootClass);
         if (paprikaClass == null){
+            LOGGER.warning("Class not analyzed : "+ sootClass);
+            sootClass.setLibraryClass();
+            return metrics;
+            /*
             paprikaClass = PaprikaClass.createPaprikaClass(sootClass.getName(), this.paprikaApp);
             classMap.put(sootClass, paprikaClass);
+            */
         }
         PaprikaModifiers modifiers = PaprikaModifiers.PRIVATE;
         if(sootMethod.isPublic()){
