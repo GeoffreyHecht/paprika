@@ -12,6 +12,7 @@ public class PaprikaMethod extends Entity{
     private Set<PaprikaVariable> usedVariables;
     private Set<PaprikaMethod> calledMethods;
     private PaprikaModifiers modifier;
+    //TODO overriding
 
     public String getReturnType() {
         return returnType;

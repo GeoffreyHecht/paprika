@@ -14,16 +14,9 @@ public class PaprikaClass extends Entity{
     private Set<PaprikaClass> coupled;
     private Set<PaprikaMethod> paprikaMethods;
     private Set<PaprikaVariable> paprikaVariables;
+    //TODO : laisons implements
+    private Set<PaprikaClass> implementedInterface;
     private PaprikaModifiers modifier;
-    private boolean isInterface = false;
-
-    public boolean isInterface(){
-        return isInterface;
-    }
-
-    public void setInterface(boolean b){
-        isInterface = b;
-    }
 
     public PaprikaModifiers getModifier() {
         return modifier;

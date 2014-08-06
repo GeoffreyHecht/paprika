@@ -196,6 +196,12 @@ public class SootAnalyzer extends Analyzer {
 
         PaprikaMethod paprikaMethod = PaprikaMethod.createPaprikaMethod(sootMethod.getName(),modifiers,sootMethod.getReturnType().toString(),paprikaClass);
         methodMap.put(sootMethod, paprikaMethod);
+        if(sootMethod.isStatic()){
+            metrics.add(IsStatic.createIsStatic(paprikaMethod,true));
+        }
+        if(sootMethod.isFinal()){
+            metrics.add(IsFinal.createIsFinal(paprikaMethod,true));
+        }
         metrics.add(NumberOfParameters.createNumberOfParameters(paprikaMethod, sootMethod.getParameterCount()));
         if(sootMethod.hasActiveBody()){
             GrimpBody activeBody = (GrimpBody) sootMethod.getActiveBody();
@@ -275,7 +281,13 @@ public class SootAnalyzer extends Analyzer {
 
         PaprikaClass paprikaClass = PaprikaClass.createPaprikaClass(sootClass.getName(), this.paprikaApp, modifier);
         if(sootClass.isInterface()){
-            paprikaClass.setInterface(true);
+            metrics.add(IsInterface.createIsInterface(paprikaClass,true));
+        }
+        if(sootClass.isStatic()){
+            metrics.add(IsStatic.createIsStatic(paprikaClass,true));
+        }
+        if(sootClass.isFinal()){
+            metrics.add(IsFinal.createIsFinal(paprikaClass,true));
         }
         // Variable associated with classes
         for(SootField sootField : sootClass.getFields()){
