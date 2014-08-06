@@ -191,6 +191,9 @@ public class SootAnalyzer extends Analyzer {
         if(sootMethod.isSynchronized()){
             IsSynchronized.createIsSynchronized(paprikaMethod, true);
         }
+        if(sootMethod.isAbstract()){
+            IsAbstract.createIsAbstract(paprikaMethod, true);
+        }
         NumberOfParameters.createNumberOfParameters(paprikaMethod, sootMethod.getParameterCount());
         if(sootMethod.hasActiveBody()){
             GrimpBody activeBody = (GrimpBody) sootMethod.getActiveBody();
@@ -276,6 +279,9 @@ public class SootAnalyzer extends Analyzer {
         }
         if(sootClass.isInnerClass()){
             IsInnerClass.createIsInnerClass(paprikaClass, true);
+        }
+        if(sootClass.isAbstract()){
+            IsAbstract.createIsAbstract(paprikaClass, true);
         }
         // Variable associated with classes
         for(SootField sootField : sootClass.getFields()){
