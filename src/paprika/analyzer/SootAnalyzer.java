@@ -26,18 +26,16 @@ public class SootAnalyzer extends Analyzer {
     private PaprikaApp paprikaApp;
     private Map<SootClass,PaprikaClass>classMap;
     private Map<SootMethod,PaprikaMethod>methodMap;
-    private  List<Metric> allMetrics;
 
-    private String Rclass;
+    private String rClass;
 
     public SootAnalyzer(String apk, String androidJAR,String name,String key,String pack,String date,int size,String dev,String cat,String price,double rating,String nbDownload) {
         Analyzer.apk = apk;
         this.androidJAR = androidJAR;
         this.paprikaApp = PaprikaApp.createPaprikaApp(name,key,pack,date,size,dev,cat,price,rating,nbDownload);
-        this.Rclass = pack.concat(".R");
+        this.rClass = pack.concat(".R");
         this.classMap = new HashMap<>();
         this.methodMap = new HashMap<>();
-        this.allMetrics = new ArrayList<>();
     }
 
     @Override
@@ -88,20 +86,19 @@ public class SootAnalyzer extends Analyzer {
 
     @Override
     public void runAnalysis() {
-        allMetrics.addAll(collectAppMetrics());
-        allMetrics.addAll(collectClassesMetrics());
+        collectAppMetrics();
+        collectClassesMetrics();
         PackManager.v().getPack("gop").add(new Transform("gop.myInstrumenter", new BodyTransformer() {
 
             @Override
             protected void internalTransform(final Body body, String phaseName, @SuppressWarnings("rawtypes") Map options) {
-                allMetrics.addAll(collectMethodsMetrics(body.getMethod()));
+                collectMethodsMetrics(body.getMethod());
             }
 
 
         }));
         PackManager.v().runPacks();
-
-        allMetrics.addAll(computeMetrics());
+        computeMetrics();
         //PackManager.v().writeOutput();
 
     }
@@ -111,15 +108,10 @@ public class SootAnalyzer extends Analyzer {
         return paprikaApp;
     }
 
-    @Override
-    public List<? extends Metric> getMetrics() {
-        return this.allMetrics;
-    }
 
-    public List<Metric> collectAppMetrics(){
-        List<Metric> metrics = new ArrayList<>();
+    public void collectAppMetrics(){
         Chain<SootClass> sootClasses = Scene.v().getApplicationClasses();
-        metrics.add(NumberOfClasses.createNumberOfClasses(this.paprikaApp, sootClasses.size()));
+        NumberOfClasses.createNumberOfClasses(this.paprikaApp, sootClasses.size());
 
 
         int activityCount = 0, serviceCount = 0, interfaceCount = 0, abstractCount = 0;
@@ -130,22 +122,20 @@ public class SootAnalyzer extends Analyzer {
             else if(sootClass.isInterface()) interfaceCount++;
         }
 
-        metrics.add(NumberOfActivities.createNumberOfActivities(this.paprikaApp, activityCount));
-        metrics.add(NumberOfServices.createNumberOfServices(this.paprikaApp, serviceCount));
-        metrics.add(NumberOfInterfaces.createNumberOfInterfaces(this.paprikaApp, interfaceCount));
-        metrics.add(NumberOfAbstractClasses.createNumberOfAbstractClasses(this.paprikaApp, abstractCount));
-        return metrics;
+        NumberOfActivities.createNumberOfActivities(this.paprikaApp, activityCount);
+        NumberOfServices.createNumberOfServices(this.paprikaApp, serviceCount);
+        NumberOfInterfaces.createNumberOfInterfaces(this.paprikaApp, interfaceCount);
+        NumberOfAbstractClasses.createNumberOfAbstractClasses(this.paprikaApp, abstractCount);
     }
 
-    public List<? extends Metric> collectClassesMetrics(){
-        List<Metric> metrics = new ArrayList<Metric>();
+    public void collectClassesMetrics(){
         Chain<SootClass> sootClasses = Scene.v().getApplicationClasses();
         for(SootClass sootClass : sootClasses){
             //Excluding R class from the analysis
-            if(sootClass.getName().startsWith(Rclass)){
+            if(sootClass.getName().startsWith(rClass)){
                 //sootClass.setLibraryClass();
             }else{
-                metrics.addAll(collectClassMetrics(sootClass));
+                collectClassMetrics(sootClass);
             }
         }
         // Now that all classes have been processed at least once (and the map filled) we can process NOC
@@ -156,32 +146,28 @@ public class SootAnalyzer extends Analyzer {
                 if(paprikaClass !=  null) classMap.get(superClass).addChildren();
             }
         }
-        return metrics;
     }
 
-    public List<? extends Metric> computeMetrics(){
-        List<Metric> metrics = new ArrayList<Metric>();
+    public void computeMetrics(){
         computeInheritance();
         for (PaprikaClass paprikaClass : paprikaApp.getPaprikaClasses()){
             // Create complexity with the final value
-            metrics.add(ClassComplexity.createClassComplexity(paprikaClass));
+            ClassComplexity.createClassComplexity(paprikaClass);
             // Create NOC with the final value
-            metrics.add(NumberOfChildren.createNumberOfChildren(paprikaClass));
+            NumberOfChildren.createNumberOfChildren(paprikaClass);
             // CBO with final value
-            metrics.add(CouplingBetweenObjects.createCouplingBetweenObjects(paprikaClass));
+            CouplingBetweenObjects.createCouplingBetweenObjects(paprikaClass);
             //LCOM
-            metrics.add(LackofCohesionInMethods.createLackofCohesionInMethods(paprikaClass));
+            LackofCohesionInMethods.createLackofCohesionInMethods(paprikaClass);
         }
-        return metrics;
     }
-    public List<? extends Metric> collectMethodsMetrics(SootMethod sootMethod){
-        List<Metric> metrics = new ArrayList<Metric>();
+    public void collectMethodsMetrics(SootMethod sootMethod){
         SootClass sootClass = sootMethod.getDeclaringClass();
         PaprikaClass paprikaClass = classMap.get(sootClass);
         if (paprikaClass == null){
             LOGGER.warning("Class not analyzed : "+ sootClass);
             sootClass.setLibraryClass();
-            return metrics;
+            return;
             /*
             paprikaClass = PaprikaClass.createPaprikaClass(sootClass.getName(), this.paprikaApp);
             classMap.put(sootClass, paprikaClass);
@@ -197,18 +183,18 @@ public class SootAnalyzer extends Analyzer {
         PaprikaMethod paprikaMethod = PaprikaMethod.createPaprikaMethod(sootMethod.getName(),modifiers,sootMethod.getReturnType().toString(),paprikaClass);
         methodMap.put(sootMethod, paprikaMethod);
         if(sootMethod.isStatic()){
-            metrics.add(IsStatic.createIsStatic(paprikaMethod,true));
+            IsStatic.createIsStatic(paprikaMethod, true);
         }
         if(sootMethod.isFinal()){
-            metrics.add(IsFinal.createIsFinal(paprikaMethod,true));
+            IsFinal.createIsFinal(paprikaMethod, true);
         }
-        metrics.add(NumberOfParameters.createNumberOfParameters(paprikaMethod, sootMethod.getParameterCount()));
+        NumberOfParameters.createNumberOfParameters(paprikaMethod, sootMethod.getParameterCount());
         if(sootMethod.hasActiveBody()){
             GrimpBody activeBody = (GrimpBody) sootMethod.getActiveBody();
             // Number of lines is the number of Units - number of Parameter - 1 (function name)
             int nbOfLines =  activeBody.getUnits().size() - sootMethod.getParameterCount() - 1;
-            metrics.add(NumberOfDeclaredLocals.createNumberOfDeclaredLocals(paprikaMethod, activeBody.getLocals().size()));
-            metrics.add(NumberOfInstructions.createNumberOfInstructions(paprikaMethod, nbOfLines));
+            NumberOfDeclaredLocals.createNumberOfDeclaredLocals(paprikaMethod, activeBody.getLocals().size());
+            NumberOfInstructions.createNumberOfInstructions(paprikaMethod, nbOfLines);
             // Cyclomatic complexity & Lack of Cohesion methods
             int nbOfBranches = 1;
             for (Unit sootUnit : activeBody.getUnits()){
@@ -234,16 +220,14 @@ public class SootAnalyzer extends Analyzer {
                 }
 
             }
-            metrics.add(CyclomaticComplexity.createCyclomaticComplexity(paprikaMethod,nbOfBranches));
+            CyclomaticComplexity.createCyclomaticComplexity(paprikaMethod, nbOfBranches);
         }else{
             //LOGGER.info("No body for "+paprikaMethod);
         }
-        metrics.addAll(collectMethodMetricsFromCallGraph(paprikaMethod,sootMethod));
-        return metrics;
+        collectMethodMetricsFromCallGraph(paprikaMethod, sootMethod);
     }
 
-    private List<? extends Metric> collectMethodMetricsFromCallGraph(PaprikaMethod paprikaMethod, SootMethod sootMethod) {
-        List<UnaryMetric> unaryMetrics = new ArrayList<UnaryMetric>();
+    private void collectMethodMetricsFromCallGraph(PaprikaMethod paprikaMethod, SootMethod sootMethod) {
         CallGraph callGraph = Scene.v().getCallGraph();
         int edgeOutCount = 0, edgeIntoCount = 0;
         Iterator<Edge> edgeOutIterator = callGraph.edgesOutOf(sootMethod);
@@ -265,13 +249,11 @@ public class SootAnalyzer extends Analyzer {
             Edge e = edgeIntoIterator.next();
             if (e.isExplicit()) edgeIntoCount++;
         }
-        unaryMetrics.add(NumberOfDirectCalls.createNumberOfDirectCalls(paprikaMethod, edgeOutCount));
-        unaryMetrics.add(NumberOfCallers.createNumberOfCallers(paprikaMethod, edgeIntoCount));
-        return unaryMetrics;
+        NumberOfDirectCalls.createNumberOfDirectCalls(paprikaMethod, edgeOutCount);
+        NumberOfCallers.createNumberOfCallers(paprikaMethod, edgeIntoCount);
     }
 
-    public List<? extends Metric> collectClassMetrics(SootClass sootClass){
-        List<Metric> metrics = new ArrayList<>();
+    public void collectClassMetrics(SootClass sootClass){
         PaprikaModifiers modifier = PaprikaModifiers.PRIVATE;
         if(sootClass.isPublic()){
             modifier = PaprikaModifiers.PUBLIC;
@@ -281,13 +263,13 @@ public class SootAnalyzer extends Analyzer {
 
         PaprikaClass paprikaClass = PaprikaClass.createPaprikaClass(sootClass.getName(), this.paprikaApp, modifier);
         if(sootClass.isInterface()){
-            metrics.add(IsInterface.createIsInterface(paprikaClass,true));
+            IsInterface.createIsInterface(paprikaClass, true);
         }
         if(sootClass.isStatic()){
-            metrics.add(IsStatic.createIsStatic(paprikaClass,true));
+            IsStatic.createIsStatic(paprikaClass, true);
         }
         if(sootClass.isFinal()){
-            metrics.add(IsFinal.createIsFinal(paprikaClass,true));
+            IsFinal.createIsFinal(paprikaClass, true);
         }
         // Variable associated with classes
         for(SootField sootField : sootClass.getFields()){
@@ -302,11 +284,10 @@ public class SootAnalyzer extends Analyzer {
         }
         this.classMap.put(sootClass, paprikaClass);
         // Number of methods including constructors
-        metrics.add(NumberOfMethods.createNumberOfMethods(paprikaClass, sootClass.getMethodCount()));
-        metrics.add(DepthOfInheritance.createDepthOfInheritance(paprikaClass, getDepthOfInheritance(sootClass)));
-        metrics.add(NumberOfImplementedInterfaces.createNumberOfImplementedInterfaces(paprikaClass, sootClass.getInterfaceCount()));
-        metrics.add(NumberOfAttributes.createNumberOfAttributes(paprikaClass, sootClass.getFieldCount()));
-        return metrics;
+        NumberOfMethods.createNumberOfMethods(paprikaClass, sootClass.getMethodCount());
+        DepthOfInheritance.createDepthOfInheritance(paprikaClass, getDepthOfInheritance(sootClass));
+        NumberOfImplementedInterfaces.createNumberOfImplementedInterfaces(paprikaClass, sootClass.getInterfaceCount());
+        NumberOfAttributes.createNumberOfAttributes(paprikaClass, sootClass.getFieldCount());
     }
 
     public int getDepthOfInheritance(SootClass sootClass){
