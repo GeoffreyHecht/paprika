@@ -26,7 +26,7 @@ public class SootAnalyzer extends Analyzer {
     private PaprikaApp paprikaApp;
     private Map<SootClass,PaprikaClass>classMap;
     private Map<SootMethod,PaprikaMethod>methodMap;
-
+    int activityCount = 0, serviceCount = 0, interfaceCount = 0, abstractCount = 0, broadcastReceiverCount = 0, contentProviderCount = 0;
     private String rClass;
 
     public SootAnalyzer(String apk, String androidJAR,String name,String key,String pack,String date,int size,String dev,String cat,String price,double rating,String nbDownload) {
@@ -86,8 +86,8 @@ public class SootAnalyzer extends Analyzer {
 
     @Override
     public void runAnalysis() {
-        collectAppMetrics();
         collectClassesMetrics();
+        collectAppMetrics();
         PackManager.v().getPack("gop").add(new Transform("gop.myInstrumenter", new BodyTransformer() {
 
             @Override
@@ -108,24 +108,18 @@ public class SootAnalyzer extends Analyzer {
         return paprikaApp;
     }
 
-
+    /**
+     * Should be called after all classes have been processed once
+     */
     public void collectAppMetrics(){
         Chain<SootClass> sootClasses = Scene.v().getApplicationClasses();
         NumberOfClasses.createNumberOfClasses(this.paprikaApp, sootClasses.size());
-
-
-        int activityCount = 0, serviceCount = 0, interfaceCount = 0, abstractCount = 0;
-        for(SootClass sootClass : sootClasses){
-            if(isActivity(sootClass)) activityCount++;
-            else if(isService(sootClass)) serviceCount++;
-            if(sootClass.isAbstract()) abstractCount++;
-            else if(sootClass.isInterface()) interfaceCount++;
-        }
-
         NumberOfActivities.createNumberOfActivities(this.paprikaApp, activityCount);
         NumberOfServices.createNumberOfServices(this.paprikaApp, serviceCount);
         NumberOfInterfaces.createNumberOfInterfaces(this.paprikaApp, interfaceCount);
         NumberOfAbstractClasses.createNumberOfAbstractClasses(this.paprikaApp, abstractCount);
+        NumberOfBroadcastReceivers.createNumberOfBroadcastReceivers(this.paprikaApp, broadcastReceiverCount);
+        NumberOfContentProviders.createNumberOfContentProviders(this.paprikaApp, contentProviderCount);
     }
 
     public void collectClassesMetrics(){
@@ -148,6 +142,9 @@ public class SootAnalyzer extends Analyzer {
         }
     }
 
+    /**
+     * Should be called last
+     */
     public void computeMetrics(){
         computeInheritance();
         for (PaprikaClass paprikaClass : paprikaApp.getPaprikaClasses()){
@@ -161,10 +158,15 @@ public class SootAnalyzer extends Analyzer {
             LackofCohesionInMethods.createLackofCohesionInMethods(paprikaClass);
         }
     }
+
+    /**
+     * Should be called after all classes have been processed once
+     */
     public void collectMethodsMetrics(SootMethod sootMethod){
         SootClass sootClass = sootMethod.getDeclaringClass();
         PaprikaClass paprikaClass = classMap.get(sootClass);
         if (paprikaClass == null){
+            //Should be R class
             LOGGER.warning("Class not analyzed : "+ sootClass);
             sootClass.setLibraryClass();
             return;
@@ -268,9 +270,6 @@ public class SootAnalyzer extends Analyzer {
         }
 
         PaprikaClass paprikaClass = PaprikaClass.createPaprikaClass(sootClass.getName(), this.paprikaApp, modifier);
-        if(sootClass.isInterface()){
-            IsInterface.createIsInterface(paprikaClass, true);
-        }
         if(sootClass.isStatic()){
             IsStatic.createIsStatic(paprikaClass, true);
         }
@@ -280,8 +279,31 @@ public class SootAnalyzer extends Analyzer {
         if(sootClass.isInnerClass()){
             IsInnerClass.createIsInnerClass(paprikaClass, true);
         }
+        if(isActivity(sootClass)){
+            activityCount++;
+            IsActivity.createIsActivity(paprikaClass,true);
+        }
+        else if(isService(sootClass)){
+            serviceCount++;
+            IsService.createIsService(paprikaClass,true);
+        }
+        else if(isBroadcastReceiver(sootClass)){
+            broadcastReceiverCount++;
+            IsBroadcastReceiver.createIsBroadcastReceiver(paprikaClass,true);
+        }
+        else if(isContentProvider(sootClass)){
+            contentProviderCount++;
+            IsContentProvider.createIsContentProvider(paprikaClass,true);
+        }else if(isApplication(sootClass)){
+            IsApplication.createIsApplication(paprikaClass,true);
+        }
         if(sootClass.isAbstract()){
+            abstractCount++;
             IsAbstract.createIsAbstract(paprikaClass, true);
+        }
+        if(sootClass.isInterface()){
+            interfaceCount++;
+            IsInterface.createIsInterface(paprikaClass, true);
         }
         // Variable associated with classes
         for(SootField sootField : sootClass.getFields()){
@@ -334,6 +356,12 @@ public class SootAnalyzer extends Analyzer {
     private boolean isService(SootClass sootClass){
         return isSubClass(sootClass,"android.app.Service");
     }
+
+    private boolean isBroadcastReceiver(SootClass sootClass){ return isSubClass(sootClass,"android.content.BroadcastReceiver");}
+
+    private boolean isContentProvider(SootClass sootClass){ return isSubClass(sootClass,"android.content.ContentProvider");}
+
+    private boolean isApplication(SootClass sootClass){ return isSubClass(sootClass,"android.app.Application");}
 
     private boolean isSubClass(SootClass sootClass, String className){
         do{
