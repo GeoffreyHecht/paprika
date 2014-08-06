@@ -36,6 +36,7 @@ public class PaprikaClass extends Entity{
         this.paprikaMethods  = new HashSet<>();
         this.paprikaVariables = new HashSet<>();
         this.coupled = new HashSet<>();
+        this.modifier = modifier;
     }
 
     public static PaprikaClass createPaprikaClass(String name, PaprikaApp paprikaApp, PaprikaModifiers modifier) {
