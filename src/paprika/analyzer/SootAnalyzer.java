@@ -291,8 +291,13 @@ public class SootAnalyzer extends Analyzer {
             }else if(sootField.isProtected()){
                 modifier = PaprikaModifiers.PROTECTED;
             }
-
-            PaprikaVariable.createPaprikaVariable(sootField.getName(), sootField.getType().toString(), modifier, paprikaClass);
+            PaprikaVariable paprikaVariable = PaprikaVariable.createPaprikaVariable(sootField.getName(), sootField.getType().toString(), modifier, paprikaClass);
+            if(sootField.isStatic()){
+                IsStatic.createIsStatic(paprikaVariable, true);
+            }
+            if(sootField.isFinal()){
+                IsFinal.createIsFinal(paprikaVariable, true);
+            }
         }
         this.classMap.put(sootClass, paprikaClass);
         // Number of methods including constructors
