@@ -188,6 +188,9 @@ public class SootAnalyzer extends Analyzer {
         if(sootMethod.isFinal()){
             IsFinal.createIsFinal(paprikaMethod, true);
         }
+        if(sootMethod.isSynchronized()){
+            IsSynchronized.createIsSynchronized(paprikaMethod, true);
+        }
         NumberOfParameters.createNumberOfParameters(paprikaMethod, sootMethod.getParameterCount());
         if(sootMethod.hasActiveBody()){
             GrimpBody activeBody = (GrimpBody) sootMethod.getActiveBody();
