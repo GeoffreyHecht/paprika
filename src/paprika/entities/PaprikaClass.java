@@ -14,6 +14,11 @@ public class PaprikaClass extends Entity{
     private Set<PaprikaClass> coupled;
     private Set<PaprikaMethod> paprikaMethods;
     private Set<PaprikaVariable> paprikaVariables;
+    private PaprikaModifiers modifier;
+
+    public PaprikaModifiers getModifier() {
+        return modifier;
+    }
 
     public Set<PaprikaVariable> getPaprikaVariables() {
         return paprikaVariables;
@@ -23,7 +28,7 @@ public class PaprikaClass extends Entity{
         return paprikaMethods;
     }
 
-    private PaprikaClass(String name, PaprikaApp paprikaApp) {
+    private PaprikaClass(String name, PaprikaApp paprikaApp, PaprikaModifiers modifier) {
         this.setName(name);
         this.paprikaApp = paprikaApp;
         this.complexity = 0;
@@ -33,8 +38,8 @@ public class PaprikaClass extends Entity{
         this.coupled = new HashSet<>();
     }
 
-    public static PaprikaClass createPaprikaClass(String name, PaprikaApp paprikaApp) {
-        PaprikaClass paprikaClass = new PaprikaClass(name, paprikaApp);
+    public static PaprikaClass createPaprikaClass(String name, PaprikaApp paprikaApp, PaprikaModifiers modifier) {
+        PaprikaClass paprikaClass = new PaprikaClass(name, paprikaApp, modifier);
         paprikaApp.addPaprikaClass(paprikaClass);
         return paprikaClass;
     }

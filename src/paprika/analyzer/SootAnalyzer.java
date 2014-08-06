@@ -266,17 +266,23 @@ public class SootAnalyzer extends Analyzer {
 
     public List<? extends Metric> collectClassMetrics(SootClass sootClass){
         List<Metric> metrics = new ArrayList<>();
-        PaprikaClass paprikaClass = PaprikaClass.createPaprikaClass(sootClass.getName(), this.paprikaApp);
+        PaprikaModifiers modifier = PaprikaModifiers.PRIVATE;
+        if(sootClass.isPublic()){
+            modifier = PaprikaModifiers.PUBLIC;
+        }else if(sootClass.isProtected()){
+            modifier = PaprikaModifiers.PROTECTED;
+        }
+        PaprikaClass paprikaClass = PaprikaClass.createPaprikaClass(sootClass.getName(), this.paprikaApp, modifier);
         // Variable associated with classes
         for(SootField sootField : sootClass.getFields()){
-            PaprikaModifiers modifiers = PaprikaModifiers.PRIVATE;
+            modifier = PaprikaModifiers.PRIVATE;
             if(sootField.isPublic()){
-                modifiers = PaprikaModifiers.PUBLIC;
+                modifier = PaprikaModifiers.PUBLIC;
             }else if(sootField.isProtected()){
-                modifiers = PaprikaModifiers.PROTECTED;
+                modifier = PaprikaModifiers.PROTECTED;
             }
 
-            PaprikaVariable.createPaprikaVariable(sootField.getName(), sootField.getType().toString(), modifiers, paprikaClass);
+            PaprikaVariable.createPaprikaVariable(sootField.getName(), sootField.getType().toString(), modifier, paprikaClass);
         }
         this.classMap.put(sootClass, paprikaClass);
         // Number of methods including constructors

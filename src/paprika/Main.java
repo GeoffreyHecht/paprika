@@ -21,9 +21,6 @@ import java.util.logging.Logger;
 
 public class Main {
     private final static Logger LOGGER = Logger.getLogger(Main.class.getName());
-    private final static String ANDROID_JAR = "/home/geoffrey/These/decompiler/android-platforms";
-    private final static String APK = "/home/geoffrey/These/decompiler/facebook.apk";
-    private final static String DB_PATH = "/var/lib/neo4j/data/paprika.db";
 
     private static String computeSha256(String path) throws IOException, NoSuchAlgorithmException {
         byte[] buffer = new byte[2048];
@@ -48,7 +45,6 @@ public class Main {
 
     public static void main(String[] args) {
         ArgumentParser parser = ArgumentParsers.newArgumentParser("paprika").description("Collect metrics from apk.");
-        //parser.addArgument("-h","--help").action(Arguments.help());
         parser.addArgument("apk").help("Path of the APK to analyze");
         parser.addArgument("-a","--androidJars").required(true).help("Path to android platforms jars");
         parser.addArgument("-db","--database").required(true).help("Path to neo4J Database folder");
