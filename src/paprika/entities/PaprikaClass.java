@@ -14,8 +14,7 @@ public class PaprikaClass extends Entity{
     private Set<PaprikaClass> coupled;
     private Set<PaprikaMethod> paprikaMethods;
     private Set<PaprikaVariable> paprikaVariables;
-    //TODO : laisons implements
-    private Set<PaprikaClass> implementedInterface;
+    private Set<PaprikaClass> interfaces;
     private PaprikaModifiers modifier;
 
     public PaprikaModifiers getModifier() {
@@ -38,6 +37,7 @@ public class PaprikaClass extends Entity{
         this.paprikaMethods  = new HashSet<>();
         this.paprikaVariables = new HashSet<>();
         this.coupled = new HashSet<>();
+        this.interfaces = new HashSet<>();
         this.modifier = modifier;
     }
 
@@ -50,6 +50,8 @@ public class PaprikaClass extends Entity{
     public PaprikaClass getParent() {
         return parent;
     }
+
+    public Set<PaprikaClass> getInterfaces(){ return interfaces;}
 
     public void setParent(PaprikaClass parent) {
         this.parent = parent;
@@ -81,7 +83,8 @@ public class PaprikaClass extends Entity{
 
     public void coupledTo(PaprikaClass paprikaClass){ coupled.add(paprikaClass);}
 
-    //TODO: Eventually we can substract the DepthOfInheritance if necessary
+    public void implement(PaprikaClass paprikaClass){ interfaces.add(paprikaClass);}
+
     public int getCouplingValue(){ return coupled.size();}
 
     public int computeLCOM(){

@@ -39,22 +39,6 @@ public class ModelToGraph {
         classNodeMap = new HashMap<>();
     }
 
-   /* public void createIndex(){
-        IndexDefinition indexDefinition;
-        try ( Transaction tx = graphDatabaseService.beginTx() )
-        {
-            Schema schema = graphDatabaseService.schema();
-            indexDefinition = schema.indexFor(classLabel)
-                    .on( "name" )
-                    .create();
-            indexDefinition = schema.indexFor(methodLabel)
-                    .on( "fullName" )
-                    .create();
-            schema.awaitIndexesOnline(10, TimeUnit.MINUTES);
-            tx.success();
-        }
-    } */
-
     public void insertApp(PaprikaApp paprikaApp){
         this.key = paprikaApp.getKey();
         try ( Transaction tx = graphDatabaseService.beginTx() ){
@@ -106,7 +90,6 @@ public class ModelToGraph {
         for(PaprikaMethod paprikaMethod : paprikaClass.getPaprikaMethods()){
             insertMethod(paprikaMethod,classNode);
         }
-
         for(Metric metric : paprikaClass.getMetrics()){
             insertMetric(metric,classNode);
         }
@@ -141,13 +124,10 @@ public class ModelToGraph {
         for (PaprikaClass paprikaClass : paprikaApp.getPaprikaClasses()) {
             PaprikaClass parent = paprikaClass.getParent();
             if (parent != null) {
-                //Cypher Query to crate the relationship
-                /*Map<String, Object> params = new HashMap<>();
-                params.put( "className", paprikaClass.getName());
-                params.put( "parentName", parent.getName());
-                String query = "MATCH (c:Class),(p:Class) WHERE c.name={className} AND p.name={parentName} CREATE UNIQUE (c)-[r:"+RelationTypes.EXTENDS+"]->(p)  RETURN r LIMIT 1";
-                engine.execute( query, params );*/
                 classNodeMap.get(paprikaClass).createRelationshipTo(classNodeMap.get(parent),RelationTypes.EXTENDS);
+            }
+            for(PaprikaClass pInterface : paprikaClass.getInterfaces()){
+                classNodeMap.get(paprikaClass).createRelationshipTo(classNodeMap.get(pInterface),RelationTypes.IMPLEMENTS);
             }
         }
     }
@@ -156,12 +136,6 @@ public class ModelToGraph {
         for (PaprikaClass paprikaClass : paprikaApp.getPaprikaClasses()) {
             for (PaprikaMethod paprikaMethod : paprikaClass.getPaprikaMethods()){
                 for(PaprikaMethod calledMethod : paprikaMethod.getCalledMethods()){
-                    //Cypher Query to create the relationship
-                    /*Map<String, Object> params = new HashMap<>();
-                    params.put( "methodName", paprikaMethod.toString());
-                    params.put( "calledName", calledMethod.toString());
-                    String query = "MATCH (m:Method),(c:Method) WHERE m.full_name ={methodName} AND c.full_name ={calledName} CREATE UNIQUE (m)-[r:"+RelationTypes.CALLS+" ]->(c)  RETURN r LIMIT 1";
-                    engine.execute( query, params );*/
                     methodNodeMap.get(calledMethod).createRelationshipTo(methodNodeMap.get(paprikaMethod),RelationTypes.CALLS);
                 }
             }

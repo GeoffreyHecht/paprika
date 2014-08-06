@@ -147,6 +147,7 @@ public class SootAnalyzer extends Analyzer {
      */
     public void computeMetrics(){
         computeInheritance();
+        computeInterface();
         for (PaprikaClass paprikaClass : paprikaApp.getPaprikaClasses()){
             // Create complexity with the final value
             ClassComplexity.createClassComplexity(paprikaClass);
@@ -346,6 +347,19 @@ public class SootAnalyzer extends Analyzer {
             PaprikaClass pParent  = classMap.get(sParent);
             if(pParent != null){
                pClass.setParent(pParent);
+            }
+        }
+    }
+
+    public void computeInterface(){
+        for (Map.Entry entry : classMap.entrySet()) {
+            SootClass sClass = (SootClass) entry.getKey();
+            PaprikaClass pClass = (PaprikaClass) entry.getValue();
+            for(SootClass SInterface : sClass.getInterfaces()){
+                PaprikaClass pInterface = classMap.get(SInterface);
+                if(pInterface != null){
+                    pClass.implement(pInterface);
+                }
             }
         }
     }
