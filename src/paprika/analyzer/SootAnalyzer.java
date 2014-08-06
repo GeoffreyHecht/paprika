@@ -271,6 +271,9 @@ public class SootAnalyzer extends Analyzer {
         if(sootClass.isFinal()){
             IsFinal.createIsFinal(paprikaClass, true);
         }
+        if(sootClass.isInnerClass()){
+            IsInnerClass.createIsInnerClass(paprikaClass, true);
+        }
         // Variable associated with classes
         for(SootField sootField : sootClass.getFields()){
             modifier = PaprikaModifiers.PRIVATE;
