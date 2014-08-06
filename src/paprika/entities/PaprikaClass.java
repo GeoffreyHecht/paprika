@@ -15,6 +15,15 @@ public class PaprikaClass extends Entity{
     private Set<PaprikaMethod> paprikaMethods;
     private Set<PaprikaVariable> paprikaVariables;
     private PaprikaModifiers modifier;
+    private boolean isInterface = false;
+
+    public boolean isInterface(){
+        return isInterface;
+    }
+
+    public void setInterface(boolean b){
+        isInterface = b;
+    }
 
     public PaprikaModifiers getModifier() {
         return modifier;

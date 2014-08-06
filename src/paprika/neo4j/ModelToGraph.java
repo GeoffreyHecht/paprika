@@ -99,6 +99,7 @@ public class ModelToGraph {
         classNode.setProperty("app_key",key);
         classNode.setProperty("name",paprikaClass.getName());
         classNode.setProperty("modifier", paprikaClass.getModifier().toString().toLowerCase());
+        classNode.setProperty("is_interface", paprikaClass.isInterface());
         appNode.createRelationshipTo(classNode,RelationTypes.APP_OWNS_CLASS);
         for(PaprikaVariable paprikaVariable : paprikaClass.getPaprikaVariables()){
             insertVariable(paprikaVariable, classNode);

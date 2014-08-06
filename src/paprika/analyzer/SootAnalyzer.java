@@ -272,7 +272,11 @@ public class SootAnalyzer extends Analyzer {
         }else if(sootClass.isProtected()){
             modifier = PaprikaModifiers.PROTECTED;
         }
+
         PaprikaClass paprikaClass = PaprikaClass.createPaprikaClass(sootClass.getName(), this.paprikaApp, modifier);
+        if(sootClass.isInterface()){
+            paprikaClass.setInterface(true);
+        }
         // Variable associated with classes
         for(SootField sootField : sootClass.getFields()){
             modifier = PaprikaModifiers.PRIVATE;
