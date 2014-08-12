@@ -75,7 +75,6 @@ public class SootAnalyzer extends Analyzer {
         excludeList.add("android.");
         excludeList.add("org.apache.");
         excludeList.add("javax.");
-        //excludeList.add("com.example.myapplication3.app.r");
         Options.v().set_exclude(excludeList);
         //Options.v().set_no_bodies_for_excluded(true);
         //Options.v().setPhaseOption("cg","verbose:true");
@@ -321,6 +320,9 @@ public class SootAnalyzer extends Analyzer {
             if(sootField.isFinal()){
                 IsFinal.createIsFinal(paprikaVariable, true);
             }
+        }
+        if( sootClass.hasSuperclass()){
+            paprikaClass.setParentName(sootClass.getSuperclass().getName());
         }
         this.classMap.put(sootClass, paprikaClass);
         // Number of methods including constructors

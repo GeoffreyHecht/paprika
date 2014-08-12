@@ -83,6 +83,9 @@ public class ModelToGraph {
         classNode.setProperty("app_key",key);
         classNode.setProperty("name",paprikaClass.getName());
         classNode.setProperty("modifier", paprikaClass.getModifier().toString().toLowerCase());
+        if(paprikaClass.getParentName() != null){
+            classNode.setProperty("parent_name", paprikaClass.getParentName());
+        }
         appNode.createRelationshipTo(classNode,RelationTypes.APP_OWNS_CLASS);
         for(PaprikaVariable paprikaVariable : paprikaClass.getPaprikaVariables()){
             insertVariable(paprikaVariable, classNode);
@@ -106,6 +109,7 @@ public class ModelToGraph {
             insertMetric(metric, variableNode);
         }
     }
+    
     public void insertMethod(PaprikaMethod paprikaMethod, Node classNode ){
         Node methodNode = graphDatabaseService.createNode(methodLabel);
         methodNodeMap.put(paprikaMethod,methodNode);

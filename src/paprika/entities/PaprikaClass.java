@@ -9,6 +9,8 @@ import java.util.Set;
 public class PaprikaClass extends Entity{
     private PaprikaApp paprikaApp;
     private PaprikaClass parent;
+    //parent name to cover library case
+    private String parentName;
     private int complexity;
     private int children;
     private Set<PaprikaClass> coupled;
@@ -27,6 +29,14 @@ public class PaprikaClass extends Entity{
 
     public Set<PaprikaMethod> getPaprikaMethods() {
         return paprikaMethods;
+    }
+
+    public String getParentName() {
+        return parentName;
+    }
+
+    public void setParentName(String parentName) {
+        this.parentName = parentName;
     }
 
     private PaprikaClass(String name, PaprikaApp paprikaApp, PaprikaModifiers modifier) {

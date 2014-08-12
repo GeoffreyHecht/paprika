@@ -15,8 +15,8 @@ public class IsSynchronized extends UnaryMetric<Boolean> {
     }
 
     public static IsSynchronized createIsSynchronized(PaprikaMethod entity, boolean value) {
-        IsSynchronized isStatic = new IsSynchronized(entity, value);
-        isStatic.updateEntity();
-        return isStatic;
+        IsSynchronized isSynchronized = new IsSynchronized(entity, value);
+        isSynchronized.updateEntity();
+        return isSynchronized;
     }
 }
