@@ -27,6 +27,7 @@ public class ModelToGraph {
 
     private Map<PaprikaMethod,Node> methodNodeMap;
     private Map<PaprikaClass,Node> classNodeMap;
+    private Map<PaprikaVariable,Node> variableNodeMap;
 
     private String key;
 
@@ -37,6 +38,7 @@ public class ModelToGraph {
         engine = new ExecutionEngine(graphDatabaseService);
         methodNodeMap = new HashMap<>();
         classNodeMap = new HashMap<>();
+        variableNodeMap = new HashMap<>();
     }
 
     public void insertApp(PaprikaApp paprikaApp){
@@ -100,6 +102,7 @@ public class ModelToGraph {
 
     public void insertVariable(PaprikaVariable paprikaVariable, Node classNode){
         Node variableNode = graphDatabaseService.createNode(variableLabel);
+        variableNodeMap.put(paprikaVariable,variableNode);
         variableNode.setProperty("app_key", key);
         variableNode.setProperty("name", paprikaVariable.getName());
         variableNode.setProperty("modifier", paprikaVariable.getModifier().toString().toLowerCase());
@@ -121,6 +124,9 @@ public class ModelToGraph {
         classNode.createRelationshipTo(methodNode,RelationTypes.CLASS_OWNS_METHOD);
         for(Metric metric : paprikaMethod.getMetrics()){
             insertMetric(metric, methodNode);
+        }
+        for(PaprikaVariable paprikaVariable : paprikaMethod.getUsedVariables()){
+            methodNode.createRelationshipTo(variableNodeMap.get(paprikaVariable),RelationTypes.USES);
         }
     }
 

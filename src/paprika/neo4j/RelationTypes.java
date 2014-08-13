@@ -11,5 +11,6 @@ public enum RelationTypes implements RelationshipType {
     CLASS_OWNS_VARIABLE,
     IMPLEMENTS,
     EXTENDS,
-    CALLS
+    CALLS,
+    USES
 }
