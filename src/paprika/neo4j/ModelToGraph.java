@@ -2,10 +2,7 @@ package paprika.neo4j;
 
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.*;
-import paprika.entities.PaprikaApp;
-import paprika.entities.PaprikaClass;
-import paprika.entities.PaprikaMethod;
-import paprika.entities.PaprikaVariable;
+import paprika.entities.*;
 import paprika.metrics.Metric;
 
 import java.text.SimpleDateFormat;
@@ -24,6 +21,7 @@ public class ModelToGraph {
     private static final Label classLabel = DynamicLabel.label("Class");
     private static final Label methodLabel = DynamicLabel.label("Method");
     private static final Label variableLabel = DynamicLabel.label("Variable");
+    private static final Label argumentLabel = DynamicLabel.label("Argument");
 
     private Map<PaprikaMethod,Node> methodNodeMap;
     private Map<PaprikaClass,Node> classNodeMap;
@@ -113,7 +111,7 @@ public class ModelToGraph {
         }
     }
     
-    public void insertMethod(PaprikaMethod paprikaMethod, Node classNode ){
+    public void insertMethod(PaprikaMethod paprikaMethod, Node classNode){
         Node methodNode = graphDatabaseService.createNode(methodLabel);
         methodNodeMap.put(paprikaMethod,methodNode);
         methodNode.setProperty("app_key", key);
@@ -128,6 +126,17 @@ public class ModelToGraph {
         for(PaprikaVariable paprikaVariable : paprikaMethod.getUsedVariables()){
             methodNode.createRelationshipTo(variableNodeMap.get(paprikaVariable),RelationTypes.USES);
         }
+        for(PaprikaArgument arg : paprikaMethod.getArguments()){
+            insertArgument(arg,methodNode);
+        }
+    }
+
+    public void insertArgument(PaprikaArgument paprikaArgument, Node methodNode){
+        Node argNode = graphDatabaseService.createNode(argumentLabel);
+        argNode.setProperty("app_key", key);
+        argNode.setProperty("name", paprikaArgument.getName());
+        argNode.setProperty("position", paprikaArgument.getPosition());
+        methodNode.createRelationshipTo(argNode,RelationTypes.HAS);
     }
 
     public void createHierarchy(PaprikaApp paprikaApp) {

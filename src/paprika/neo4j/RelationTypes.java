@@ -12,5 +12,6 @@ public enum RelationTypes implements RelationshipType {
     IMPLEMENTS,
     EXTENDS,
     CALLS,
-    USES
+    USES,
+    HAS
 }

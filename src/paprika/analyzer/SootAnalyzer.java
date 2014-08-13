@@ -198,6 +198,12 @@ public class SootAnalyzer extends Analyzer {
         }
         NumberOfParameters.createNumberOfParameters(paprikaMethod, sootMethod.getParameterCount());
         if(sootMethod.hasActiveBody()){
+            //Args
+            int i = 0;
+            for(Type type : sootMethod.getParameterTypes()){
+                i++;
+                PaprikaArgument.createPaprikaArgument(type.toString(),i,paprikaMethod);
+            }
             GrimpBody activeBody = (GrimpBody) sootMethod.getActiveBody();
             // Number of lines is the number of Units - number of Parameter - 1 (function name)
             int nbOfLines =  activeBody.getUnits().size() - sootMethod.getParameterCount() - 1;

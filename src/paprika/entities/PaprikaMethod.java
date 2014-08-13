@@ -1,6 +1,8 @@
 package paprika.entities;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -12,8 +14,8 @@ public class PaprikaMethod extends Entity{
     private Set<PaprikaVariable> usedVariables;
     private Set<PaprikaMethod> calledMethods;
     private PaprikaModifiers modifier;
+    private List<PaprikaArgument> arguments;
     //TODO overriding
-
     public String getReturnType() {
         return returnType;
     }
@@ -27,6 +29,7 @@ public class PaprikaMethod extends Entity{
         this.paprikaClass = paprikaClass;
         this.usedVariables = new HashSet<>();
         this.calledMethods = new HashSet<>();
+        this.arguments = new ArrayList<>();
         this.modifier = modifier;
         this.returnType = returnType;
     }
@@ -68,5 +71,13 @@ public class PaprikaMethod extends Entity{
             if(otherVariables.contains(paprikaVariable)) return true;
         }
         return false;
+    }
+
+    public void addArgument(PaprikaArgument paprikaArgument){
+        this.arguments.add(paprikaArgument);
+    }
+
+    public List<PaprikaArgument> getArguments(){
+        return arguments;
     }
 }
