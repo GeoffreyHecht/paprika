@@ -61,7 +61,7 @@ public class SootAnalyzer extends Analyzer {
         Options.v().set_process_dir(Collections.singletonList(apk));
         Options.v().set_whole_program(true);
         Options.v().set_output_format(Options.output_format_grimple);
-        Options.v().set_output_dir("/home/geoffrey/These/decompiler/outSnake");
+        Options.v().set_output_dir("/home/geoffrey/These/decompiler/out");
         //Options.v().set_soot_classpath();
 
         PhaseOptions.v().setPhaseOption("gop", "enabled:true");
@@ -98,7 +98,7 @@ public class SootAnalyzer extends Analyzer {
         }));
         PackManager.v().runPacks();
         computeMetrics();
-        //PackManager.v().writeOutput();
+        PackManager.v().writeOutput();
 
     }
 
@@ -205,15 +205,17 @@ public class SootAnalyzer extends Analyzer {
             NumberOfInstructions.createNumberOfInstructions(paprikaMethod, nbOfLines);
             // Cyclomatic complexity & Lack of Cohesion methods
             int nbOfBranches = 1;
+            PaprikaVariable paprikaVariable = null;
             for (Unit sootUnit : activeBody.getUnits()){
                 //LCOM
+
                 List<ValueBox> boxes = sootUnit.getUseAndDefBoxes();
                 for (ValueBox valueBox : boxes){
                     Value value = valueBox.getValue();
                     if (value instanceof GInstanceFieldRef) {
                         SootFieldRef field = ((GInstanceFieldRef) value).getFieldRef();
                         if(field.declaringClass() == sootClass){
-                            PaprikaVariable paprikaVariable = paprikaClass.findVariable(field.name());
+                            paprikaVariable = paprikaClass.findVariable(field.name());
                             //If we don't find the field it's inherited and thus not used for LCOM2
                             if(paprikaVariable != null){
                                 paprikaMethod.useVariable(paprikaVariable);
@@ -229,11 +231,20 @@ public class SootAnalyzer extends Analyzer {
 
             }
             CyclomaticComplexity.createCyclomaticComplexity(paprikaMethod, nbOfBranches);
+            //Is it a probable getter/setter ?
+            if (nbOfBranches == 1 && paprikaMethod.getUsedVariables().size() == 1 && sootMethod.getExceptions().size() == 0){
+                if(sootMethod.getActiveBody().getUnits().size() == 4 && paprikaMethod.getReturnType() == "void"){
+                    IsSetter.createIsSetter(paprikaMethod,true);
+                }else if(sootMethod.getActiveBody().getUnits().size() == 2 && paprikaMethod.getReturnType().equals(paprikaVariable.getType())){
+                    IsGetter.createIsGetter(paprikaMethod,true);
+                }
+            }
         }else{
             //LOGGER.info("No body for "+paprikaMethod);
         }
         collectMethodMetricsFromCallGraph(paprikaMethod, sootMethod);
     }
+
 
     private void collectMethodMetricsFromCallGraph(PaprikaMethod paprikaMethod, SootMethod sootMethod) {
         CallGraph callGraph = Scene.v().getCallGraph();
