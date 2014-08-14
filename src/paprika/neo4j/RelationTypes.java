@@ -9,9 +9,9 @@ public enum RelationTypes implements RelationshipType {
     APP_OWNS_CLASS,
     CLASS_OWNS_METHOD,
     CLASS_OWNS_VARIABLE,
+    METHOD_OWNS_ARGUMENT,
     IMPLEMENTS,
     EXTENDS,
     CALLS,
-    USES,
-    HAS
+    USES
 }

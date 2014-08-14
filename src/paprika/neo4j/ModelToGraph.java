@@ -39,10 +39,11 @@ public class ModelToGraph {
         variableNodeMap = new HashMap<>();
     }
 
-    public void insertApp(PaprikaApp paprikaApp){
+    public Node insertApp(PaprikaApp paprikaApp){
         this.key = paprikaApp.getKey();
+        Node appNode;
         try ( Transaction tx = graphDatabaseService.beginTx() ){
-            Node appNode = graphDatabaseService.createNode(appLabel);
+            appNode = graphDatabaseService.createNode(appLabel);
             appNode.setProperty("app_key",key);
             appNode.setProperty("name",paprikaApp.getName());
             appNode.setProperty("category",paprikaApp.getCategory());
@@ -57,7 +58,7 @@ public class ModelToGraph {
             appNode.setProperty("size",paprikaApp.getSize());
             appNode.setProperty("price",paprikaApp.getPrice());
             for(PaprikaClass paprikaClass : paprikaApp.getPaprikaClasses()){
-                insertClass(paprikaClass,appNode);
+                appNode.createRelationshipTo(insertClass(paprikaClass),RelationTypes.APP_OWNS_CLASS);
             }
             for(Metric metric : paprikaApp.getMetrics()){
                 insertMetric(metric, appNode);
@@ -70,6 +71,7 @@ public class ModelToGraph {
             createCallGraph(paprikaApp);
             tx.success();
         }
+        return appNode;
     }
 
     private void insertMetric(Metric metric, Node node) {
@@ -77,7 +79,7 @@ public class ModelToGraph {
     }
 
 
-    public void insertClass(PaprikaClass paprikaClass, Node appNode){
+    public Node insertClass(PaprikaClass paprikaClass){
         Node classNode = graphDatabaseService.createNode(classLabel);
         classNodeMap.put(paprikaClass,classNode);
         classNode.setProperty("app_key",key);
@@ -86,32 +88,33 @@ public class ModelToGraph {
         if(paprikaClass.getParentName() != null){
             classNode.setProperty("parent_name", paprikaClass.getParentName());
         }
-        appNode.createRelationshipTo(classNode,RelationTypes.APP_OWNS_CLASS);
         for(PaprikaVariable paprikaVariable : paprikaClass.getPaprikaVariables()){
-            insertVariable(paprikaVariable, classNode);
+            classNode.createRelationshipTo(insertVariable(paprikaVariable),RelationTypes.CLASS_OWNS_VARIABLE);
+
         }
         for(PaprikaMethod paprikaMethod : paprikaClass.getPaprikaMethods()){
-            insertMethod(paprikaMethod,classNode);
+            classNode.createRelationshipTo(insertMethod(paprikaMethod),RelationTypes.CLASS_OWNS_METHOD);
         }
         for(Metric metric : paprikaClass.getMetrics()){
             insertMetric(metric,classNode);
         }
+        return classNode;
     }
 
-    public void insertVariable(PaprikaVariable paprikaVariable, Node classNode){
+    public Node insertVariable(PaprikaVariable paprikaVariable){
         Node variableNode = graphDatabaseService.createNode(variableLabel);
         variableNodeMap.put(paprikaVariable,variableNode);
         variableNode.setProperty("app_key", key);
         variableNode.setProperty("name", paprikaVariable.getName());
         variableNode.setProperty("modifier", paprikaVariable.getModifier().toString().toLowerCase());
         variableNode.setProperty("type", paprikaVariable.getType());
-        classNode.createRelationshipTo(variableNode,RelationTypes.CLASS_OWNS_VARIABLE);
         for(Metric metric : paprikaVariable.getMetrics()){
             insertMetric(metric, variableNode);
         }
+        return variableNode;
     }
     
-    public void insertMethod(PaprikaMethod paprikaMethod, Node classNode){
+    public Node insertMethod(PaprikaMethod paprikaMethod){
         Node methodNode = graphDatabaseService.createNode(methodLabel);
         methodNodeMap.put(paprikaMethod,methodNode);
         methodNode.setProperty("app_key", key);
@@ -119,7 +122,6 @@ public class ModelToGraph {
         methodNode.setProperty("modifier", paprikaMethod.getModifier().toString().toLowerCase());
         methodNode.setProperty("full_name",paprikaMethod.toString());
         methodNode.setProperty("return_type",paprikaMethod.getReturnType());
-        classNode.createRelationshipTo(methodNode,RelationTypes.CLASS_OWNS_METHOD);
         for(Metric metric : paprikaMethod.getMetrics()){
             insertMetric(metric, methodNode);
         }
@@ -127,16 +129,17 @@ public class ModelToGraph {
             methodNode.createRelationshipTo(variableNodeMap.get(paprikaVariable),RelationTypes.USES);
         }
         for(PaprikaArgument arg : paprikaMethod.getArguments()){
-            insertArgument(arg,methodNode);
+            methodNode.createRelationshipTo(insertArgument(arg),RelationTypes.METHOD_OWNS_ARGUMENT);
         }
+        return methodNode;
     }
 
-    public void insertArgument(PaprikaArgument paprikaArgument, Node methodNode){
+    public Node insertArgument(PaprikaArgument paprikaArgument){
         Node argNode = graphDatabaseService.createNode(argumentLabel);
         argNode.setProperty("app_key", key);
         argNode.setProperty("name", paprikaArgument.getName());
         argNode.setProperty("position", paprikaArgument.getPosition());
-        methodNode.createRelationshipTo(argNode,RelationTypes.HAS);
+        return argNode;
     }
 
     public void createHierarchy(PaprikaApp paprikaApp) {
@@ -155,7 +158,7 @@ public class ModelToGraph {
         for (PaprikaClass paprikaClass : paprikaApp.getPaprikaClasses()) {
             for (PaprikaMethod paprikaMethod : paprikaClass.getPaprikaMethods()){
                 for(PaprikaMethod calledMethod : paprikaMethod.getCalledMethods()){
-                    methodNodeMap.get(calledMethod).createRelationshipTo(methodNodeMap.get(paprikaMethod),RelationTypes.CALLS);
+                    methodNodeMap.get(paprikaMethod).createRelationshipTo(methodNodeMap.get(calledMethod),RelationTypes.CALLS);
                 }
             }
         }
