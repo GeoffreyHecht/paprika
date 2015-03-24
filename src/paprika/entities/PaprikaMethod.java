@@ -12,10 +12,9 @@ public class PaprikaMethod extends Entity{
     private PaprikaClass paprikaClass;
     private String returnType;
     private Set<PaprikaVariable> usedVariables;
-    private Set<PaprikaMethod> calledMethods;
+    private Set<Entity> calledMethods;
     private PaprikaModifiers modifier;
     private List<PaprikaArgument> arguments;
-    //TODO overriding
     public String getReturnType() {
         return returnType;
     }
@@ -27,9 +26,9 @@ public class PaprikaMethod extends Entity{
     private PaprikaMethod(String name, PaprikaModifiers modifier, String returnType, PaprikaClass paprikaClass) {
         this.setName(name);
         this.paprikaClass = paprikaClass;
-        this.usedVariables = new HashSet<>();
-        this.calledMethods = new HashSet<>();
-        this.arguments = new ArrayList<>();
+        this.usedVariables = new HashSet<>(0);
+        this.calledMethods = new HashSet<>(0);
+        this.arguments = new ArrayList<>(0);
         this.modifier = modifier;
         this.returnType = returnType;
     }
@@ -61,9 +60,9 @@ public class PaprikaMethod extends Entity{
         return this.usedVariables;
     }
 
-    public void callMethod(PaprikaMethod paprikaMethod) { calledMethods.add(paprikaMethod);}
+    public void callMethod(Entity paprikaMethod) { calledMethods.add(paprikaMethod);}
 
-    public Set<PaprikaMethod> getCalledMethods() { return this.calledMethods; }
+    public Set<Entity> getCalledMethods() { return this.calledMethods; }
 
     public boolean haveCommonFields(PaprikaMethod paprikaMethod){
         Set<PaprikaVariable> otherVariables = paprikaMethod.getUsedVariables();

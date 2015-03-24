@@ -7,6 +7,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import paprika.analyzer.Analyzer;
 import paprika.analyzer.SootAnalyzer;
 import paprika.neo4j.ModelToGraph;
+import paprika.neo4j.QueryEngine;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -58,34 +59,54 @@ public class Main {
         parser.addArgument("-r","--rating").type(Double.class).required(true).help("application rating");
         parser.addArgument("-pr","--price").setDefault("Free").help("Price of the application");
         parser.addArgument("-s","--size").type(Integer.class).required(true).help("Size of the application");
+        parser.addArgument("-u","--unsafe").help("Unsafe mode (no args checking)");
+        parser.addArgument("-vc","--versionCode").setDefault("").help("Version Code of the application (extract from manifest)");
+        parser.addArgument("-vn","--versionName").setDefault("").help("Version Name of the application (extract from manifest)");
+        parser.addArgument("-tsdk","--targetSdkVersion").setDefault("").help("Target SDK Version (extract from manifest)");
+        parser.addArgument("-sdk","--sdkVersion").setDefault("").help("sdk version (extract from manifest)");
         try {
             Namespace res = parser.parseArgs(args);
-            String sha256 = computeSha256(res.getString("apk"));
-            if(!sha256.equals(res.getString("key").toLowerCase())){
-                throw new Exception("The given key is different from sha256 of the apk");
+            //queryMode(res);
+            if(res.get("unsafe") == null){
+                checkArgs(res);
             }
-            if(!res.getString("date").matches("^([0-9]{4})-([0-1][0-9])-([0-3][0-9])\\s([0-1][0-9]|[2][0-3]):([0-5][0-9]):([0-5][0-9]).([0-9]*)$")){
-                throw new Exception("Date should be formatted : yyyy-mm-dd hh:mm:ss.S");
-            }
-            if(!res.getString("nbDownload").matches("^([0-9]*\\+)$")){
-                throw new Exception("numberDownload should be formatted like 10000+");
-            }
-            System.out.println("Collecting metrics");
-            Analyzer analyzer = new SootAnalyzer(res.getString("apk"),res.getString("androidJars"),
-                    res.getString("name"),res.getString("key").toLowerCase(),
-                    res.getString("package"),res.getString("date"),res.getInt("size"),
-                    res.getString("developer"),res.getString("category"),res.getString("price"),
-                    res.getDouble("rating"),res.getString("nbDownload"));
-            analyzer.init();
-            analyzer.runAnalysis();
-            System.out.println("Saving into database");
-            ModelToGraph modelToGraph = new ModelToGraph(res.getString("database"));
-            modelToGraph.insertApp(analyzer.getPaprikaApp());
+            runAnalysis(res);
         } catch (ArgumentParserException e) {
             parser.handleError(e);
         }
         catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void checkArgs(Namespace arg) throws Exception{
+        String sha256 = computeSha256(arg.getString("apk"));
+        if(!sha256.equals(arg.getString("key").toLowerCase())){
+            throw new Exception("The given key is different from sha256 of the apk");
+        }
+        if(!arg.getString("date").matches("^([0-9]{4})-([0-1][0-9])-([0-3][0-9])\\s([0-1][0-9]|[2][0-3]):([0-5][0-9]):([0-5][0-9]).([0-9]*)$")){
+            throw new Exception("Date should be formatted : yyyy-mm-dd hh:mm:ss.S");
+        }
+    }
+
+    public static void runAnalysis(Namespace arg) throws Exception {
+        System.out.println("Collecting metrics");
+        Analyzer analyzer = new SootAnalyzer(arg.getString("apk"),arg.getString("androidJars"),
+                arg.getString("name"),arg.getString("key").toLowerCase(),
+                arg.getString("package"),arg.getString("date"),arg.getInt("size"),
+                arg.getString("developer"),arg.getString("category"),arg.getString("price"),
+                arg.getDouble("rating"),arg.getString("nbDownload"),arg.getString("versionCode"),arg.getString("versionName"),arg.getString("sdkVersion"),arg.getString("targetSdkVersion"));
+        analyzer.init();
+        analyzer.runAnalysis();
+        System.out.println("Saving into database "+arg.getString("database"));
+        ModelToGraph modelToGraph = new ModelToGraph(arg.getString("database"));
+        modelToGraph.insertApp(analyzer.getPaprikaApp());
+        System.out.println("Done");
+    }
+
+    public static void queryMode(Namespace arg) throws Exception {
+        System.out.println("Executing Queries");
+        QueryEngine queryEngine = new QueryEngine(arg.getString("database"));
+        queryEngine.MIMQuery();
     }
 }

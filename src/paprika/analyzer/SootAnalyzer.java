@@ -25,16 +25,22 @@ public class SootAnalyzer extends Analyzer {
     private static String androidJAR;
     private PaprikaApp paprikaApp;
     private Map<SootClass,PaprikaClass>classMap;
+    private Map<SootClass,PaprikaExternalClass>externalClassMap;
+    private Map<SootMethod,PaprikaExternalMethod>externalMethodMap;
     private Map<SootMethod,PaprikaMethod>methodMap;
     int activityCount = 0, serviceCount = 0, interfaceCount = 0, abstractCount = 0, broadcastReceiverCount = 0, contentProviderCount = 0;
     private String rClass;
+    private String buildConfigClass;
 
-    public SootAnalyzer(String apk, String androidJAR,String name,String key,String pack,String date,int size,String dev,String cat,String price,double rating,String nbDownload) {
+    public SootAnalyzer(String apk, String androidJAR,String name,String key,String pack,String date,int size,String dev,String cat,String price,double rating,String nbDownload,String versionCode,String versionName,String sdkVersion,String targetSdkVersion) {
         Analyzer.apk = apk;
         this.androidJAR = androidJAR;
-        this.paprikaApp = PaprikaApp.createPaprikaApp(name,key,pack,date,size,dev,cat,price,rating,nbDownload);
+        this.paprikaApp = PaprikaApp.createPaprikaApp(name,key,pack,date,size,dev,cat,price,rating,nbDownload,versionCode,versionName,sdkVersion,targetSdkVersion);
         this.rClass = pack.concat(".R");
+        this.buildConfigClass = pack.concat(".BuildConfig");
         this.classMap = new HashMap<>();
+        this.externalClassMap = new HashMap<>();
+        this.externalMethodMap = new HashMap<>();
         this.methodMap = new HashMap<>();
     }
 
@@ -50,15 +56,18 @@ public class SootAnalyzer extends Analyzer {
 
         G.reset();
         Options.v().set_verbose(false);
-        Options.v().set_keep_line_number(true);
+        //Options.v().set_keep_line_number(true);
         //Path to android-sdk-platforms
         Options.v().set_android_jars(androidJAR);
+        //Options.v().set_soot_classpath("/home/geoffrey/These/decompiler/android-platforms/android-14/android.jar");
         //prefer Android APK files
         Options.v().set_src_prec(Options.src_prec_apk);
+        //Options.v().set_src_prec(Options.src_prec_java);
         // Allow phantom references
         Options.v().set_allow_phantom_refs(true);
         //Set path to APK
         Options.v().set_process_dir(Collections.singletonList(apk));
+        //Options.v().set_process_dir(Collections.singletonList("/home/geoffrey/These/LotOfAntiPatternsApplication/app/src/main/java"));
         Options.v().set_whole_program(true);
         Options.v().set_output_format(Options.output_format_grimple);
         Options.v().set_output_dir("/home/geoffrey/These/decompiler/out");
@@ -98,8 +107,15 @@ public class SootAnalyzer extends Analyzer {
         }));
         PackManager.v().runPacks();
         computeMetrics();
-        PackManager.v().writeOutput();
+        collectCallGraphMetrics();
+        //PackManager.v().writeOutput();
 
+    }
+
+    private void collectCallGraphMetrics() {
+        for(Map.Entry<SootMethod,PaprikaMethod> entry : methodMap.entrySet()){
+            collectMethodMetricsFromCallGraph(entry.getValue(), entry.getKey());
+        }
     }
 
     @Override
@@ -124,8 +140,9 @@ public class SootAnalyzer extends Analyzer {
     public void collectClassesMetrics(){
         Chain<SootClass> sootClasses = Scene.v().getApplicationClasses();
         for(SootClass sootClass : sootClasses){
-            //Excluding R class from the analysis
-            if(sootClass.getName().startsWith(rClass)){
+            //Excluding R And BuildConfig class from the analysis
+            String rsubClassStart = rClass + "$";
+            if(sootClass.getName().equals(rClass) || sootClass.getName().startsWith(rsubClassStart) || sootClass.getName().equals(buildConfigClass)) {
                 //sootClass.setLibraryClass();
             }else{
                 collectClassMetrics(sootClass);
@@ -234,23 +251,29 @@ public class SootAnalyzer extends Analyzer {
                     if(sootUnit.fallsThrough()) nbOfBranches++;
                     else if(sootUnit instanceof GLookupSwitchStmt) nbOfBranches += ((GLookupSwitchStmt) sootUnit).getLookupValues().size();
                 }
-
             }
             CyclomaticComplexity.createCyclomaticComplexity(paprikaMethod, nbOfBranches);
-            //Is it a probable getter/setter ?
-            if (nbOfBranches == 1 && paprikaMethod.getUsedVariables().size() == 1 && sootMethod.getExceptions().size() == 0){
-                if(sootMethod.getActiveBody().getUnits().size() == 4 && paprikaMethod.getReturnType() == "void"){
-                    IsSetter.createIsSetter(paprikaMethod,true);
-                }else if(sootMethod.getActiveBody().getUnits().size() == 2 && paprikaMethod.getReturnType().equals(paprikaVariable.getType())){
-                    IsGetter.createIsGetter(paprikaMethod,true);
+            //Is it a probable getter/setter or init?
+            if(isInit(sootMethod)) {
+                IsInit.createIsInit(paprikaMethod, true);
+            }else{
+                if (nbOfBranches == 1 && paprikaMethod.getUsedVariables().size() == 1 && sootMethod.getExceptions().size() == 0) {
+                    paprikaVariable = paprikaMethod.getUsedVariables().iterator().next();
+                    if (sootMethod.getParameterCount() == 1 && sootMethod.getActiveBody().getUnits().size() == 4 && paprikaMethod.getReturnType() == "void") {
+                        IsSetter.createIsSetter(paprikaMethod, true);
+                    } else if (sootMethod.getParameterCount() == 0 && sootMethod.getActiveBody().getUnits().size() == 3 && paprikaMethod.getReturnType().equals(paprikaVariable.getType())) {
+                        IsGetter.createIsGetter(paprikaMethod, true);
+                    }
                 }
             }
         }else{
             //LOGGER.info("No body for "+paprikaMethod);
         }
-        collectMethodMetricsFromCallGraph(paprikaMethod, sootMethod);
     }
 
+    private boolean isInit(SootMethod sootMethod){
+        return sootMethod.getName().equals("<init>") || sootMethod.getName().equals("<clinit>");
+    }
 
     private void collectMethodMetricsFromCallGraph(PaprikaMethod paprikaMethod, SootMethod sootMethod) {
         CallGraph callGraph = Scene.v().getCallGraph();
@@ -262,6 +285,20 @@ public class SootAnalyzer extends Analyzer {
         while(edgeOutIterator.hasNext()) {
             Edge e = edgeOutIterator.next();
             PaprikaMethod targetMethod =  methodMap.get(e.tgt());
+            //In the case we are calling an external method (sdk or library)
+            if(targetMethod == null && !isInit(e.tgt())){
+                PaprikaExternalMethod externalTgtMethod = externalMethodMap.get(e.tgt());
+                if( externalTgtMethod == null){
+                    PaprikaExternalClass paprikaExternalClass = externalClassMap.get(e.tgt().getDeclaringClass());
+                    if(paprikaExternalClass == null){
+                        paprikaExternalClass = PaprikaExternalClass.createPaprikaExternalClass(e.tgt().getDeclaringClass().getName(),paprikaApp);
+                        externalClassMap.put(e.tgt().getDeclaringClass(),paprikaExternalClass);
+                    }
+                    externalTgtMethod = PaprikaExternalMethod.createPaprikaExternalMethod(e.tgt().getName(),e.tgt().getReturnType().toString(),paprikaExternalClass);
+                    externalMethodMap.put(e.tgt(),externalTgtMethod);
+                }
+                paprikaMethod.callMethod(externalTgtMethod);
+            }
             if(targetMethod != null){
                 paprikaMethod.callMethod(targetMethod);
             }
@@ -287,14 +324,21 @@ public class SootAnalyzer extends Analyzer {
         }
 
         PaprikaClass paprikaClass = PaprikaClass.createPaprikaClass(sootClass.getName(), this.paprikaApp, modifier);
+        /*
+        isStatic for classes doesn't work in this version of Soot.
         if(sootClass.isStatic()){
             IsStatic.createIsStatic(paprikaClass, true);
         }
+        */
         if(sootClass.isFinal()){
             IsFinal.createIsFinal(paprikaClass, true);
         }
         if(sootClass.isInnerClass()){
             IsInnerClass.createIsInnerClass(paprikaClass, true);
+            // Fix to determine if the class is static or not
+            if(isInnerClassStatic(sootClass)){
+                IsStatic.createIsStatic(paprikaClass, true);
+            }
         }
         if(isActivity(sootClass)){
             activityCount++;
@@ -347,6 +391,22 @@ public class SootAnalyzer extends Analyzer {
         DepthOfInheritance.createDepthOfInheritance(paprikaClass, getDepthOfInheritance(sootClass));
         NumberOfImplementedInterfaces.createNumberOfImplementedInterfaces(paprikaClass, sootClass.getInterfaceCount());
         NumberOfAttributes.createNumberOfAttributes(paprikaClass, sootClass.getFieldCount());
+    }
+
+    /**
+     * Fix to determine if a class is static or not
+     * @param innerClass
+     * @return
+     */
+    private  boolean isInnerClassStatic(SootClass innerClass){
+        for(SootField sootField : innerClass.getFields()){
+                //we are looking if the field for non static inner class generated during the compilation (with the convention name) exists
+                if(sootField.getName().equals("this$0")){
+                  //in this case we can return false
+                  return false;
+                }
+            }
+        return true;
     }
 
     public int getDepthOfInheritance(SootClass sootClass){
