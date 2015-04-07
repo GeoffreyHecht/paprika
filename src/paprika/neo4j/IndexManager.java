@@ -3,8 +3,6 @@ package paprika.neo4j;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.index.RelationshipIndex;
-import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.graphdb.schema.Schema;
 
 /**
@@ -18,28 +16,47 @@ public class IndexManager {
     }
 
     public void createIndex(){
-        IndexDefinition indexDefinition;
         try ( Transaction tx = graphDatabaseService.beginTx() )
         {
             Schema schema = graphDatabaseService.schema();
-            org.neo4j.graphdb.index.IndexManager index = graphDatabaseService.index();
-            if(!schema.getIndexes().iterator().hasNext()) {
-                schema.indexFor(DynamicLabel.label("Variable"))
-                        .on("app_key")
-                        .create();
+            if(schema.getIndexes(DynamicLabel.label("Variable")).iterator().hasNext()) {
+                     schema.indexFor(DynamicLabel.label("Variable"))
+                    .on("app_key")
+                    .create();
+             }
+            if(schema.getIndexes(DynamicLabel.label("Method")).iterator().hasNext()) {
                 schema.indexFor(DynamicLabel.label("Method"))
                         .on("app_key")
                         .create();
                 schema.indexFor(DynamicLabel.label("Method"))
                         .on("is_static")
                         .create();
+            }
+            if(schema.getIndexes(DynamicLabel.label("Argument")).iterator().hasNext()) {
                 schema.indexFor(DynamicLabel.label("Argument"))
                         .on("app_key")
                         .create();
-                schema.indexFor(DynamicLabel.label("Class"))
+                schema.indexFor(DynamicLabel.label("Argument"))
                         .on("app_key")
                         .create();
-                RelationshipIndex roles = index.forRelationships("calls");
+            }
+            if(schema.getIndexes(DynamicLabel.label("ExternalClass")).iterator().hasNext()) {
+                schema.indexFor(DynamicLabel.label("ExternalClass"))
+                        .on("app_key")
+                        .create();
+            }
+            if(schema.getIndexes(DynamicLabel.label("ExternalMethod")).iterator().hasNext()) {
+                schema.indexFor(DynamicLabel.label("ExternalMethod"))
+                        .on("app_key")
+                        .create();
+            }
+            tx.success();
+        }
+        try ( Transaction tx = graphDatabaseService.beginTx() )
+        {
+            org.neo4j.graphdb.index.IndexManager index = graphDatabaseService.index();
+            if(!index.existsForRelationships("calls")) {
+                index.forRelationships("calls");
             }
             tx.success();
         }

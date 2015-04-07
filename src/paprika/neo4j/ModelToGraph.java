@@ -1,6 +1,5 @@
 package paprika.neo4j;
 
-import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.*;
 import paprika.entities.*;
 import paprika.metrics.Metric;
@@ -16,7 +15,6 @@ import java.util.Map;
 public class ModelToGraph {
     private GraphDatabaseService graphDatabaseService;
     private DatabaseManager databaseManager;
-    private ExecutionEngine engine;
     private static final Label appLabel = DynamicLabel.label("App");
     private static final Label classLabel = DynamicLabel.label("Class");
     private static final Label externalClassLabel = DynamicLabel.label("ExternalClass");
@@ -35,7 +33,6 @@ public class ModelToGraph {
         this.databaseManager = new DatabaseManager(DatabasePath);
         databaseManager.start();
         this.graphDatabaseService = databaseManager.getGraphDatabaseService();
-        engine = new ExecutionEngine(graphDatabaseService);
         methodNodeMap = new HashMap<>();
         classNodeMap = new HashMap<>();
         variableNodeMap = new HashMap<>();
@@ -76,7 +73,6 @@ public class ModelToGraph {
             }
             tx.success();
         }
-        //createIndex();
         try ( Transaction tx = graphDatabaseService.beginTx() ){
             createHierarchy(paprikaApp);
             createCallGraph(paprikaApp);

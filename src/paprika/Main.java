@@ -1,9 +1,7 @@
 package paprika;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
-import net.sourceforge.argparse4j.inf.ArgumentParser;
-import net.sourceforge.argparse4j.inf.ArgumentParserException;
-import net.sourceforge.argparse4j.inf.Namespace;
+import net.sourceforge.argparse4j.inf.*;
 import paprika.analyzer.Analyzer;
 import paprika.analyzer.SootAnalyzer;
 import paprika.neo4j.ModelToGraph;
@@ -45,34 +43,45 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        ArgumentParser parser = ArgumentParsers.newArgumentParser("paprika").description("Collect metrics from apk.");
-        parser.addArgument("apk").help("Path of the APK to analyze");
-        parser.addArgument("-a","--androidJars").required(true).help("Path to android platforms jars");
-        parser.addArgument("-db","--database").required(true).help("Path to neo4J Database folder");
-        parser.addArgument("-n","--name").required(true).help("Name of the application");
-        parser.addArgument("-p","--package").required(true).help("Application main package");
-        parser.addArgument("-k","--key").required(true).help("sha256 of the apk used as identifier");
-        parser.addArgument("-dev","--developer").required(true).help("Application developer");
-        parser.addArgument("-cat","--category").required(true).help("Application category");
-        parser.addArgument("-nd","--nbDownload").required(true).help("Numbers of downloads for the app");
-        parser.addArgument("-d","--date").required(true).help("Date of download");
-        parser.addArgument("-r","--rating").type(Double.class).required(true).help("application rating");
-        parser.addArgument("-pr","--price").setDefault("Free").help("Price of the application");
-        parser.addArgument("-s","--size").type(Integer.class).required(true).help("Size of the application");
-        parser.addArgument("-u","--unsafe").help("Unsafe mode (no args checking)");
-        parser.addArgument("-vc","--versionCode").setDefault("").help("Version Code of the application (extract from manifest)");
-        parser.addArgument("-vn","--versionName").setDefault("").help("Version Name of the application (extract from manifest)");
-        parser.addArgument("-tsdk","--targetSdkVersion").setDefault("").help("Target SDK Version (extract from manifest)");
-        parser.addArgument("-sdk","--sdkVersion").setDefault("").help("sdk version (extract from manifest)");
+        ArgumentParser parser = ArgumentParsers.newArgumentParser("paprika");
+        Subparsers subparsers = parser.addSubparsers().dest("sub_command");;
+        Subparser analyseParser = subparsers.addParser("analyse").help("Analyse an app");
+        analyseParser.addArgument("apk").help("Path of the APK to analyze");
+        analyseParser.addArgument("-a", "--androidJars").required(true).help("Path to android platforms jars");
+        analyseParser.addArgument("-db", "--database").required(true).help("Path to neo4J Database folder");
+        analyseParser.addArgument("-n", "--name").required(true).help("Name of the application");
+        analyseParser.addArgument("-p", "--package").required(true).help("Application main package");
+        analyseParser.addArgument("-k", "--key").required(true).help("sha256 of the apk used as identifier");
+        analyseParser.addArgument("-dev", "--developer").required(true).help("Application developer");
+        analyseParser.addArgument("-cat", "--category").required(true).help("Application category");
+        analyseParser.addArgument("-nd", "--nbDownload").required(true).help("Numbers of downloads for the app");
+        analyseParser.addArgument("-d", "--date").required(true).help("Date of download");
+        analyseParser.addArgument("-r", "--rating").type(Double.class).required(true).help("application rating");
+        analyseParser.addArgument("-pr", "--price").setDefault("Free").help("Price of the application");
+        analyseParser.addArgument("-s", "--size").type(Integer.class).required(true).help("Size of the application");
+        analyseParser.addArgument("-u", "--unsafe").help("Unsafe mode (no args checking)");
+        analyseParser.addArgument("-vc", "--versionCode").setDefault("").help("Version Code of the application (extract from manifest)");
+        analyseParser.addArgument("-vn", "--versionName").setDefault("").help("Version Name of the application (extract from manifest)");
+        analyseParser.addArgument("-tsdk", "--targetSdkVersion").setDefault("").help("Target SDK Version (extract from manifest)");
+        analyseParser.addArgument("-sdk", "--sdkVersion").setDefault("").help("sdk version (extract from manifest)");
+
+        Subparser queryParser = subparsers.addParser("query").help("Query the database");
+        queryParser.addArgument("-db", "--database").required(true).help("Path to neo4J Database folder");
+        queryParser.addArgument("-s", "--stats").help("Stats mode to get the thresholds values");
+        queryParser.addArgument("-r", "--request").help("Request to execute");
+        queryParser.addArgument("-c", "--csv").help("output csv file path").setDefault("result.csv");
+        queryParser.addArgument("-k", "--key").help("key to delete");
+        queryParser.addArgument("-p", "--package").help("Package of the applications to delete");
         try {
             Namespace res = parser.parseArgs(args);
-            //queryMode(res);
-            if(res.get("unsafe") == null){
-                checkArgs(res);
+            if(res.getString("sub_command").equals("analyse")){
+                runAnalysis(res);
             }
-            runAnalysis(res);
+            else if(res.getString("sub_command").equals("query")){
+                queryMode(res);
+            }
         } catch (ArgumentParserException e) {
-            parser.handleError(e);
+            analyseParser.handleError(e);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -91,6 +100,9 @@ public class Main {
 
     public static void runAnalysis(Namespace arg) throws Exception {
         System.out.println("Collecting metrics");
+        if(arg.get("unsafe") == null){
+            checkArgs(arg);
+        }
         Analyzer analyzer = new SootAnalyzer(arg.getString("apk"),arg.getString("androidJars"),
                 arg.getString("name"),arg.getString("key").toLowerCase(),
                 arg.getString("package"),arg.getString("date"),arg.getInt("size"),
@@ -107,6 +119,46 @@ public class Main {
     public static void queryMode(Namespace arg) throws Exception {
         System.out.println("Executing Queries");
         QueryEngine queryEngine = new QueryEngine(arg.getString("database"));
-        queryEngine.MIMQuery();
+        if(arg.get("stats") != null){
+            System.out.println("Class complexity : "+queryEngine.calculateClassComplexityThreshold());
+            System.out.println("LCOM : "+queryEngine.calculateLackofCohesionInMethodsThreshold());
+            System.out.println("Number of attributes : "+queryEngine.calculateNumberOfAttributesThreshold());
+            System.out.println("Number of implemented interfaces : "+queryEngine.calculateNumberOfImplementedInterfacesThreshold());
+            System.out.println("Number of Methods : "+queryEngine.calculateNumberOfMethodsThreshold());
+            System.out.println("Number of Instructions : " + queryEngine.calculateNumberofInstructionsThreshold());
+        }
+        String request = arg.get("request");
+        if(request != null){
+            queryEngine.setCsvFile(arg.getString("csv"));
+            System.out.println("Saving to file : "+arg.getString("csv"));
+            if(request.equals("MIM")){
+                queryEngine.MIMQuery();
+            }else if(request.equals("IGS")){
+                queryEngine.IGSQuery();
+            }else if(request.equals("LIC")){
+                queryEngine.LICQuery();
+            }else if(request.equals("NLMR")){
+                queryEngine.NLMRQuery();
+            }else if(request.equals("CC")){
+                queryEngine.CCQuery();
+            }else if(request.equals("LM")){
+                queryEngine.LMQuery();
+            }else if(request.equals("SAK")){
+                queryEngine.SAKQuery();
+            }else if(request.equals("GOD")){
+                queryEngine.GodClassQuery();
+            }else if(request.equals("ANALYZED")){
+                queryEngine.AnalyzedAppQuery();
+            }else if(request.equals("DELETE")){
+                queryEngine.deleteQuery(arg.getString("key"));
+            }else if(request.equals("DELETEAPP")){
+                if(arg.get("key") != null) { queryEngine.deleteEntireApp(arg.getString("key")); }
+                else {
+                    queryEngine.deleteEntireAppFromPackage(arg.getString("package"));
+                }
+            }
+        }
+        queryEngine.shutDown();
+        System.out.println("Done");
     }
 }
