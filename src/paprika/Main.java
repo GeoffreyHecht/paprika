@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.logging.Logger;
 
 /**
@@ -67,9 +69,8 @@ public class Main {
 
         Subparser queryParser = subparsers.addParser("query").help("Query the database");
         queryParser.addArgument("-db", "--database").required(true).help("Path to neo4J Database folder");
-        queryParser.addArgument("-s", "--stats").help("Stats mode to get the thresholds values");
         queryParser.addArgument("-r", "--request").help("Request to execute");
-        queryParser.addArgument("-c", "--csv").help("output csv file path").setDefault("result.csv");
+        queryParser.addArgument("-c", "--csv").help("path to register csv files").setDefault("");
         queryParser.addArgument("-k", "--key").help("key to delete");
         queryParser.addArgument("-p", "--package").help("Package of the applications to delete");
         try {
@@ -119,44 +120,112 @@ public class Main {
     public static void queryMode(Namespace arg) throws Exception {
         System.out.println("Executing Queries");
         QueryEngine queryEngine = new QueryEngine(arg.getString("database"));
-        if(arg.get("stats") != null){
-            System.out.println("Class complexity : "+queryEngine.calculateClassComplexityThreshold());
-            System.out.println("LCOM : "+queryEngine.calculateLackofCohesionInMethodsThreshold());
-            System.out.println("Number of attributes : "+queryEngine.calculateNumberOfAttributesThreshold());
-            System.out.println("Number of implemented interfaces : "+queryEngine.calculateNumberOfImplementedInterfacesThreshold());
-            System.out.println("Number of Methods : "+queryEngine.calculateNumberOfMethodsThreshold());
-            System.out.println("Number of Instructions : " + queryEngine.calculateNumberofInstructionsThreshold());
-        }
         String request = arg.get("request");
-        if(request != null){
-            queryEngine.setCsvFile(arg.getString("csv"));
-            System.out.println("Saving to file : "+arg.getString("csv"));
-            if(request.equals("MIM")){
+        Calendar cal = new GregorianCalendar();
+        String csvDate = String.valueOf(cal.get(Calendar.YEAR))+"_"+String.valueOf(cal.get(Calendar.MONTH))+"_"+String.valueOf(cal.get(Calendar.DAY_OF_MONTH))+"_"+String.valueOf(cal.get(Calendar.HOUR_OF_DAY))+"_"+String.valueOf(cal.get(Calendar.MINUTE));
+        String csvPrefix = arg.getString("csv")+csvDate;
+        System.out.println("Resulting csv file name will start with prefix "+csvPrefix);
+        queryEngine.setCsvPrefix(csvPrefix);
+        switch(request){
+            case "MIM":
                 queryEngine.MIMQuery();
-            }else if(request.equals("IGS")){
+                break;
+            case "IGS":
                 queryEngine.IGSQuery();
-            }else if(request.equals("LIC")){
+                break;
+            case "LIC":
                 queryEngine.LICQuery();
-            }else if(request.equals("NLMR")){
+                break;
+            case "NLMR":
                 queryEngine.NLMRQuery();
-            }else if(request.equals("CC")){
+                break;
+            case "CC":
                 queryEngine.CCQuery();
-            }else if(request.equals("LM")){
+                break;
+            case "LM":
                 queryEngine.LMQuery();
-            }else if(request.equals("SAK")){
+                break;
+            case "SAK":
                 queryEngine.SAKQuery();
-            }else if(request.equals("GOD")){
+                break;
+            case "GOD":
                 queryEngine.GodClassQuery();
-            }else if(request.equals("ANALYZED")){
+                break;
+            case "OVERDRAW":
+                queryEngine.OverdrawQuery();
+                break;
+            case "ALLHEAVY":
+                queryEngine.HeavyASyncTaskStepsQuery();
+                queryEngine.HeavyBroadcastReceiverQuery();
+                queryEngine.HeavyServiceStartQuery();
+                break;
+            case "ANALYZED":
                 queryEngine.AnalyzedAppQuery();
-            }else if(request.equals("DELETE")){
+                break;
+            case "DELETE":
                 queryEngine.deleteQuery(arg.getString("key"));
-            }else if(request.equals("DELETEAPP")){
+                break;
+            case "DELETEAPP":
                 if(arg.get("key") != null) { queryEngine.deleteEntireApp(arg.getString("key")); }
                 else {
                     queryEngine.deleteEntireAppFromPackage(arg.getString("package"));
                 }
-            }
+                break;
+            case "STATS":
+                queryEngine.calculateClassComplexityQuartile();
+                queryEngine.calculateLackofCohesionInMethodsQuartile();
+                queryEngine.calculateNumberOfAttributesQuartile();
+                queryEngine.calculateNumberOfImplementedInterfacesQuartile();
+                queryEngine.calculateNumberOfMethodsQuartile();
+                queryEngine.calculateNumberofInstructionsQuartile();
+                queryEngine.calculateCyclomaticComplexityQuartile();
+                break;
+            case "STATLCOM":
+               queryEngine.calculateLCOMQuartilePerAPK();
+                break;
+            case "STATCC":
+                queryEngine.calculateClassComplexityQuartilePerAPK();
+                break;
+            case "STATCYCLO":
+                queryEngine.calculateCyclomaticComplexityQuartilePerAPK();
+                break;
+            case "ALLLCOM":
+                queryEngine.getAllLCOM();
+                break;
+            case "ALLCYCLO":
+                queryEngine.getAllCyclomaticComplexity();
+                break;
+            case "ALLCC":
+                queryEngine.getAllClassComplexity();
+                break;
+            case "ALLNUMMETHODS":
+                queryEngine.getAllNumberOfMethods();
+                break;
+            case "COUNTVAR":
+                queryEngine.countVariables();
+                break;
+            case "COUNTINNER":
+                queryEngine.countInnerClasses();
+                break;
+            case "COUNTASYNC":
+                queryEngine.countAsyncClasses();
+                break;
+            case "COUNTVIEWS":
+                queryEngine.countViews();
+                break;
+            case "ALLAP":
+                queryEngine.CCQuery();
+                queryEngine.LMQuery();
+                queryEngine.SAKQuery();
+                queryEngine.GodClassQuery();
+                queryEngine.MIMQuery();
+                queryEngine.IGSQuery();
+                queryEngine.LICQuery();
+                queryEngine.NLMRQuery();
+                queryEngine.OverdrawQuery();
+                break;
+            default:
+                System.out.println("Unknown query");
         }
         queryEngine.shutDown();
         System.out.println("Done");
