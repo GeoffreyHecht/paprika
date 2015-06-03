@@ -148,8 +148,8 @@ public class Main {
             case "SAK":
                 queryEngine.SAKQuery();
                 break;
-            case "GOD":
-                queryEngine.GodClassQuery();
+            case "BLOB":
+                queryEngine.BlobClassQuery();
                 break;
             case "OVERDRAW":
                 queryEngine.OverdrawQuery();
@@ -179,6 +179,7 @@ public class Main {
                 queryEngine.calculateNumberOfMethodsQuartile();
                 queryEngine.calculateNumberofInstructionsQuartile();
                 queryEngine.calculateCyclomaticComplexityQuartile();
+                queryEngine.calculateNumberOfMethodsForInterfacesQuartile();
                 break;
             case "STATLCOM":
                queryEngine.calculateLCOMQuartilePerAPK();
@@ -217,12 +218,15 @@ public class Main {
                 queryEngine.CCQuery();
                 queryEngine.LMQuery();
                 queryEngine.SAKQuery();
-                queryEngine.GodClassQuery();
+                queryEngine.BlobClassQuery();
                 queryEngine.MIMQuery();
                 queryEngine.IGSQuery();
                 queryEngine.LICQuery();
                 queryEngine.NLMRQuery();
                 queryEngine.OverdrawQuery();
+                queryEngine.HeavyASyncTaskStepsQuery();
+                queryEngine.HeavyBroadcastReceiverQuery();
+                queryEngine.HeavyServiceStartQuery();
                 break;
             default:
                 System.out.println("Unknown query");
