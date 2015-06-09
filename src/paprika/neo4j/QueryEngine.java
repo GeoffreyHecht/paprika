@@ -150,7 +150,7 @@ public class QueryEngine {
     public void AnalyzedAppQuery() throws CypherException, IOException {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.execute("MATCH (a:App) RETURN  a.app_key,a.category,a.package,a.version_code,a.date_analysis,a.number_of_classes,a.size,a.rating,a.nb_download,a.sdk,a.target_sdk,a.number_of_activities,a.number_of_services,a.number_of_interfaces,a.number_of_abstract_classes,a.number_of_broadcast_receivers,a.number_of_content_providers");
+            result = graphDatabaseService.execute("MATCH (a:App) RETURN  a.app_key as app_key, a.name as name, a.category as category,a.package as package,a.date_analysis as date_analysis,a.number_of_classes as number_of_classes,a.size as size,a.rating as rating,a.nb_download as nb_download,a.number_of_activities as number_of_activities,a.number_of_services as number_of_services,a.number_of_interfaces as number_of_interfaces,a.number_of_abstract_classes as number_of_abstract_classes,a.number_of_broadcast_receivers as number_of_broadcast_receivers,a.number_of_content_providers as number_of_content_providers");
             resultToCSV(result,"_ANALYZED.csv");
         }
     }
@@ -478,7 +478,7 @@ public class QueryEngine {
     public void countVariables() throws CypherException, IOException {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.execute("MATCH (n:Variable) return n.app_key,count(n)");
+            result = graphDatabaseService.execute("MATCH (n:Variable) return n.app_key as app_key, count(n) as nb_variables");
             resultToCSV(result,"_COUNT_VARIABLE.csv");
         }
     }
@@ -486,7 +486,7 @@ public class QueryEngine {
     public void countInnerClasses() throws CypherException, IOException {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.execute("MATCH (n:Class) WHERE has(n.is_inner_class) return n.app_key,count(n)");
+            result = graphDatabaseService.execute("MATCH (n:Class) WHERE has(n.is_inner_class) return n.app_key as app_key,count(n) as nb_inner_classes");
             resultToCSV(result,"_COUNT_INNER.csv");
         }
     }
@@ -494,7 +494,7 @@ public class QueryEngine {
     public void countAsyncClasses() throws CypherException, IOException {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.execute("MATCH (n:Class{parent_name:'android.os.AsyncTask'}) return n.app_key,count(n) as number_of_async");
+            result = graphDatabaseService.execute("MATCH (n:Class{parent_name:'android.os.AsyncTask'}) return n.app_key as app_key,count(n) as number_of_async");
             resultToCSV(result,"_COUNT_ASYNC.csv");
         }
     }
@@ -502,7 +502,7 @@ public class QueryEngine {
     public void countViews() throws CypherException, IOException {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.execute("MATCH (n:Class{parent_name:'android.view.View'}) return n.app_key,count(n) as number_of_views");
+            result = graphDatabaseService.execute("MATCH (n:Class{parent_name:'android.view.View'}) return n.app_key as app_key,count(n) as number_of_views");
             resultToCSV(result,"_COUNT_VIEWS.csv");
         }
     }
