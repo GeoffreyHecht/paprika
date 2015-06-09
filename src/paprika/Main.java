@@ -228,6 +228,15 @@ public class Main {
                 queryEngine.HeavyBroadcastReceiverQuery();
                 queryEngine.HeavyServiceStartQuery();
                 break;
+            case "LASTAP":
+                queryEngine.LICQuery();
+                queryEngine.NLMRQuery();
+                queryEngine.OverdrawQuery();
+                queryEngine.HeavyASyncTaskStepsQuery();
+                queryEngine.HeavyBroadcastReceiverQuery();
+                queryEngine.HeavyServiceStartQuery();
+                queryEngine.IGSQuery();
+                break;
             default:
                 System.out.println("Unknown query");
         }

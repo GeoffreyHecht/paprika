@@ -17,12 +17,12 @@ public class QueryEngine {
 
     private GraphDatabaseService graphDatabaseService;
     private DatabaseManager databaseManager;
-    private static double classClomplexity = 25;
-    private static double numberofInterfaces= 5;
-    private static double lcom = 20;
-    private static double numberofMethods = 15;
-    private static double numberofMethodsForInterfaces = 1;
-    private static double numberofAttributes = 8;
+    private static double classClomplexity = 27;
+    private static double numberofInterfaces= 2;
+    private static double lcom = 22.5;
+    private static double numberofMethods = 14.5;
+    private static double numberofMethodsForInterfaces = 8.5;
+    private static double numberofAttributes = 7.5;
     private static double numberofInstructions = 15;
     private static double cyclomatic_complexity= 3.5;
 
@@ -59,7 +59,7 @@ public class QueryEngine {
     public void IGSQuery() throws CypherException, IOException {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.execute("MATCH (cl:Class)-[:CLASS_OWNS_METHOD]->(m1:Method)-[:CALLS]->(m2:Method) WHERE (m2.is_setter OR m2.is_getter) AND cl-[:CLASS_OWNS_METHOD]->m2 RETURN m1.app_key as app_key,count(m1) as IGS");
+            result = graphDatabaseService.execute("MATCH (a:App) WITH a.app_key as key MATCH (cl:Class {app_key: key})-[:CLASS_OWNS_METHOD]->(m1:Method {app_key: key})-[:CALLS]->(m2:Method {app_key: key}) WHERE (m2.is_setter OR m2.is_getter) AND cl-[:CLASS_OWNS_METHOD]->m2 RETURN m1.app_key as app_key,count(m1) as IGS");
             resultToCSV(result,"_IGS.csv");
         }
     }
