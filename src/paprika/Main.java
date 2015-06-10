@@ -122,7 +122,7 @@ public class Main {
         QueryEngine queryEngine = new QueryEngine(arg.getString("database"));
         String request = arg.get("request");
         Calendar cal = new GregorianCalendar();
-        String csvDate = String.valueOf(cal.get(Calendar.YEAR))+"_"+String.valueOf(cal.get(Calendar.MONTH))+"_"+String.valueOf(cal.get(Calendar.DAY_OF_MONTH))+"_"+String.valueOf(cal.get(Calendar.HOUR_OF_DAY))+"_"+String.valueOf(cal.get(Calendar.MINUTE));
+        String csvDate = String.valueOf(cal.get(Calendar.YEAR))+"_"+String.valueOf(cal.get(Calendar.MONTH)+1)+"_"+String.valueOf(cal.get(Calendar.DAY_OF_MONTH))+"_"+String.valueOf(cal.get(Calendar.HOUR_OF_DAY))+"_"+String.valueOf(cal.get(Calendar.MINUTE));
         String csvPrefix = arg.getString("csv")+csvDate;
         System.out.println("Resulting csv file name will start with prefix "+csvPrefix);
         queryEngine.setCsvPrefix(csvPrefix);
