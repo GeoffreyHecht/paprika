@@ -28,7 +28,7 @@ public class SootAnalyzer extends Analyzer {
     private Map<SootClass,PaprikaExternalClass>externalClassMap;
     private Map<SootMethod,PaprikaExternalMethod>externalMethodMap;
     private Map<SootMethod,PaprikaMethod>methodMap;
-    int activityCount = 0, serviceCount = 0, interfaceCount = 0, abstractCount = 0, broadcastReceiverCount = 0, contentProviderCount = 0;
+    int activityCount = 0, innerCount = 0, varCount = 0, asyncCount = 0, serviceCount = 0, viewCount = 0, interfaceCount = 0, abstractCount = 0, broadcastReceiverCount = 0, contentProviderCount = 0;
     private String rClass;
     private String buildConfigClass;
 
@@ -131,6 +131,10 @@ public class SootAnalyzer extends Analyzer {
         NumberOfClasses.createNumberOfClasses(this.paprikaApp, sootClasses.size());
         NumberOfActivities.createNumberOfActivities(this.paprikaApp, activityCount);
         NumberOfServices.createNumberOfServices(this.paprikaApp, serviceCount);
+        NumberOfInnerClasses.createNumberOfInnerClasses(this.paprikaApp, innerCount);
+        NumberOfAsyncTasks.createNumberOfAsyncTasks(this.paprikaApp, asyncCount);
+        NumberOfViews.createNumberOfViews(this.paprikaApp, viewCount);
+        NumberOfVariables.createNumberOfVariables(this.paprikaApp, varCount);
         NumberOfInterfaces.createNumberOfInterfaces(this.paprikaApp, interfaceCount);
         NumberOfAbstractClasses.createNumberOfAbstractClasses(this.paprikaApp, abstractCount);
         NumberOfBroadcastReceivers.createNumberOfBroadcastReceivers(this.paprikaApp, broadcastReceiverCount);
@@ -286,7 +290,8 @@ public class SootAnalyzer extends Analyzer {
             Edge e = edgeOutIterator.next();
             PaprikaMethod targetMethod =  methodMap.get(e.tgt());
             //In the case we are calling an external method (sdk or library)
-            if(targetMethod == null && !isInit(e.tgt())){
+            //if(targetMethod == null && !isInit(e.tgt())){
+            if(targetMethod == null){
                 PaprikaExternalMethod externalTgtMethod = externalMethodMap.get(e.tgt());
                 if( externalTgtMethod == null){
                     PaprikaExternalClass paprikaExternalClass = externalClassMap.get(e.tgt().getDeclaringClass());
@@ -334,6 +339,7 @@ public class SootAnalyzer extends Analyzer {
             IsFinal.createIsFinal(paprikaClass, true);
         }
         if(sootClass.isInnerClass()){
+            innerCount++;
             IsInnerClass.createIsInnerClass(paprikaClass, true);
             // Fix to determine if the class is static or not
             if(isInnerClassStatic(sootClass)){
@@ -342,19 +348,27 @@ public class SootAnalyzer extends Analyzer {
         }
         if(isActivity(sootClass)){
             activityCount++;
-            IsActivity.createIsActivity(paprikaClass,true);
+            IsActivity.createIsActivity(paprikaClass, true);
         }
         else if(isService(sootClass)){
             serviceCount++;
-            IsService.createIsService(paprikaClass,true);
+            IsService.createIsService(paprikaClass, true);
+        }
+        else if(isView(sootClass)){
+            viewCount++;
+            IsView.createIsView(paprikaClass, true);
+        }
+        else if(isAsyncTask(sootClass)){
+            asyncCount++;
+            IsAsyncTask.createIsAsyncTask(paprikaClass, true);
         }
         else if(isBroadcastReceiver(sootClass)){
             broadcastReceiverCount++;
-            IsBroadcastReceiver.createIsBroadcastReceiver(paprikaClass,true);
+            IsBroadcastReceiver.createIsBroadcastReceiver(paprikaClass, true);
         }
         else if(isContentProvider(sootClass)){
             contentProviderCount++;
-            IsContentProvider.createIsContentProvider(paprikaClass,true);
+            IsContentProvider.createIsContentProvider(paprikaClass, true);
         }else if(isApplication(sootClass)){
             IsApplication.createIsApplication(paprikaClass,true);
         }
@@ -375,6 +389,7 @@ public class SootAnalyzer extends Analyzer {
                 modifier = PaprikaModifiers.PROTECTED;
             }
             PaprikaVariable paprikaVariable = PaprikaVariable.createPaprikaVariable(sootField.getName(), sootField.getType().toString(), modifier, paprikaClass);
+            varCount++;
             if(sootField.isStatic()){
                 IsStatic.createIsStatic(paprikaVariable, true);
             }
@@ -392,6 +407,7 @@ public class SootAnalyzer extends Analyzer {
         NumberOfImplementedInterfaces.createNumberOfImplementedInterfaces(paprikaClass, sootClass.getInterfaceCount());
         NumberOfAttributes.createNumberOfAttributes(paprikaClass, sootClass.getFieldCount());
     }
+
 
     /**
      * Fix to determine if a class is static or not
@@ -448,6 +464,14 @@ public class SootAnalyzer extends Analyzer {
 
     private boolean isService(SootClass sootClass){
         return isSubClass(sootClass,"android.app.Service");
+    }
+
+    private boolean isAsyncTask(SootClass sootClass){
+        return isSubClass(sootClass,"android.os.AsyncTask");
+    }
+
+    private boolean isView(SootClass sootClass){
+        return isSubClass(sootClass,"android.view.View");
     }
 
     private boolean isBroadcastReceiver(SootClass sootClass){ return isSubClass(sootClass,"android.content.BroadcastReceiver");}
