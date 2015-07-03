@@ -147,6 +147,55 @@ public class QueryEngine {
         }
     }
 
+    public void UnsuitedLRUCacheSizeQuery() throws CypherException, IOException {
+        Result result;
+        try (Transaction ignored = graphDatabaseService.beginTx()) {
+            result = graphDatabaseService.execute("Match (m:Method)-[:CALLS]->(e:ExternalMethod {full_name:'<init>#android.util.LruCache'}) WHERE NOT (m)-[:CALLS]->(:ExternalMethod {full_name:'getMemoryClass#android.app.ActivityManager'}) return m.app_key as app_key,count(m) as UCS");
+            resultToCSV(result,"_UCS.csv");
+        }
+    }
+
+    public void InitOnDrawQuery() throws CypherException, IOException {
+        Result result;
+        try (Transaction ignored = graphDatabaseService.beginTx()) {
+            result = graphDatabaseService.execute("MATCH (:Class{parent_name:'android.view.View'})-[:CLASS_OWNS_METHOD]->(n:Method{name:'onDraw'})-[:CALLS]->({name:'<init>'}) return n.app_key as app_key,count(n) as IOD");
+            resultToCSV(result,"IOD_.csv");
+        }
+    }
+
+    public void UnsupportedHardwareAccelerationQuery() throws CypherException, IOException {
+        Result result;
+        String [] uhas = {
+                "drawPicture#android.graphics.Canvas",
+                "drawVertices#android.graphics.Canvas",
+                "drawPosText#android.graphics.Canvas",
+                "drawTextOnPath#android.graphics.Canvas",
+                "drawPath#android.graphics.Canvas",
+                "setLinearText#android.graphics.Paint",
+                "setMaskFilter#android.graphics.Paint",
+                "setPathEffect#android.graphics.Paint",
+                "setRasterizer#android.graphics.Paint",
+                "setSubpixelText#android.graphics.Paint"
+        };
+        String query = "MATCH (m:Method)-[:CALLS]->(e:ExternalMethod) WHERE e.full_name='"+uhas[0]+"'";
+        for (int i=1; i < uhas.length;i++){
+            query += " OR e.full_name='" + uhas[i] + "' ";
+        }
+        query += "return m.app_key, count(m) as UHA";
+        try (Transaction ignored = graphDatabaseService.beginTx()) {
+            result = graphDatabaseService.execute(query);
+            resultToCSV(result,"UHA_.csv");
+        }
+    }
+
+    public void HashMapUsage() throws CypherException, IOException {
+        Result result;
+        try (Transaction ignored = graphDatabaseService.beginTx()) {
+            result = graphDatabaseService.execute("MATCH (m:Method)-[:CALLS]->(e:ExternalMethod{full_name:'<init>#java.util.HashMap'}) return m.app_key, count(m) as HMU");
+            resultToCSV(result,"HMU_.csv");
+        }
+    }
+
     public void AnalyzedAppQuery() throws CypherException, IOException {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {

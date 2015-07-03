@@ -237,6 +237,12 @@ public class Main {
                 queryEngine.HeavyServiceStartQuery();
                 queryEngine.IGSQuery();
                 break;
+            case "NEWAP":
+                queryEngine.InitOnDrawQuery();
+                queryEngine.UnsuitedLRUCacheSizeQuery();
+                queryEngine.UnsupportedHardwareAccelerationQuery();
+                queryEngine.HashMapUsage();
+                break;
             default:
                 System.out.println("Unknown query");
         }
