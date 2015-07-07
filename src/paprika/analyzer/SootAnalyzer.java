@@ -146,7 +146,8 @@ public class SootAnalyzer extends Analyzer {
         for(SootClass sootClass : sootClasses){
             //Excluding R And BuildConfig class from the analysis
             String rsubClassStart = rClass + "$";
-            if(sootClass.getName().equals(rClass) || sootClass.getName().startsWith(rsubClassStart) || sootClass.getName().equals(buildConfigClass)) {
+            String name = sootClass.getName();
+            if(name.equals(rClass) || name.startsWith(rsubClassStart) || name.equals(buildConfigClass)) {
                 //sootClass.setLibraryClass();
             }else{
                 collectClassMetrics(sootClass);
@@ -263,9 +264,12 @@ public class SootAnalyzer extends Analyzer {
             }else{
                 if (nbOfBranches == 1 && paprikaMethod.getUsedVariables().size() == 1 && sootMethod.getExceptions().size() == 0) {
                     paprikaVariable = paprikaMethod.getUsedVariables().iterator().next();
-                    if (sootMethod.getParameterCount() == 1 && sootMethod.getActiveBody().getUnits().size() == 4 && paprikaMethod.getReturnType() == "void") {
+                    int parameterCount  = sootMethod.getParameterCount();
+                    int unitSize = sootMethod.getActiveBody().getUnits().size();
+                    String returnType = paprikaMethod.getReturnType();
+                    if (parameterCount == 1 && unitSize == 4 && returnType.equals("void")) {
                         IsSetter.createIsSetter(paprikaMethod, true);
-                    } else if (sootMethod.getParameterCount() == 0 && sootMethod.getActiveBody().getUnits().size() == 3 && paprikaMethod.getReturnType().equals(paprikaVariable.getType())) {
+                    } else if (parameterCount == 0 && unitSize == 3 && returnType.equals(paprikaVariable.getType())) {
                         IsGetter.createIsGetter(paprikaMethod, true);
                     }
                 }
@@ -276,7 +280,8 @@ public class SootAnalyzer extends Analyzer {
     }
 
     private boolean isInit(SootMethod sootMethod){
-        return sootMethod.getName().equals("<init>") || sootMethod.getName().equals("<clinit>");
+        String name = sootMethod.getName();
+        return name.equals("<init>") || name.equals("<clinit>");
     }
 
     private void collectMethodMetricsFromCallGraph(PaprikaMethod paprikaMethod, SootMethod sootMethod) {
@@ -288,26 +293,32 @@ public class SootAnalyzer extends Analyzer {
         PaprikaClass currentClass = paprikaMethod.getPaprikaClass();
         while(edgeOutIterator.hasNext()) {
             Edge e = edgeOutIterator.next();
-            PaprikaMethod targetMethod =  methodMap.get(e.tgt());
+            SootMethod target = e.tgt();
+            PaprikaMethod targetMethod =  methodMap.get(target);
             //In the case we are calling an external method (sdk or library)
             //if(targetMethod == null && !isInit(e.tgt())){
             if(targetMethod == null){
-                PaprikaExternalMethod externalTgtMethod = externalMethodMap.get(e.tgt());
+                PaprikaExternalMethod externalTgtMethod = externalMethodMap.get(target);
                 if( externalTgtMethod == null){
-                    PaprikaExternalClass paprikaExternalClass = externalClassMap.get(e.tgt().getDeclaringClass());
+                    PaprikaExternalClass paprikaExternalClass = externalClassMap.get(target.getDeclaringClass());
                     if(paprikaExternalClass == null){
-                        paprikaExternalClass = PaprikaExternalClass.createPaprikaExternalClass(e.tgt().getDeclaringClass().getName(),paprikaApp);
-                        externalClassMap.put(e.tgt().getDeclaringClass(),paprikaExternalClass);
+                        paprikaExternalClass = PaprikaExternalClass.createPaprikaExternalClass(target.getDeclaringClass().getName(),paprikaApp);
+                        externalClassMap.put(target.getDeclaringClass(),paprikaExternalClass);
                     }
-                    externalTgtMethod = PaprikaExternalMethod.createPaprikaExternalMethod(e.tgt().getName(),e.tgt().getReturnType().toString(),paprikaExternalClass);
-                    externalMethodMap.put(e.tgt(),externalTgtMethod);
+                    externalTgtMethod = PaprikaExternalMethod.createPaprikaExternalMethod(target.getName(),target.getReturnType().toString(),paprikaExternalClass);
+                    int i = 0;
+                    for(Type type : target.getParameterTypes()){
+                        i++;
+                        PaprikaExternalArgument.createPaprikaExternalArgument(type.toString(), i, externalTgtMethod);
+                    }
+                    externalMethodMap.put(target,externalTgtMethod);
                 }
                 paprikaMethod.callMethod(externalTgtMethod);
             }
             if(targetMethod != null){
                 paprikaMethod.callMethod(targetMethod);
             }
-            PaprikaClass targetClass = classMap.get(e.tgt().getDeclaringClass());
+            PaprikaClass targetClass = classMap.get(target.getDeclaringClass());
             if (e.isVirtual() || e.isSpecial() || e.isStatic()) edgeOutCount++;
             //Detecting coupling (may include calls to inherited methods)
             if (targetClass != null && targetClass != currentClass) currentClass.coupledTo(targetClass);
@@ -459,7 +470,7 @@ public class SootAnalyzer extends Analyzer {
         }
     }
     private boolean isActivity(SootClass sootClass){
-        return isSubClass(sootClass,"android.app.Activity");
+        return isSubClass(sootClass,"anfoid.app.Activity");
     }
 
     private boolean isService(SootClass sootClass){

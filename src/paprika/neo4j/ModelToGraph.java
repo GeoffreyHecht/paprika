@@ -22,6 +22,7 @@ public class ModelToGraph {
     private static final Label externalMethodLabel = DynamicLabel.label("ExternalMethod");
     private static final Label variableLabel = DynamicLabel.label("Variable");
     private static final Label argumentLabel = DynamicLabel.label("Argument");
+    private static final Label externalArgumentLabel = DynamicLabel.label("ExternalArgument");
 
     private Map<Entity,Node> methodNodeMap;
     private Map<PaprikaClass,Node> classNodeMap;
@@ -167,6 +168,9 @@ public class ModelToGraph {
         for(Metric metric : paprikaMethod.getMetrics()){
             insertMetric(metric, methodNode);
         }
+        for(PaprikaExternalArgument arg : paprikaMethod.getPaprikaExternalArguments()){
+            methodNode.createRelationshipTo(insertExternalArgument(arg),RelationTypes.METHOD_OWNS_ARGUMENT);
+        }
         return methodNode;
     }
 
@@ -175,6 +179,14 @@ public class ModelToGraph {
         argNode.setProperty("app_key", key);
         argNode.setProperty("name", paprikaArgument.getName());
         argNode.setProperty("position", paprikaArgument.getPosition());
+        return argNode;
+    }
+
+    public Node insertExternalArgument(PaprikaExternalArgument paprikaExternalArgument){
+        Node argNode = graphDatabaseService.createNode(externalArgumentLabel);
+        argNode.setProperty("app_key", key);
+        argNode.setProperty("name", paprikaExternalArgument.getName());
+        argNode.setProperty("position", paprikaExternalArgument.getPosition());
         return argNode;
     }
 
