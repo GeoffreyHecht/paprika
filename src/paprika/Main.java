@@ -227,17 +227,6 @@ public class Main {
                 queryEngine.HeavyASyncTaskStepsQuery();
                 queryEngine.HeavyBroadcastReceiverQuery();
                 queryEngine.HeavyServiceStartQuery();
-                break;
-            case "LASTAP":
-                queryEngine.LICQuery();
-                queryEngine.NLMRQuery();
-                queryEngine.OverdrawQuery();
-                queryEngine.HeavyASyncTaskStepsQuery();
-                queryEngine.HeavyBroadcastReceiverQuery();
-                queryEngine.HeavyServiceStartQuery();
-                queryEngine.IGSQuery();
-                break;
-            case "NEWAP":
                 queryEngine.InitOnDrawQuery();
                 queryEngine.UnsuitedLRUCacheSizeQuery();
                 queryEngine.UnsupportedHardwareAccelerationQuery();

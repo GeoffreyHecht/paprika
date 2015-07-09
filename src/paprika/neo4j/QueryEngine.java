@@ -159,7 +159,7 @@ public class QueryEngine {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
             result = graphDatabaseService.execute("MATCH (:Class{parent_name:'android.view.View'})-[:CLASS_OWNS_METHOD]->(n:Method{name:'onDraw'})-[:CALLS]->({name:'<init>'}) return n.app_key as app_key,count(n) as IOD");
-            resultToCSV(result,"IOD_.csv");
+            resultToCSV(result,"_IOD_.csv");
         }
     }
 
@@ -184,7 +184,7 @@ public class QueryEngine {
         query += "return m.app_key, count(m) as UHA";
         try (Transaction ignored = graphDatabaseService.beginTx()) {
             result = graphDatabaseService.execute(query);
-            resultToCSV(result,"UHA_.csv");
+            resultToCSV(result,"_UHA_.csv");
         }
     }
 
@@ -192,7 +192,7 @@ public class QueryEngine {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
             result = graphDatabaseService.execute("MATCH (m:Method)-[:CALLS]->(e:ExternalMethod{full_name:'<init>#java.util.HashMap'}) return m.app_key, count(m) as HMU");
-            resultToCSV(result,"HMU_.csv");
+            resultToCSV(result,"_HMU_.csv");
         }
     }
 
