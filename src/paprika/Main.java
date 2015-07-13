@@ -231,6 +231,7 @@ public class Main {
                 queryEngine.UnsuitedLRUCacheSizeQuery();
                 queryEngine.UnsupportedHardwareAccelerationQuery();
                 queryEngine.HashMapUsage();
+                queryEngine.InvalidateWithoutRect();
                 break;
             default:
                 System.out.println("Unknown query");
