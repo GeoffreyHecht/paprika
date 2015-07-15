@@ -470,7 +470,7 @@ public class SootAnalyzer extends Analyzer {
         }
     }
     private boolean isActivity(SootClass sootClass){
-        return isSubClass(sootClass,"anfoid.app.Activity");
+        return isSubClass(sootClass,"android.app.Activity");
     }
 
     private boolean isService(SootClass sootClass){
