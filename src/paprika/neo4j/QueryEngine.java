@@ -563,4 +563,10 @@ public class QueryEngine {
             resultToCSV(result,"_COUNT_VIEWS.csv");
         }
     }
+
+    public void executeRequest(String request){
+        try (Transaction ignored = graphDatabaseService.beginTx()) {
+            graphDatabaseService.execute(request);
+        }
+    }
 }

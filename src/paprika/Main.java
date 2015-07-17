@@ -234,7 +234,8 @@ public class Main {
                 queryEngine.InvalidateWithoutRect();
                 break;
             default:
-                System.out.println("Unknown query");
+                System.out.println("Executing custom request");
+                queryEngine.executeRequest(request);
         }
         queryEngine.shutDown();
         System.out.println("Done");
