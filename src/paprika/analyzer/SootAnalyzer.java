@@ -4,8 +4,8 @@ import paprika.entities.*;
 import paprika.metrics.*;
 import soot.*;
 import soot.grimp.GrimpBody;
-import soot.grimp.internal.GInstanceFieldRef;
 import soot.grimp.internal.GLookupSwitchStmt;
+import soot.jimple.FieldRef;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
 import soot.options.Options;
@@ -31,10 +31,12 @@ public class SootAnalyzer extends Analyzer {
     int activityCount = 0, innerCount = 0, varCount = 0, asyncCount = 0, serviceCount = 0, viewCount = 0, interfaceCount = 0, abstractCount = 0, broadcastReceiverCount = 0, contentProviderCount = 0;
     private String rClass;
     private String buildConfigClass;
+    private String pack;
 
     public SootAnalyzer(String apk, String androidJAR,String name,String key,String pack,String date,int size,String dev,String cat,String price,double rating,String nbDownload,String versionCode,String versionName,String sdkVersion,String targetSdkVersion) {
         Analyzer.apk = apk;
         this.androidJAR = androidJAR;
+        this.pack = pack;
         this.paprikaApp = PaprikaApp.createPaprikaApp(name,key,pack,date,size,dev,cat,price,rating,nbDownload,versionCode,versionName,sdkVersion,targetSdkVersion);
         this.rClass = pack.concat(".R");
         this.buildConfigClass = pack.concat(".BuildConfig");
@@ -83,7 +85,8 @@ public class SootAnalyzer extends Analyzer {
         excludeList.add("sun.misc.");
         excludeList.add("android.");
         excludeList.add("org.apache.");
-        excludeList.add("javax.");
+        excludeList.add("soot.");
+        excludeList.add("javax.servlet.");
         Options.v().set_exclude(excludeList);
         //Options.v().set_no_bodies_for_excluded(true);
         //Options.v().setPhaseOption("cg","verbose:true");
@@ -147,9 +150,10 @@ public class SootAnalyzer extends Analyzer {
             //Excluding R And BuildConfig class from the analysis
             String rsubClassStart = rClass + "$";
             String name = sootClass.getName();
+            String packs =  pack.concat(".");
             if(name.equals(rClass) || name.startsWith(rsubClassStart) || name.equals(buildConfigClass)) {
                 //sootClass.setLibraryClass();
-            }else{
+            }else if(name.startsWith(packs)){
                 collectClassMetrics(sootClass);
             }
         }
@@ -179,6 +183,7 @@ public class SootAnalyzer extends Analyzer {
             //LCOM
             LackofCohesionInMethods.createLackofCohesionInMethods(paprikaClass);
         }
+        NumberOfMethods.createNumberOfMethods(paprikaApp,methodMap.size());
     }
 
     /**
@@ -188,8 +193,8 @@ public class SootAnalyzer extends Analyzer {
         SootClass sootClass = sootMethod.getDeclaringClass();
         PaprikaClass paprikaClass = classMap.get(sootClass);
         if (paprikaClass == null){
-            //Should be R class
-            LOGGER.warning("Class not analyzed : "+ sootClass);
+            //Should be R or external classes
+            //LOGGER.warning("Class not analyzed : "+ sootClass);
             sootClass.setLibraryClass();
             return;
             /*
@@ -240,8 +245,8 @@ public class SootAnalyzer extends Analyzer {
                 List<ValueBox> boxes = sootUnit.getUseAndDefBoxes();
                 for (ValueBox valueBox : boxes){
                     Value value = valueBox.getValue();
-                    if (value instanceof GInstanceFieldRef) {
-                        SootFieldRef field = ((GInstanceFieldRef) value).getFieldRef();
+                    if (value instanceof FieldRef) {
+                        SootFieldRef field = ((FieldRef) value).getFieldRef();
                         if(field.declaringClass() == sootClass){
                             paprikaVariable = paprikaClass.findVariable(field.name());
                             //If we don't find the field it's inherited and thus not used for LCOM2
@@ -258,18 +263,21 @@ public class SootAnalyzer extends Analyzer {
                 }
             }
             CyclomaticComplexity.createCyclomaticComplexity(paprikaMethod, nbOfBranches);
-            //Is it a probable getter/setter or init?
             if(isInit(sootMethod)) {
                 IsInit.createIsInit(paprikaMethod, true);
             }else{
+                if(isOverride(sootMethod)){
+                    IsOverride.createIsOverride(paprikaMethod,true);
+                }
+                //Is it a probable getter/setter ?
                 if (nbOfBranches == 1 && paprikaMethod.getUsedVariables().size() == 1 && sootMethod.getExceptions().size() == 0) {
                     paprikaVariable = paprikaMethod.getUsedVariables().iterator().next();
                     int parameterCount  = sootMethod.getParameterCount();
                     int unitSize = sootMethod.getActiveBody().getUnits().size();
                     String returnType = paprikaMethod.getReturnType();
-                    if (parameterCount == 1 && unitSize == 4 && returnType.equals("void")) {
+                    if (parameterCount == 1 && unitSize <= 4 && returnType.equals("void")) {
                         IsSetter.createIsSetter(paprikaMethod, true);
-                    } else if (parameterCount == 0 && unitSize == 3 && returnType.equals(paprikaVariable.getType())) {
+                    } else if (parameterCount == 0 && unitSize <= 3 && returnType.equals(paprikaVariable.getType())) {
                         IsGetter.createIsGetter(paprikaMethod, true);
                     }
                 }
@@ -496,6 +504,16 @@ public class SootAnalyzer extends Analyzer {
             if(sootClass.getName().equals(className)) return true;
             sootClass = sootClass.getSuperclass();
         }while(sootClass.hasSuperclass());
+        return false;
+    }
+
+    private boolean isOverride(SootMethod sootMethod){
+        SootClass sootClass = sootMethod.getDeclaringClass();
+        while(sootClass.hasSuperclass()){
+            sootClass = sootClass.getSuperclass();
+            //Here unsafe just means it will return null (instead of throwing an exception).
+            if (sootClass.getMethodUnsafe(sootMethod.getName(), sootMethod.getParameterTypes(),sootMethod.getReturnType())!= null) return true;
+        }
         return false;
     }
 }
