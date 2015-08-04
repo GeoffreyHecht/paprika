@@ -32,8 +32,9 @@ public class SootAnalyzer extends Analyzer {
     private String rClass;
     private String buildConfigClass;
     private String pack;
+    private boolean mainPackageOnly = false;
 
-    public SootAnalyzer(String apk, String androidJAR,String name,String key,String pack,String date,int size,String dev,String cat,String price,double rating,String nbDownload,String versionCode,String versionName,String sdkVersion,String targetSdkVersion) {
+    public SootAnalyzer(String apk, String androidJAR,String name,String key,String pack,String date,int size,String dev,String cat,String price,double rating,String nbDownload,String versionCode,String versionName,String sdkVersion,String targetSdkVersion, boolean mainPackageOnly) {
         Analyzer.apk = apk;
         this.androidJAR = androidJAR;
         this.pack = pack;
@@ -44,6 +45,7 @@ public class SootAnalyzer extends Analyzer {
         this.externalClassMap = new HashMap<>();
         this.externalMethodMap = new HashMap<>();
         this.methodMap = new HashMap<>();
+        this.mainPackageOnly = mainPackageOnly;
     }
 
     @Override
@@ -130,8 +132,7 @@ public class SootAnalyzer extends Analyzer {
      * Should be called after all classes have been processed once
      */
     public void collectAppMetrics(){
-        Chain<SootClass> sootClasses = Scene.v().getApplicationClasses();
-        NumberOfClasses.createNumberOfClasses(this.paprikaApp, sootClasses.size());
+        NumberOfClasses.createNumberOfClasses(this.paprikaApp, classMap.size());
         NumberOfActivities.createNumberOfActivities(this.paprikaApp, activityCount);
         NumberOfServices.createNumberOfServices(this.paprikaApp, serviceCount);
         NumberOfInnerClasses.createNumberOfInnerClasses(this.paprikaApp, innerCount);
@@ -153,6 +154,8 @@ public class SootAnalyzer extends Analyzer {
             String packs =  pack.concat(".");
             if(name.equals(rClass) || name.startsWith(rsubClassStart) || name.equals(buildConfigClass)) {
                 //sootClass.setLibraryClass();
+            }else if(!mainPackageOnly){
+                collectClassMetrics(sootClass);
             }else if(name.startsWith(packs)){
                 collectClassMetrics(sootClass);
             }

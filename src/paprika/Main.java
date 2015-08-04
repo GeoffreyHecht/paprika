@@ -66,6 +66,7 @@ public class Main {
         analyseParser.addArgument("-vn", "--versionName").setDefault("").help("Version Name of the application (extract from manifest)");
         analyseParser.addArgument("-tsdk", "--targetSdkVersion").setDefault("").help("Target SDK Version (extract from manifest)");
         analyseParser.addArgument("-sdk", "--sdkVersion").setDefault("").help("sdk version (extract from manifest)");
+        analyseParser.addArgument("-omp", "--onlyMainPackage").type(Boolean.class).setDefault(false).help("Analyze only the main package of the application");
 
         Subparser queryParser = subparsers.addParser("query").help("Query the database");
         queryParser.addArgument("-db", "--database").required(true).help("Path to neo4J Database folder");
@@ -108,7 +109,7 @@ public class Main {
                 arg.getString("name"),arg.getString("key").toLowerCase(),
                 arg.getString("package"),arg.getString("date"),arg.getInt("size"),
                 arg.getString("developer"),arg.getString("category"),arg.getString("price"),
-                arg.getDouble("rating"),arg.getString("nbDownload"),arg.getString("versionCode"),arg.getString("versionName"),arg.getString("sdkVersion"),arg.getString("targetSdkVersion"));
+                arg.getDouble("rating"),arg.getString("nbDownload"),arg.getString("versionCode"),arg.getString("versionName"),arg.getString("sdkVersion"),arg.getString("targetSdkVersion"), arg.getBoolean("onlyMainPackage"));
         analyzer.init();
         analyzer.runAnalysis();
         System.out.println("Saving into database "+arg.getString("database"));
