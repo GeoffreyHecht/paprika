@@ -1,0 +1,25 @@
+FUNCTION_BLOCK SAK
+
+VAR_INPUT
+	number_of_methods : REAL;
+END_VAR
+
+VAR_OUTPUT
+	res : REAL;
+END_VAR
+
+FUZZIFY number_of_methods
+    TERM high := (15, 0) (25, 1);
+END_FUZZIFY
+
+DEFUZZIFY res
+	METHOD : LM;		// Use 'Center Of Gravity' defuzzification method
+	TERM sak := (0, 0) (1, 1);
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+RULEBLOCK No1
+	RULE 1 : IF class_complexity IS high THEN res IS sak;
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK

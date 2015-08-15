@@ -208,6 +208,18 @@ public class Main {
             case "COUNTVIEWS":
                 queryEngine.countViews();
                 break;
+            case "NONFUZZY":
+                queryEngine.IGSQuery();
+                queryEngine.MIMQuery();
+                queryEngine.LICQuery();
+                queryEngine.NLMRQuery();
+                queryEngine.OverdrawQuery();
+                queryEngine.InitOnDrawQuery();
+                queryEngine.UnsuitedLRUCacheSizeQuery();
+                queryEngine.UnsupportedHardwareAccelerationQuery();
+                queryEngine.HashMapUsage();
+                queryEngine.InvalidateWithoutRect();
+                break;
             case "ALLAP":
                 //queryEngine.CCQuery();
                 queryEngine.LMQuery();

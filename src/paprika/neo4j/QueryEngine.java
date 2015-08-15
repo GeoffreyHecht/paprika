@@ -47,10 +47,6 @@ public class QueryEngine {
         csvPrefix = "";
     }
 
-    public QueryEngine(){
-        csvPrefix = "";
-    }
-
     public void shutDown(){
         databaseManager.shutDown();
     }
@@ -58,7 +54,7 @@ public class QueryEngine {
    public void MIMQuery() throws CypherException, IOException {
        Result result;
        try (Transaction ignored = graphDatabaseService.beginTx()) {
-           result = graphDatabaseService.execute("MATCH (m1:Method) WHERE NOT HAS(m1.`is_static`) AND NOT m1-[:USES]->(:Variable)  AND NOT (m1)-[:CALLS]->(:Method) AND NOT HAS(m1.is_init)  RETURN m1.app_key as app_key,count(m1) as MIM");
+           result = graphDatabaseService.execute("MATCH (m1:Method) WHERE NOT HAS(m1.is_static) AND NOT HAS(m1.is_override) AND NOT m1-[:USES]->(:Variable)  AND NOT (m1)-[:CALLS]->(:Method) AND NOT HAS(m1.is_init)  RETURN m1.app_key as app_key,count(m1) as MIM");
            resultToCSV(result,"_MIM.csv");
        }
    }
