@@ -15,18 +15,17 @@ import java.util.*;
  */
 public class QueryEngine {
 
-    private GraphDatabaseService graphDatabaseService;
-    private DatabaseManager databaseManager;
-    private static double classClomplexity = 27;
-    private static double numberofInterfaces= 2;
-    private static double lcom = 22.5;
-    private static double numberofMethods = 14.5;
-    private static double numberofMethodsForInterfaces = 8.5;
-    private static double numberofAttributes = 7.5;
-    private static double numberofInstructions = 15;
-    private static double cyclomatic_complexity= 3.5;
+    protected GraphDatabaseService graphDatabaseService;
+    protected DatabaseManager databaseManager;
 
-    private String csvPrefix;
+    protected static double lcom = 22.5;
+    protected static double numberofMethods = 14.5;
+    protected static double numberofMethodsForInterfaces = 8.5;
+    protected static double numberofAttributes = 7.5;
+    protected static double numberofInstructions = 15;
+    protected static double cyclomatic_complexity= 3.5;
+
+    protected String csvPrefix;
 
     public String getCsvPrefix() {
         return csvPrefix;
@@ -36,11 +35,19 @@ public class QueryEngine {
         this.csvPrefix = csvPrefix;
     }
 
+    public GraphDatabaseService getGraphDatabaseService() {
+        return graphDatabaseService;
+    }
+
 
     public QueryEngine(String DatabasePath){
         this.databaseManager = new DatabaseManager(DatabasePath);
         databaseManager.start();
-        this.graphDatabaseService = databaseManager.getGraphDatabaseService();
+        graphDatabaseService = databaseManager.getGraphDatabaseService();
+        csvPrefix = "";
+    }
+
+    public QueryEngine(){
         csvPrefix = "";
     }
 
@@ -81,13 +88,7 @@ public class QueryEngine {
     }
 
 
-    public void CCQuery() throws CypherException, IOException {
-        Result result;
-        try (Transaction ignored = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.execute("MATCH (cl:Class) WHERE cl.class_complexity > "+ classClomplexity +" RETURN cl.app_key as app_key,count(cl) as CC");
-            resultToCSV(result,"_CC.csv");
-        }
-    }
+
 
     public void LMQuery() throws CypherException, IOException {
         Result result;
@@ -212,30 +213,6 @@ public class QueryEngine {
         }
     }
 
-    public Map calculateQuartile(String nodeType, String property){
-        Map<String, Double> res = new HashMap<>();
-        Result result;
-        try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = "MATCH (n:"+nodeType+") RETURN percentileDisc(n."+property+",0.25) as Q1,percentileDisc(n."+property+",0.5) as MED, percentileDisc(n."+property+",0.75) as Q3";
-            result = graphDatabaseService.execute(query);
-            //Only one result in that case
-            while ( result.hasNext() )
-            {
-                Map<String,Object> row = result.next();
-                double q1 = (int) row.get("Q1");
-                double med = (int) row.get("MED");
-                double q3 = (int) row.get("Q3");
-                double threshold  = q3 + ( 1.5 * ( q3 - q1));
-                res.put("Q1",q1);
-                res.put("Q3",q3);
-                res.put("MED",med);
-                res.put("THRESHOLD",threshold);
-            }
-        }
-        return res;
-    }
-
-
     public void getPropertyForAllApk(String nodeType, String property,String suffix) throws IOException {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
@@ -261,113 +238,8 @@ public class QueryEngine {
         getPropertyForAllApk("Method", "cyclomatic_complexity","_ALL_CYCLOMATIC_COMPLEXITY.csv");
     }
 
-    public Result calculateQuartilePerApk(String nodeType, String property){
-        Result result;
-        try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = "MATCH (n:" + nodeType + ") RETURN n.app_key as app_key, percentileDisc(n." + property + ",0.25) as Q1,percentileDisc(n." + property + ",0.5) as MED, percentileDisc(n." + property + ",0.75) as Q3";
-            result = graphDatabaseService.execute(query);
-        }
-        return result;
-    }
 
-    public void calculateLCOMQuartilePerAPK() throws IOException {
-        resultToCSV(calculateQuartilePerApk("Class", "lack_of_cohesion_in_methods"), "_STAT_LCOM_ALL.csv");
-    }
-
-    public void calculateClassComplexityQuartilePerAPK() throws IOException {
-        resultToCSV(calculateQuartilePerApk("Class", "class_complexity"), "_STAT_CLASS_COMPLEXITY_ALL.csv");
-    }
-
-    public void calculateCyclomaticComplexityQuartilePerAPK() throws IOException {
-        resultToCSV(calculateQuartilePerApk("Method", "cyclomatic_complexity"), "_STAT_CYCLO_COMPLEXITY_ALL.csv");
-    }
-
-    public void deleteQuery(String appKey) throws CypherException, IOException {
-        Result result;
-        try (Transaction tx = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.execute("MATCH (n {app_key: '"+appKey+"'})-[r]-() DELETE n,r");
-            System.out.println(result.resultAsString());
-            tx.success();
-        }
-    }
-
-    public void calculateClassComplexityQuartile() throws IOException {
-        statsToCSV(calculateQuartile("Class", "class_complexity"), "_STAT_CLASS_COMPLEXITY.csv");
-    }
-
-    public void calculateCyclomaticComplexityQuartile() throws IOException {
-        statsToCSV(calculateQuartile("Method", "cyclomatic_complexity"), "_STAT_CYCLOMATIC_COMPLEXITY.csv");
-    }
-
-    public void calculateNumberofInstructionsQuartile() throws IOException {
-        statsToCSV(calculateQuartile("Method", "number_of_instructions"),"_STAT_NB_INSTRUCTIONS.csv");
-    }
-
-
-
-    /**
-     * Excluding classes implementing 0 or 1 interface
-     * @return
-     */
-    public void calculateNumberOfImplementedInterfacesQuartile() throws IOException {
-        Map<String, Double> res = new HashMap<>();
-        Result result;
-        try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = "MATCH (n:Class) WHERE n.number_of_implemented_interfaces > 1 RETURN percentileDisc(n.number_of_implemented_interfaces,0.25) as Q1, percentileDisc(n.number_of_implemented_interfaces,0.5) as MED, percentileDisc(n.number_of_implemented_interfaces,0.75) as Q3";
-            result = graphDatabaseService.execute(query);
-            //Only one result in that case
-            while ( result.hasNext() )
-            {
-                Map<String,Object> row = result.next();
-                double q1 = (int) row.get("Q1");
-                double med = (int) row.get("MED");
-                double q3 = (int) row.get("Q3");
-                double threshold  = q3 + ( 1.5 * ( q3 - q1));
-                res.put("Q1",q1);
-                res.put("Q3",q3);
-                res.put("MED",med);
-                res.put("THRESHOLD",threshold);
-            }
-        }
-        statsToCSV(res,"_STAT_NB_INTERFACES.csv");
-    }
-
-    public void calculateNumberOfMethodsForInterfacesQuartile() throws IOException {
-        Map<String, Double> res = new HashMap<>();
-        Result result;
-        try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = "MATCH (n:Class) WHERE HAS(n.is_interface) RETURN percentileDisc(n.number_of_methods,0.25) as Q1, percentileDisc(n.number_of_methods,0.5) as MED, percentileDisc(n.number_of_methods,0.75) as Q3";
-            result = graphDatabaseService.execute(query);
-            //Only one result in that case
-            while ( result.hasNext() )
-            {
-                Map<String,Object> row = result.next();
-                double q1 = (int) row.get("Q1");
-                double med = (int) row.get("MED");
-                double q3 = (int) row.get("Q3");
-                double threshold  = q3 + ( 1.5 * ( q3 - q1));
-                res.put("Q1",q1);
-                res.put("Q3",q3);
-                res.put("MED",med);
-                res.put("THRESHOLD",threshold);
-            }
-        }
-        statsToCSV(res,"_STAT_NB_METHODS_INTERFACE.csv");
-    }
-
-    public void calculateLackofCohesionInMethodsQuartile() throws IOException {
-        statsToCSV(calculateQuartile("Class", "lack_of_cohesion_in_methods"),"_STAT_LCOM.csv");
-    }
-
-    public void calculateNumberOfMethodsQuartile() throws IOException {
-        statsToCSV(calculateQuartile("Class", "number_of_methods"),"_STAT_NB_METHODS.csv");
-    }
-
-    public void calculateNumberOfAttributesQuartile() throws IOException {
-        statsToCSV(calculateQuartile("Class", "number_of_attributes"),"_STAT_NB_ATTRIBUTES.csv");
-    }
-
-    private void resultToCSV(Result result,String csvSuffix) throws IOException {
+    public void resultToCSV(Result result, String csvSuffix) throws IOException {
         String name = csvPrefix+csvSuffix;
         FileWriter fw = new FileWriter(name);
         BufferedWriter writer = new BufferedWriter( fw );
@@ -393,7 +265,7 @@ public class QueryEngine {
         fw.close();
     }
 
-    private void statsToCSV(Map<String,Double> stats, String csvSuffix) throws IOException {
+    public void statsToCSV(Map<String,Double> stats, String csvSuffix) throws IOException {
         String name = csvPrefix+csvSuffix;
         FileWriter fw = new FileWriter(name);
         BufferedWriter writer = new BufferedWriter( fw );
@@ -409,6 +281,15 @@ public class QueryEngine {
         }
         writer.close();
         fw.close();
+    }
+
+    public void deleteQuery(String appKey) throws CypherException, IOException {
+        Result result;
+        try (Transaction tx = graphDatabaseService.beginTx()) {
+            result = graphDatabaseService.execute("MATCH (n {app_key: '"+appKey+"'})-[r]-() DELETE n,r");
+            System.out.println(result.resultAsString());
+            tx.success();
+        }
     }
 
     private void deleteExternalClasses(String appKey){

@@ -5,6 +5,7 @@ import net.sourceforge.argparse4j.inf.*;
 import paprika.analyzer.Analyzer;
 import paprika.analyzer.SootAnalyzer;
 import paprika.neo4j.ModelToGraph;
+import paprika.neo4j.QuartileCaculator;
 import paprika.neo4j.QueryEngine;
 
 import java.io.FileInputStream;
@@ -141,7 +142,7 @@ public class Main {
                 queryEngine.NLMRQuery();
                 break;
             case "CC":
-                queryEngine.CCQuery();
+                //queryEngine.CCQuery();
                 break;
             case "LM":
                 queryEngine.LMQuery();
@@ -173,23 +174,15 @@ public class Main {
                 }
                 break;
             case "STATS":
-                queryEngine.calculateClassComplexityQuartile();
-                queryEngine.calculateLackofCohesionInMethodsQuartile();
-                queryEngine.calculateNumberOfAttributesQuartile();
-                queryEngine.calculateNumberOfImplementedInterfacesQuartile();
-                queryEngine.calculateNumberOfMethodsQuartile();
-                queryEngine.calculateNumberofInstructionsQuartile();
-                queryEngine.calculateCyclomaticComplexityQuartile();
-                queryEngine.calculateNumberOfMethodsForInterfacesQuartile();
-                break;
-            case "STATLCOM":
-               queryEngine.calculateLCOMQuartilePerAPK();
-                break;
-            case "STATCC":
-                queryEngine.calculateClassComplexityQuartilePerAPK();
-                break;
-            case "STATCYCLO":
-                queryEngine.calculateCyclomaticComplexityQuartilePerAPK();
+                QuartileCaculator quartileCaculator = new QuartileCaculator(queryEngine);
+                quartileCaculator.calculateClassComplexityQuartile();
+                quartileCaculator.calculateLackofCohesionInMethodsQuartile();
+                quartileCaculator.calculateNumberOfAttributesQuartile();
+                quartileCaculator.calculateNumberOfImplementedInterfacesQuartile();
+                quartileCaculator.calculateNumberOfMethodsQuartile();
+                quartileCaculator.calculateNumberofInstructionsQuartile();
+                quartileCaculator.calculateCyclomaticComplexityQuartile();
+                quartileCaculator.calculateNumberOfMethodsForInterfacesQuartile();
                 break;
             case "ALLLCOM":
                 queryEngine.getAllLCOM();
@@ -216,7 +209,7 @@ public class Main {
                 queryEngine.countViews();
                 break;
             case "ALLAP":
-                queryEngine.CCQuery();
+                //queryEngine.CCQuery();
                 queryEngine.LMQuery();
                 queryEngine.SAKQuery();
                 queryEngine.BlobClassQuery();
