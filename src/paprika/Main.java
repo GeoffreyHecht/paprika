@@ -4,9 +4,7 @@ import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.*;
 import paprika.analyzer.Analyzer;
 import paprika.analyzer.SootAnalyzer;
-import paprika.neo4j.ModelToGraph;
-import paprika.neo4j.QuartileCaculator;
-import paprika.neo4j.QueryEngine;
+import paprika.neo4j.*;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -142,10 +140,12 @@ public class Main {
                 queryEngine.NLMRQuery();
                 break;
             case "CC":
-                //queryEngine.CCQuery();
+                CCQuery ccQuery = new CCQuery(queryEngine);
+                ccQuery.executeFuzzy();
                 break;
             case "LM":
-                queryEngine.LMQuery();
+                LMQuery lmQuery = new LMQuery(queryEngine);
+                lmQuery.executeFuzzy();
                 break;
             case "SAK":
                 queryEngine.SAKQuery();
@@ -220,9 +220,15 @@ public class Main {
                 queryEngine.HashMapUsage();
                 queryEngine.InvalidateWithoutRect();
                 break;
+            case "FUZZY":
+                CCQuery ccQuery2 = new CCQuery(queryEngine);
+                ccQuery2.executeFuzzy();
+                LMQuery lmQuery2 = new LMQuery(queryEngine);
+                lmQuery2.executeFuzzy();
+                break;
             case "ALLAP":
                 //queryEngine.CCQuery();
-                queryEngine.LMQuery();
+                //queryEngine.LMQuery();
                 queryEngine.SAKQuery();
                 queryEngine.BlobClassQuery();
                 queryEngine.MIMQuery();

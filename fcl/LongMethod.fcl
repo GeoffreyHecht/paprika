@@ -1,4 +1,4 @@
-FUNCTION_BLOCK LM
+FUNCTION_BLOCK FB
 
 VAR_INPUT
 	number_of_instructions : REAL;
@@ -9,17 +9,17 @@ VAR_OUTPUT
 END_VAR
 
 FUZZIFY number_of_instructions
-    TERM high := (15, 0) (25, 1);
+	TERM high := (17, 0) (26, 1);
 END_FUZZIFY
 
 DEFUZZIFY res
-	METHOD : LM;		// Use 'Center Of Gravity' defuzzification method
+	METHOD : LM;
 	TERM long := (0, 0) (1, 1);
 	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
 END_DEFUZZIFY
 
 RULEBLOCK No1
-	RULE 1 : IF class_complexity IS high THEN res IS long;
+	RULE 1 : IF number_of_instructions IS high THEN res IS long;
 END_RULEBLOCK
 
 END_FUNCTION_BLOCK

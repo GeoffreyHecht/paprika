@@ -83,17 +83,6 @@ public class QueryEngine {
         }
     }
 
-
-
-
-    public void LMQuery() throws CypherException, IOException {
-        Result result;
-        try (Transaction ignored = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.execute("MATCH (m:Method) WHERE m.number_of_instructions >" + numberofInstructions + " RETURN m.app_key as app_key,count(m) as LM");
-            resultToCSV(result,"_LM.csv");
-        }
-    }
-
     public void SAKQuery() throws CypherException, IOException {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
@@ -241,19 +230,26 @@ public class QueryEngine {
         BufferedWriter writer = new BufferedWriter( fw );
         List<String> columns = result.columns();
         Object val;
-        for(String col : columns){
-            writer.write(col);
+        int i;
+        int columns_size = columns.size()-1;
+        for(i=0;i<columns_size;i++){
+            writer.write(columns.get(i));
             writer.write(',');
         }
+        writer.write(columns.get(i));
         writer.newLine();
         while ( result.hasNext()){
             Map<String,Object> row = result.next();
-            for(String col : columns){
-                val = row.get(col);
+            for(i=0;i<columns_size;i++){
+                val = row.get(columns.get(i));
                 if(val != null){
                     writer.write(val.toString());
                     writer.write(',');
                 }
+            }
+            val = row.get(columns.get(i));
+            if(val != null){
+                writer.write(val.toString());
             }
             writer.newLine();
         }
@@ -261,6 +257,36 @@ public class QueryEngine {
         fw.close();
     }
 
+    public void resultToCSV(List<Map> rows,List<String> columns, String csvSuffix) throws IOException {
+        String name = csvPrefix+csvSuffix;
+        FileWriter fw = new FileWriter(name);
+        BufferedWriter writer = new BufferedWriter( fw );
+        Object val;
+        int i;
+        int columns_size = columns.size()-1;
+        for(i=0;i<columns_size;i++){
+            writer.write(columns.get(i));
+            writer.write(',');
+        }
+        writer.write(columns.get(i));
+        writer.newLine();
+        for(Map<String,Object> row : rows){
+            for(i=0;i<columns_size;i++){
+                val = row.get(columns.get(i));
+                if(val != null){
+                    writer.write(val.toString());
+                    writer.write(',');
+                }
+            }
+            val = row.get(columns.get(i));
+            if(val != null){
+                writer.write(val.toString());
+            }
+            writer.newLine();
+        }
+        writer.close();
+        fw.close();
+    }
     public void statsToCSV(Map<String,Double> stats, String csvSuffix) throws IOException {
         String name = csvPrefix+csvSuffix;
         FileWriter fw = new FileWriter(name);

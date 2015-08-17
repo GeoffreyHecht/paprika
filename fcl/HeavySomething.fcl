@@ -18,7 +18,7 @@ FUZZIFY cyclomatic_complexity
 END_FUZZIFY
 
 DEFUZZIFY res
-	METHOD : LM;		// Use 'Center Of Gravity' defuzzification method
+	METHOD : LM;
 	TERM heavy := (0, 0) (1, 1);
 	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
 END_DEFUZZIFY

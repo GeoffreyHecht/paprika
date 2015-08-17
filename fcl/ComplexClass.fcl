@@ -1,4 +1,4 @@
-FUNCTION_BLOCK CC
+FUNCTION_BLOCK FB
 
 VAR_INPUT
 	class_complexity : REAL;
@@ -9,11 +9,11 @@ VAR_OUTPUT
 END_VAR
 
 FUZZIFY class_complexity
-    TERM high := (15, 0) (25, 1);
+	TERM high := (28, 0) (43, 1);
 END_FUZZIFY
 
 DEFUZZIFY res
-	METHOD : LM;		// Use 'Center Of Gravity' defuzzification method
+	METHOD : LM;
 	TERM cc := (0, 0) (1, 1);
 	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
 END_DEFUZZIFY
