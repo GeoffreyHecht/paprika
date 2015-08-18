@@ -83,14 +83,6 @@ public class QueryEngine {
         }
     }
 
-    public void BlobClassQuery() throws CypherException, IOException {
-        Result result;
-        try (Transaction ignored = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.execute("MATCH (cl:Class) WHERE cl.lack_of_cohesion_in_methods >" + lcom + " AND cl.number_of_methods > " + numberofMethods + " AND cl.number_of_attributes > " + numberofAttributes + " RETURN cl.app_key as app_key,count(cl) as BLOB");
-            resultToCSV(result,"_BLOB.csv");
-        }
-    }
-
     public void OverdrawQuery() throws CypherException, IOException {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
@@ -98,14 +90,6 @@ public class QueryEngine {
                     "WHERE NOT n-[:CALLS]->(:ExternalMethod{full_name:\"clipRect#android.graphics.Canvas\"}) AND NOT n-[:CALLS]->(:ExternalMethod{full_name:\"quickReject#android.graphics.Canvas\"})\n" +
                     "RETURN n.app_key as app_key,count(n) as UIO");
             resultToCSV(result,"_UIO.csv");
-        }
-    }
-
-    public void HeavyServiceStartQuery() throws CypherException, IOException {
-        Result result;
-        try (Transaction ignored = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.execute("MATCH (c:Class{is_service:true})-[:CLASS_OWNS_METHOD]->(m:Method{name:'onStartCommand'}) WHERE m.number_of_instructions > "+numberofInstructions+" AND m.cyclomatic_complexity>"+cyclomatic_complexity+" return m.app_key as app_key,count(m) as HSS");
-            resultToCSV(result,"_HSS.csv");
         }
     }
 

@@ -149,15 +149,18 @@ public class Main {
                 SAKQuery.createSAKQuery(queryEngine).executeFuzzy();
                 break;
             case "BLOB":
-                queryEngine.BlobClassQuery();
+                BLOBQuery.createBLOBQuery(queryEngine).executeFuzzy();
                 break;
             case "OVERDRAW":
                 queryEngine.OverdrawQuery();
                 break;
+            case "HSS":
+                HeavyServiceStartQuery.createHeavyServiceStartQuery(queryEngine).executeFuzzy();
+                break;
             case "ALLHEAVY":
                 queryEngine.HeavyASyncTaskStepsQuery();
                 queryEngine.HeavyBroadcastReceiverQuery();
-                queryEngine.HeavyServiceStartQuery();
+                //queryEngine.HeavyServiceStartQuery();
                 break;
             case "ANALYZED":
                 queryEngine.AnalyzedAppQuery();
@@ -226,7 +229,7 @@ public class Main {
                 //queryEngine.CCQuery();
                 //queryEngine.LMQuery();
                 //queryEngine.SAKQuery();
-                queryEngine.BlobClassQuery();
+                //queryEngine.BlobClassQuery();
                 queryEngine.MIMQuery();
                 queryEngine.IGSQuery();
                 queryEngine.LICQuery();
@@ -234,7 +237,7 @@ public class Main {
                 queryEngine.OverdrawQuery();
                 queryEngine.HeavyASyncTaskStepsQuery();
                 queryEngine.HeavyBroadcastReceiverQuery();
-                queryEngine.HeavyServiceStartQuery();
+                //queryEngine.HeavyServiceStartQuery();
                 queryEngine.InitOnDrawQuery();
                 queryEngine.UnsuitedLRUCacheSizeQuery();
                 queryEngine.UnsupportedHardwareAccelerationQuery();

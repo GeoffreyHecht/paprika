@@ -7,7 +7,7 @@ import net.sourceforge.jFuzzyLogic.FunctionBlock;
  * Created by Geoffrey Hecht on 8/5/15.
  */
 public class FuzzyTest {
-    public static void test(String[] args) {
+    public static void main(String[] args) {
         // Load from 'FCL' file
         String fileName = "fcl/Blob.fcl";
         FIS fis = FIS.load(fileName, true);
@@ -20,9 +20,9 @@ public class FuzzyTest {
         // Get default function block
         FunctionBlock fb = fis.getFunctionBlock(null);
 
-        int [] lcom = {25,16,25,25,25,23}; // 15,25
-        int [] nom = {40,16,16,18,30,40}; // 15,40
-        int [] noa = {15,6,6,7,15,15}; // 5,15
+        int [] lcom = {26,27,27,28}; // 15,25
+        int [] nom = {17,17,18,19}; // 15,40
+        int [] noa = {9,9,10,10}; // 5,15
 
         for (int i = 0; i< lcom.length;i++){
             fb.setVariable("lack_of_cohesion_in_methods", lcom[i]);
