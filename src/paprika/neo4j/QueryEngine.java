@@ -93,13 +93,7 @@ public class QueryEngine {
         }
     }
 
-    public void HeavyBroadcastReceiverQuery() throws CypherException, IOException {
-        Result result;
-        try (Transaction ignored = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.execute("MATCH (c:Class{is_broadcast_receiver:true})-[:CLASS_OWNS_METHOD]->(m:Method{name:'onReceive'}) WHERE m.number_of_instructions > "+numberofInstructions+" AND m.cyclomatic_complexity>"+cyclomatic_complexity+" return m.app_key as app_key,count(m) as HBR");
-            resultToCSV(result,"_HBR.csv");
-        }
-    }
+
 
     public void HeavyASyncTaskStepsQuery() throws CypherException, IOException {
         Result result;

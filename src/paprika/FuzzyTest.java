@@ -7,7 +7,7 @@ import net.sourceforge.jFuzzyLogic.FunctionBlock;
  * Created by Geoffrey Hecht on 8/5/15.
  */
 public class FuzzyTest {
-    public static void main(String[] args) {
+    public static void test(String[] args) {
         // Load from 'FCL' file
         String fileName = "fcl/Blob.fcl";
         FIS fis = FIS.load(fileName, true);

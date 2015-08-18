@@ -157,9 +157,12 @@ public class Main {
             case "HSS":
                 HeavyServiceStartQuery.createHeavyServiceStartQuery(queryEngine).executeFuzzy();
                 break;
+            case "HBR":
+                HeavyBroadcastReceiverQuery.createHeavyBroadcastReceiverQuery(queryEngine).executeFuzzy();
+                break;
             case "ALLHEAVY":
                 queryEngine.HeavyASyncTaskStepsQuery();
-                queryEngine.HeavyBroadcastReceiverQuery();
+                //queryEngine.HeavyBroadcastReceiverQuery();
                 //queryEngine.HeavyServiceStartQuery();
                 break;
             case "ANALYZED":
@@ -236,7 +239,7 @@ public class Main {
                 queryEngine.NLMRQuery();
                 queryEngine.OverdrawQuery();
                 queryEngine.HeavyASyncTaskStepsQuery();
-                queryEngine.HeavyBroadcastReceiverQuery();
+                //queryEngine.HeavyBroadcastReceiverQuery();
                 //queryEngine.HeavyServiceStartQuery();
                 queryEngine.InitOnDrawQuery();
                 queryEngine.UnsuitedLRUCacheSizeQuery();
