@@ -18,13 +18,6 @@ public class QueryEngine {
     protected GraphDatabaseService graphDatabaseService;
     protected DatabaseManager databaseManager;
 
-    protected static double lcom = 22.5;
-    protected static double numberofMethods = 14.5;
-    protected static double numberofMethodsForInterfaces = 8.5;
-    protected static double numberofAttributes = 7.5;
-    protected static double numberofInstructions = 15;
-    protected static double cyclomatic_complexity= 3.5;
-
     protected String csvPrefix;
 
     public String getCsvPrefix() {
@@ -90,16 +83,6 @@ public class QueryEngine {
                     "WHERE NOT n-[:CALLS]->(:ExternalMethod{full_name:\"clipRect#android.graphics.Canvas\"}) AND NOT n-[:CALLS]->(:ExternalMethod{full_name:\"quickReject#android.graphics.Canvas\"})\n" +
                     "RETURN n.app_key as app_key,count(n) as UIO");
             resultToCSV(result,"_UIO.csv");
-        }
-    }
-
-
-
-    public void HeavyASyncTaskStepsQuery() throws CypherException, IOException {
-        Result result;
-        try (Transaction ignored = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.execute("MATCH (c:Class{parent_name:'android.os.AsyncTask'})-[:CLASS_OWNS_METHOD]->(m:Method) WHERE (m.name='onPreExecute' OR m.name='onProgressUpdate' OR m.name='onPostExecute') AND  m.number_of_instructions >"+numberofInstructions+" AND m.cyclomatic_complexity > "+cyclomatic_complexity+" return m.app_key as app_key,count(m) as HAS");
-            resultToCSV(result,"_HAS.csv");
         }
     }
 

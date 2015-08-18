@@ -160,10 +160,13 @@ public class Main {
             case "HBR":
                 HeavyBroadcastReceiverQuery.createHeavyBroadcastReceiverQuery(queryEngine).executeFuzzy();
                 break;
+            case "HAS":
+                HeavyAsyncTaskStepsQuery.createHeavyAsyncTaskStepsQuery(queryEngine).executeFuzzy();
+                break;
             case "ALLHEAVY":
-                queryEngine.HeavyASyncTaskStepsQuery();
-                //queryEngine.HeavyBroadcastReceiverQuery();
-                //queryEngine.HeavyServiceStartQuery();
+                HeavyServiceStartQuery.createHeavyServiceStartQuery(queryEngine).executeFuzzy();
+                HeavyBroadcastReceiverQuery.createHeavyBroadcastReceiverQuery(queryEngine).executeFuzzy();
+                HeavyAsyncTaskStepsQuery.createHeavyAsyncTaskStepsQuery(queryEngine).executeFuzzy();
                 break;
             case "ANALYZED":
                 queryEngine.AnalyzedAppQuery();
@@ -229,18 +232,18 @@ public class Main {
                 LMQuery.createLMQuery(queryEngine).executeFuzzy();
                 break;
             case "ALLAP":
-                //queryEngine.CCQuery();
-                //queryEngine.LMQuery();
-                //queryEngine.SAKQuery();
-                //queryEngine.BlobClassQuery();
+                CCQuery.createCCQuery(queryEngine).executeFuzzy();
+                LMQuery.createLMQuery(queryEngine).executeFuzzy();
+                SAKQuery.createSAKQuery(queryEngine).executeFuzzy();
+                BLOBQuery.createBLOBQuery(queryEngine).executeFuzzy();
                 queryEngine.MIMQuery();
                 queryEngine.IGSQuery();
                 queryEngine.LICQuery();
                 queryEngine.NLMRQuery();
                 queryEngine.OverdrawQuery();
-                queryEngine.HeavyASyncTaskStepsQuery();
-                //queryEngine.HeavyBroadcastReceiverQuery();
-                //queryEngine.HeavyServiceStartQuery();
+                HeavyServiceStartQuery.createHeavyServiceStartQuery(queryEngine).executeFuzzy();
+                HeavyBroadcastReceiverQuery.createHeavyBroadcastReceiverQuery(queryEngine).executeFuzzy();
+                HeavyAsyncTaskStepsQuery.createHeavyAsyncTaskStepsQuery(queryEngine).executeFuzzy();
                 queryEngine.InitOnDrawQuery();
                 queryEngine.UnsuitedLRUCacheSizeQuery();
                 queryEngine.UnsupportedHardwareAccelerationQuery();
