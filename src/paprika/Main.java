@@ -128,16 +128,16 @@ public class Main {
         queryEngine.setCsvPrefix(csvPrefix);
         switch(request){
             case "MIM":
-                queryEngine.MIMQuery();
+                MIMQuery.createMIMQuery(queryEngine).execute();
                 break;
             case "IGS":
-                queryEngine.IGSQuery();
+                IGSQuery.createIGSQuery(queryEngine).execute();
                 break;
             case "LIC":
-                queryEngine.LICQuery();
+                LICQuery.createLICQuery(queryEngine).execute();
                 break;
             case "NLMR":
-                queryEngine.NLMRQuery();
+                NLMRQuery.createNLMRQuery(queryEngine).execute();
                 break;
             case "CC":
                 CCQuery.createCCQuery(queryEngine).executeFuzzy();
@@ -152,7 +152,7 @@ public class Main {
                 BLOBQuery.createBLOBQuery(queryEngine).executeFuzzy();
                 break;
             case "OVERDRAW":
-                queryEngine.OverdrawQuery();
+                OverdrawQuery.createOverdrawQuery(queryEngine).execute();
                 break;
             case "HSS":
                 HeavyServiceStartQuery.createHeavyServiceStartQuery(queryEngine).executeFuzzy();
@@ -181,15 +181,15 @@ public class Main {
                 }
                 break;
             case "STATS":
-                QuartileCaculator quartileCaculator = new QuartileCaculator(queryEngine);
-                quartileCaculator.calculateClassComplexityQuartile();
-                quartileCaculator.calculateLackofCohesionInMethodsQuartile();
-                quartileCaculator.calculateNumberOfAttributesQuartile();
-                quartileCaculator.calculateNumberOfImplementedInterfacesQuartile();
-                quartileCaculator.calculateNumberOfMethodsQuartile();
-                quartileCaculator.calculateNumberofInstructionsQuartile();
-                quartileCaculator.calculateCyclomaticComplexityQuartile();
-                quartileCaculator.calculateNumberOfMethodsForInterfacesQuartile();
+                QuartileCalculator quartileCalculator = new QuartileCalculator(queryEngine);
+                quartileCalculator.calculateClassComplexityQuartile();
+                quartileCalculator.calculateLackofCohesionInMethodsQuartile();
+                quartileCalculator.calculateNumberOfAttributesQuartile();
+                quartileCalculator.calculateNumberOfImplementedInterfacesQuartile();
+                quartileCalculator.calculateNumberOfMethodsQuartile();
+                quartileCalculator.calculateNumberofInstructionsQuartile();
+                quartileCalculator.calculateCyclomaticComplexityQuartile();
+                quartileCalculator.calculateNumberOfMethodsForInterfacesQuartile();
                 break;
             case "ALLLCOM":
                 queryEngine.getAllLCOM();
@@ -216,39 +216,44 @@ public class Main {
                 queryEngine.countViews();
                 break;
             case "NONFUZZY":
-                queryEngine.IGSQuery();
-                queryEngine.MIMQuery();
-                queryEngine.LICQuery();
-                queryEngine.NLMRQuery();
-                queryEngine.OverdrawQuery();
-                queryEngine.InitOnDrawQuery();
-                queryEngine.UnsuitedLRUCacheSizeQuery();
-                queryEngine.UnsupportedHardwareAccelerationQuery();
-                queryEngine.HashMapUsage();
-                queryEngine.InvalidateWithoutRect();
+                IGSQuery.createIGSQuery(queryEngine).execute();
+                MIMQuery.createMIMQuery(queryEngine).execute();
+                LICQuery.createLICQuery(queryEngine).execute();
+                NLMRQuery.createNLMRQuery(queryEngine).execute();
+                OverdrawQuery.createOverdrawQuery(queryEngine).execute();
+                UnsuitedLRUCacheSizeQuery.createUnsuitedLRUCacheSizeQuery(queryEngine).execute();
+                InitOnDrawQuery.createInitOnDrawQuery(queryEngine).execute();
+                UnsupportedHardwareAccelerationQuery.createUnsupportedHardwareAccelerationQuery(queryEngine).execute();
+                HashMapUsageQuery.createHashMapUsageQuery(queryEngine).execute();
+                InvalidateWithoutRectQuery.createInvalidateWithoutRectQuery(queryEngine).execute();
                 break;
             case "FUZZY":
                 CCQuery.createCCQuery(queryEngine).executeFuzzy();
                 LMQuery.createLMQuery(queryEngine).executeFuzzy();
+                SAKQuery.createSAKQuery(queryEngine).executeFuzzy();
+                BLOBQuery.createBLOBQuery(queryEngine).executeFuzzy();
+                HeavyServiceStartQuery.createHeavyServiceStartQuery(queryEngine).executeFuzzy();
+                HeavyBroadcastReceiverQuery.createHeavyBroadcastReceiverQuery(queryEngine).executeFuzzy();
+                HeavyAsyncTaskStepsQuery.createHeavyAsyncTaskStepsQuery(queryEngine).executeFuzzy();
                 break;
             case "ALLAP":
                 CCQuery.createCCQuery(queryEngine).executeFuzzy();
                 LMQuery.createLMQuery(queryEngine).executeFuzzy();
                 SAKQuery.createSAKQuery(queryEngine).executeFuzzy();
                 BLOBQuery.createBLOBQuery(queryEngine).executeFuzzy();
-                queryEngine.MIMQuery();
-                queryEngine.IGSQuery();
-                queryEngine.LICQuery();
-                queryEngine.NLMRQuery();
-                queryEngine.OverdrawQuery();
+                MIMQuery.createMIMQuery(queryEngine).execute();
+                IGSQuery.createIGSQuery(queryEngine).execute();
+                LICQuery.createLICQuery(queryEngine).execute();
+                NLMRQuery.createNLMRQuery(queryEngine).execute();
+                OverdrawQuery.createOverdrawQuery(queryEngine).execute();
                 HeavyServiceStartQuery.createHeavyServiceStartQuery(queryEngine).executeFuzzy();
                 HeavyBroadcastReceiverQuery.createHeavyBroadcastReceiverQuery(queryEngine).executeFuzzy();
                 HeavyAsyncTaskStepsQuery.createHeavyAsyncTaskStepsQuery(queryEngine).executeFuzzy();
-                queryEngine.InitOnDrawQuery();
-                queryEngine.UnsuitedLRUCacheSizeQuery();
-                queryEngine.UnsupportedHardwareAccelerationQuery();
-                queryEngine.HashMapUsage();
-                queryEngine.InvalidateWithoutRect();
+                UnsuitedLRUCacheSizeQuery.createUnsuitedLRUCacheSizeQuery(queryEngine).execute();
+                InitOnDrawQuery.createInitOnDrawQuery(queryEngine).execute();
+                UnsupportedHardwareAccelerationQuery.createUnsupportedHardwareAccelerationQuery(queryEngine).execute();
+                HashMapUsageQuery.createHashMapUsageQuery(queryEngine).execute();
+                InvalidateWithoutRectQuery.createInvalidateWithoutRectQuery(queryEngine).execute();
                 break;
             default:
                 System.out.println("Executing custom request");
