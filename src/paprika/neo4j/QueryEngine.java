@@ -83,14 +83,6 @@ public class QueryEngine {
         }
     }
 
-    public void SAKQuery() throws CypherException, IOException {
-        Result result;
-        try (Transaction ignored = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.execute("MATCH (cl:Class) WHERE HAS(cl.is_interface) AND cl.number_of_methods > " + numberofMethodsForInterfaces + " RETURN cl.app_key as app_key,count(cl) as SAK");
-            resultToCSV(result,"_SAK.csv");
-        }
-    }
-
     public void BlobClassQuery() throws CypherException, IOException {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {

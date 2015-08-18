@@ -20,9 +20,13 @@ public class LMQuery extends FuzzyQuery{
     protected static double high = 17;
     protected static double veryHigh = 26;
 
-    public LMQuery(QueryEngine queryEngine) {
+    private LMQuery(QueryEngine queryEngine) {
         super(queryEngine);
         fclFile = "/LongMethod.fcl";
+    }
+
+    public static LMQuery createLMQuery(QueryEngine queryEngine) {
+        return new LMQuery(queryEngine);
     }
 
     public void execute() throws CypherException, IOException {

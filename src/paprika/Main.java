@@ -140,15 +140,13 @@ public class Main {
                 queryEngine.NLMRQuery();
                 break;
             case "CC":
-                CCQuery ccQuery = new CCQuery(queryEngine);
-                ccQuery.executeFuzzy();
+                CCQuery.createCCQuery(queryEngine).executeFuzzy();
                 break;
             case "LM":
-                LMQuery lmQuery = new LMQuery(queryEngine);
-                lmQuery.executeFuzzy();
+                LMQuery.createLMQuery(queryEngine).executeFuzzy();
                 break;
             case "SAK":
-                queryEngine.SAKQuery();
+                SAKQuery.createSAKQuery(queryEngine).executeFuzzy();
                 break;
             case "BLOB":
                 queryEngine.BlobClassQuery();
@@ -221,15 +219,13 @@ public class Main {
                 queryEngine.InvalidateWithoutRect();
                 break;
             case "FUZZY":
-                CCQuery ccQuery2 = new CCQuery(queryEngine);
-                ccQuery2.executeFuzzy();
-                LMQuery lmQuery2 = new LMQuery(queryEngine);
-                lmQuery2.executeFuzzy();
+                CCQuery.createCCQuery(queryEngine).executeFuzzy();
+                LMQuery.createLMQuery(queryEngine).executeFuzzy();
                 break;
             case "ALLAP":
                 //queryEngine.CCQuery();
                 //queryEngine.LMQuery();
-                queryEngine.SAKQuery();
+                //queryEngine.SAKQuery();
                 queryEngine.BlobClassQuery();
                 queryEngine.MIMQuery();
                 queryEngine.IGSQuery();
