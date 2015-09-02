@@ -255,6 +255,14 @@ public class Main {
                 HashMapUsageQuery.createHashMapUsageQuery(queryEngine).execute();
                 InvalidateWithoutRectQuery.createInvalidateWithoutRectQuery(queryEngine).execute();
                 break;
+            case "FORCENOFUZZY":
+                CCQuery.createCCQuery(queryEngine).execute();
+                LMQuery.createLMQuery(queryEngine).execute();
+                SAKQuery.createSAKQuery(queryEngine).execute();
+                BLOBQuery.createBLOBQuery(queryEngine).execute();
+                HeavyServiceStartQuery.createHeavyServiceStartQuery(queryEngine).execute();
+                HeavyBroadcastReceiverQuery.createHeavyBroadcastReceiverQuery(queryEngine).execute();
+                HeavyAsyncTaskStepsQuery.createHeavyAsyncTaskStepsQuery(queryEngine).execute();
             default:
                 System.out.println("Executing custom request");
                 queryEngine.executeRequest(request);

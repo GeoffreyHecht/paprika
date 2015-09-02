@@ -34,7 +34,7 @@ public class LMQuery extends FuzzyQuery{
         try (Transaction ignored = graphDatabaseService.beginTx()) {
             String query = "MATCH (m:Method) WHERE m.number_of_instructions >" + veryHigh + " RETURN m.app_key as app_key,count(m) as LM";
             result = graphDatabaseService.execute(query);
-            queryEngine.resultToCSV(result,"_LM.csv");
+            queryEngine.resultToCSV(result,"_LM_NO_FUZZY.csv");
         }
     }
 

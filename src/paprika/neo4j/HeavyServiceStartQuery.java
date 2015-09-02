@@ -39,7 +39,7 @@ public class HeavyServiceStartQuery extends FuzzyQuery{
         try (Transaction ignored = graphDatabaseService.beginTx()) {
             String query = "MATCH (c:Class{is_service:true})-[:CLASS_OWNS_METHOD]->(m:Method{name:'onStartCommand'}) WHERE m.number_of_instructions > "+veryHigh_noi+" AND m.cyclomatic_complexity>"+veryHigh_cc+" return m.app_key as app_key,count(m) as HSS";
             result = graphDatabaseService.execute(query);
-            queryEngine.resultToCSV(result,"_HSS.csv");
+            queryEngine.resultToCSV(result,"_HSS_NO_FUZZY.csv");
         }
     }
 

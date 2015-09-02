@@ -37,7 +37,7 @@ public class HeavyBroadcastReceiverQuery extends FuzzyQuery{
         try (Transaction ignored = graphDatabaseService.beginTx()) {
             String query = "MATCH (c:Class{is_broadcast_receiver:true})-[:CLASS_OWNS_METHOD]->(m:Method{name:'onReceive'}) WHERE m.number_of_instructions > "+veryHigh_noi+" AND m.cyclomatic_complexity>"+veryHigh_cc+" return m.app_key as app_key,count(m) as HBR";
             result = graphDatabaseService.execute(query);
-            queryEngine.resultToCSV(result,"_HBR.csv");
+            queryEngine.resultToCSV(result,"_HBR_NO_FUZZY.csv");
         }
     }
 

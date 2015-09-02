@@ -36,7 +36,7 @@ public class HeavyAsyncTaskStepsQuery extends FuzzyQuery{
         try (Transaction ignored = graphDatabaseService.beginTx()) {
             String query = "MATCH (c:Class{parent_name:'android.os.AsyncTask'})-[:CLASS_OWNS_METHOD]->(m:Method) WHERE (m.name='onPreExecute' OR m.name='onProgressUpdate' OR m.name='onPostExecute') AND  m.number_of_instructions >"+veryHigh_noi+" AND m.cyclomatic_complexity > "+veryHigh_cc+" return m.app_key as app_key,count(m) as HAS";
             result = graphDatabaseService.execute(query);
-            queryEngine.resultToCSV(result,"_HAS.csv");
+            queryEngine.resultToCSV(result,"_HAS_NO_FUZZY.csv");
         }
     }
 

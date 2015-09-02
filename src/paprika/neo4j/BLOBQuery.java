@@ -40,7 +40,7 @@ public class BLOBQuery extends FuzzyQuery{
         try (Transaction ignored = graphDatabaseService.beginTx()) {
             String query = "MATCH (cl:Class) WHERE cl.lack_of_cohesion_in_methods >" + veryHigh_lcom + " AND cl.number_of_methods > " + veryHigh_nom + " AND cl.number_of_attributes > " + veryHigh_noa + " RETURN cl.app_key as app_key,count(cl) as BLOB";
             result = graphDatabaseService.execute(query);
-            queryEngine.resultToCSV(result,"_BLOB.csv");
+            queryEngine.resultToCSV(result,"_BLOB_NO_FUZZY.csv");
         }
     }
 

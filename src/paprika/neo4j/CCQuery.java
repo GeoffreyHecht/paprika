@@ -33,7 +33,7 @@ public class CCQuery extends FuzzyQuery{
         try (Transaction ignored = graphDatabaseService.beginTx()) {
             String query = "MATCH (cl:Class) WHERE cl.class_complexity > "+ veryHigh +" RETURN cl.app_key as app_key,count(cl) as CC";
             result = graphDatabaseService.execute(query);
-            queryEngine.resultToCSV(result,"_CC.csv");
+            queryEngine.resultToCSV(result,"_CC_NO_FUZZY.csv");
         }
     }
 
