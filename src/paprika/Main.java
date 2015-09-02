@@ -263,6 +263,7 @@ public class Main {
                 HeavyServiceStartQuery.createHeavyServiceStartQuery(queryEngine).execute();
                 HeavyBroadcastReceiverQuery.createHeavyBroadcastReceiverQuery(queryEngine).execute();
                 HeavyAsyncTaskStepsQuery.createHeavyAsyncTaskStepsQuery(queryEngine).execute();
+                break;
             default:
                 System.out.println("Executing custom request");
                 queryEngine.executeRequest(request);
