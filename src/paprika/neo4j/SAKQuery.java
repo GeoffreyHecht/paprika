@@ -34,7 +34,7 @@ public class SAKQuery extends FuzzyQuery{
         try (Transaction ignored = graphDatabaseService.beginTx()) {
             String query = "MATCH (cl:Class) WHERE HAS(cl.is_interface) AND cl.number_of_methods > " + veryHigh + " RETURN cl.app_key as app_key,count(cl) as SAK";
             result = graphDatabaseService.execute(query);
-            queryEngine.resultToCSV(result,"_LM.csv");
+            queryEngine.resultToCSV(result,"_SAK.csv");
         }
     }
 
