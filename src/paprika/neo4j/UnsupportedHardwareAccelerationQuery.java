@@ -20,7 +20,7 @@ public class UnsupportedHardwareAccelerationQuery extends Query {
     }
 
     @Override
-    public void execute() throws CypherException, IOException {
+    public void execute(boolean details) throws CypherException, IOException {
         Result result;
         String [] uhas = {
                 "drawPicture#android.graphics.Canvas",
@@ -38,7 +38,12 @@ public class UnsupportedHardwareAccelerationQuery extends Query {
         for (int i=1; i < uhas.length;i++){
             query += " OR e.full_name='" + uhas[i] + "' ";
         }
-        query += "return m.app_key, count(m) as UHA";
+        query += "return m.app_key";
+        if(details){
+            query += ",m.full_name as full_name";
+        }else{
+            query += ",count(m) as UHA";
+        }
         try (Transaction ignored = graphDatabaseService.beginTx()) {
             result = graphDatabaseService.execute(query);
             queryEngine.resultToCSV(result, "_UHA.csv");

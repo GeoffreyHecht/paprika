@@ -20,9 +20,14 @@ public class MIMQuery extends Query {
     }
 
     @Override
-    public void execute() throws CypherException, IOException {
+    public void execute(boolean details) throws CypherException, IOException {
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = "MATCH (m1:Method) WHERE NOT HAS(m1.is_static) AND NOT HAS(m1.is_override) AND NOT m1-[:USES]->(:Variable)  AND NOT (m1)-[:CALLS]->(:Method) AND NOT HAS(m1.is_init)  RETURN m1.app_key as app_key,count(m1) as MIM";
+            String query = "MATCH (m1:Method) WHERE NOT HAS(m1.is_static) AND NOT HAS(m1.is_override) AND NOT m1-[:USES]->(:Variable)  AND NOT (m1)-[:CALLS]->(:Method) AND NOT HAS(m1.is_init)  RETURN m1.app_key as app_key";
+            if(details){
+                query += ",m1.full_name as full_name";
+            }else{
+                query += ",count(m1) as MIM";
+            }
             Result result = graphDatabaseService.execute(query);
             queryEngine.resultToCSV(result, "_MIM.csv");
         }

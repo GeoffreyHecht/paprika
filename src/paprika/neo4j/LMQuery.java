@@ -29,19 +29,27 @@ public class LMQuery extends FuzzyQuery{
         return new LMQuery(queryEngine);
     }
 
-    public void execute() throws CypherException, IOException {
+    public void execute(boolean details) throws CypherException, IOException {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = "MATCH (m:Method) WHERE m.number_of_instructions >" + veryHigh + " RETURN m.app_key as app_key,count(m) as LM";
+            String query = "MATCH (m:Method) WHERE m.number_of_instructions >" + veryHigh + " RETURN m.app_key as app_key";
+            if(details){
+                query += ",m.full_name as full_name";
+            }else{
+                query += ",count(m) as LM";
+            }
             result = graphDatabaseService.execute(query);
             queryEngine.resultToCSV(result,"_LM_NO_FUZZY.csv");
         }
     }
 
-    public void executeFuzzy() throws CypherException, IOException {
+    public void executeFuzzy(boolean details) throws CypherException, IOException {
             Result result;
             try (Transaction ignored = graphDatabaseService.beginTx()) {
                 String query =  "MATCH (m:Method) WHERE m.number_of_instructions >" + high + " RETURN m.app_key as app_key,m.number_of_instructions as number_of_instructions";
+                if(details){
+                    query += ",m.full_name as full_name";
+                }
                 result = graphDatabaseService.execute(query);
                 List<String> columns = new ArrayList<>(result.columns());
                 columns.add("fuzzy_value");

@@ -32,19 +32,27 @@ public class HeavyBroadcastReceiverQuery extends FuzzyQuery{
     }
 
 
-    public void execute() throws CypherException, IOException {
+    public void execute(boolean details) throws CypherException, IOException {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = "MATCH (c:Class{is_broadcast_receiver:true})-[:CLASS_OWNS_METHOD]->(m:Method{name:'onReceive'}) WHERE m.number_of_instructions > "+veryHigh_noi+" AND m.cyclomatic_complexity>"+veryHigh_cc+" return m.app_key as app_key,count(m) as HBR";
+            String query = "MATCH (c:Class{is_broadcast_receiver:true})-[:CLASS_OWNS_METHOD]->(m:Method{name:'onReceive'}) WHERE m.number_of_instructions > "+veryHigh_noi+" AND m.cyclomatic_complexity>"+veryHigh_cc+" return m.app_key as app_key";
+            if(details){
+                query += ",m.full_name as full_name";
+            }else{
+                query += ",count(m) as HBR";
+            }
             result = graphDatabaseService.execute(query);
             queryEngine.resultToCSV(result,"_HBR_NO_FUZZY.csv");
         }
     }
 
-    public void executeFuzzy() throws CypherException, IOException {
+    public void executeFuzzy(boolean details) throws CypherException, IOException {
             Result result;
             try (Transaction ignored = graphDatabaseService.beginTx()) {
                 String query = "MATCH (c:Class{is_broadcast_receiver:true})-[:CLASS_OWNS_METHOD]->(m:Method{name:'onReceive'}) WHERE m.number_of_instructions > "+high_noi+" AND m.cyclomatic_complexity>"+high_cc+" return m.app_key as app_key,m.cyclomatic_complexity as cyclomatic_complexity, m.number_of_instructions as number_of_instructions";
+                if(details){
+                    query += ",m.full_name as full_name";
+                }
                 result = graphDatabaseService.execute(query);
                 List<String> columns = new ArrayList<>(result.columns());
                 columns.add("fuzzy_value");

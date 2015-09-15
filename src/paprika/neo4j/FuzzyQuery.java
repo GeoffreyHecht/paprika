@@ -14,5 +14,5 @@ public abstract class FuzzyQuery extends Query {
         super(queryEngine);
     }
 
-    public abstract void executeFuzzy() throws CypherException, IOException;
+    public abstract void executeFuzzy(boolean details) throws CypherException, IOException;
 }

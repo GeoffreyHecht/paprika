@@ -29,19 +29,27 @@ public class SAKQuery extends FuzzyQuery{
         return new SAKQuery(queryEngine);
     }
 
-    public void execute() throws CypherException, IOException {
+    public void execute(boolean details) throws CypherException, IOException {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = "MATCH (cl:Class) WHERE HAS(cl.is_interface) AND cl.number_of_methods > " + veryHigh + " RETURN cl.app_key as app_key,count(cl) as SAK";
+            String query = "MATCH (cl:Class) WHERE HAS(cl.is_interface) AND cl.number_of_methods > " + veryHigh + " RETURN cl.app_key as app_key";
+            if(details){
+                query += ",cl.full_name as full_name";
+            }else{
+                query += ",count(cl) as SAK";
+            }
             result = graphDatabaseService.execute(query);
             queryEngine.resultToCSV(result,"_SAK_NO_FUZZY.csv");
         }
     }
 
-    public void executeFuzzy() throws CypherException, IOException {
+    public void executeFuzzy(boolean details) throws CypherException, IOException {
             Result result;
             try (Transaction ignored = graphDatabaseService.beginTx()) {
                 String query = "MATCH (cl:Class) WHERE HAS(cl.is_interface) AND cl.number_of_methods > " + high + " RETURN cl.app_key as app_key,cl.number_of_methods as number_of_methods";
+                if(details){
+                    query += ",cl.full_name as full_name";
+                }
                 result = graphDatabaseService.execute(query);
                 List<String> columns = new ArrayList<>(result.columns());
                 columns.add("fuzzy_value");

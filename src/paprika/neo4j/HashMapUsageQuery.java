@@ -20,10 +20,15 @@ public class HashMapUsageQuery extends Query {
     }
 
     @Override
-    public void execute() throws CypherException, IOException {
+    public void execute(boolean details) throws CypherException, IOException {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query ="MATCH (m:Method)-[:CALLS]->(e:ExternalMethod{full_name:'<init>#java.util.HashMap'}) return m.app_key, count(m) as HMU";
+            String query = "MATCH (m:Method)-[:CALLS]->(e:ExternalMethod{full_name:'<init>#java.util.HashMap'}) return m.app_key";
+            if(details){
+                query += ",m.full_name as full_name";
+            }else{
+                query += ", count(m) as HMU";
+            }
             result = graphDatabaseService.execute(query);
             queryEngine.resultToCSV(result, "_HMU.csv");
         }

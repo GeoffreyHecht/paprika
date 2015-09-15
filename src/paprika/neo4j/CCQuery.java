@@ -28,19 +28,27 @@ public class CCQuery extends FuzzyQuery{
         return new CCQuery(queryEngine);
     }
 
-    public void execute() throws CypherException, IOException {
+    public void execute(boolean details) throws CypherException, IOException {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = "MATCH (cl:Class) WHERE cl.class_complexity > "+ veryHigh +" RETURN cl.app_key as app_key,count(cl) as CC";
+            String query = "MATCH (cl:Class) WHERE cl.class_complexity > "+ veryHigh +" RETURN cl.app_key as app_key";
+            if(details){
+                query += ",cl.name as full_name";
+            }else{
+                query += ",count(cl) as CC";
+            }
             result = graphDatabaseService.execute(query);
             queryEngine.resultToCSV(result,"_CC_NO_FUZZY.csv");
         }
     }
 
-    public void executeFuzzy() throws CypherException, IOException {
+    public void executeFuzzy(boolean details) throws CypherException, IOException {
             Result result;
             try (Transaction ignored = graphDatabaseService.beginTx()) {
                 String query = "MATCH (cl:Class) WHERE cl.class_complexity > " + high + " RETURN cl.app_key as app_key, cl.class_complexity as class_complexity";
+                if(details){
+                    query += ",cl.name as full_name";
+                }
                 result = graphDatabaseService.execute(query);
                 List<String> columns = new ArrayList<>(result.columns());
                 columns.add("fuzzy_value");

@@ -35,19 +35,27 @@ public class BLOBQuery extends FuzzyQuery{
         return new BLOBQuery(queryEngine);
     }
 
-    public void execute() throws CypherException, IOException {
+    public void execute(boolean details) throws CypherException, IOException {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = "MATCH (cl:Class) WHERE cl.lack_of_cohesion_in_methods >" + veryHigh_lcom + " AND cl.number_of_methods > " + veryHigh_nom + " AND cl.number_of_attributes > " + veryHigh_noa + " RETURN cl.app_key as app_key,count(cl) as BLOB";
+            String query = "MATCH (cl:Class) WHERE cl.lack_of_cohesion_in_methods >" + veryHigh_lcom + " AND cl.number_of_methods > " + veryHigh_nom + " AND cl.number_of_attributes > " + veryHigh_noa + " RETURN cl.app_key as app_key";
+            if(details){
+                query += ",cl.name as full_name";
+            }else{
+                query += ",count(cl) as BLOB";
+            }
             result = graphDatabaseService.execute(query);
             queryEngine.resultToCSV(result,"_BLOB_NO_FUZZY.csv");
         }
     }
 
-    public void executeFuzzy() throws CypherException, IOException {
+    public void executeFuzzy(boolean details) throws CypherException, IOException {
             Result result;
             try (Transaction ignored = graphDatabaseService.beginTx()) {
                 String query = "MATCH (cl:Class) WHERE cl.lack_of_cohesion_in_methods >" + high_lcom + " AND cl.number_of_methods > " + high_nom + " AND cl.number_of_attributes > " + high_noa + " RETURN cl.app_key as app_key,cl.lack_of_cohesion_in_methods as lack_of_cohesion_in_methods,cl.number_of_methods as number_of_methods, cl.number_of_attributes as number_of_attributes";
+                if(details){
+                    query += ",cl.name as full_name";
+                }
                 result = graphDatabaseService.execute(query);
                 List<String> columns = new ArrayList<>(result.columns());
                 columns.add("fuzzy_value");

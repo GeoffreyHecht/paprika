@@ -20,10 +20,15 @@ public class InvalidateWithoutRectQuery extends Query {
     }
 
     @Override
-    public void execute() throws CypherException, IOException {
+    public void execute(boolean details) throws CypherException, IOException {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query ="MATCH (:Class{parent_name:'android.view.View'})-[:CLASS_OWNS_METHOD]->(n:Method{name:'onDraw'})-[:CALLS]->(e:ExternalMethod{name:'invalidate'}) WHERE NOT e-[:METHOD_OWNS_ARGUMENT]->(:ExternalArgument) return n.app_key, count(n) as IWR";
+            String query ="MATCH (:Class{parent_name:'android.view.View'})-[:CLASS_OWNS_METHOD]->(n:Method{name:'onDraw'})-[:CALLS]->(e:ExternalMethod{name:'invalidate'}) WHERE NOT e-[:METHOD_OWNS_ARGUMENT]->(:ExternalArgument) return n.app_key";
+            if(details){
+                query += ",n.full_name as full_name";
+            }else{
+                query += ",count(n) as IWR";
+            }
             result = graphDatabaseService.execute(query);
             queryEngine.resultToCSV(result, "_IWR.csv");
         }

@@ -17,5 +17,5 @@ public abstract class Query {
         graphDatabaseService = queryEngine.getGraphDatabaseService();
     }
 
-    public abstract void execute() throws CypherException, IOException;
+    public abstract void execute(boolean details) throws CypherException, IOException;
 }

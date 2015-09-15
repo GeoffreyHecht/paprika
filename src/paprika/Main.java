@@ -73,6 +73,7 @@ public class Main {
         queryParser.addArgument("-c", "--csv").help("path to register csv files").setDefault("");
         queryParser.addArgument("-k", "--key").help("key to delete");
         queryParser.addArgument("-p", "--package").help("Package of the applications to delete");
+        queryParser.addArgument("-d", "--details").type(Boolean.class).setDefault(false).help("Show the concerned entity in the results");
         try {
             Namespace res = parser.parseArgs(args);
             if(res.getString("sub_command").equals("analyse")){
@@ -121,6 +122,7 @@ public class Main {
         System.out.println("Executing Queries");
         QueryEngine queryEngine = new QueryEngine(arg.getString("database"));
         String request = arg.get("request");
+        Boolean details = arg.get("details");
         Calendar cal = new GregorianCalendar();
         String csvDate = String.valueOf(cal.get(Calendar.YEAR))+"_"+String.valueOf(cal.get(Calendar.MONTH)+1)+"_"+String.valueOf(cal.get(Calendar.DAY_OF_MONTH))+"_"+String.valueOf(cal.get(Calendar.HOUR_OF_DAY))+"_"+String.valueOf(cal.get(Calendar.MINUTE));
         String csvPrefix = arg.getString("csv")+csvDate;
@@ -128,45 +130,45 @@ public class Main {
         queryEngine.setCsvPrefix(csvPrefix);
         switch(request){
             case "MIM":
-                MIMQuery.createMIMQuery(queryEngine).execute();
+                MIMQuery.createMIMQuery(queryEngine).execute(details);
                 break;
             case "IGS":
-                IGSQuery.createIGSQuery(queryEngine).execute();
+                IGSQuery.createIGSQuery(queryEngine).execute(details);
                 break;
             case "LIC":
-                LICQuery.createLICQuery(queryEngine).execute();
+                LICQuery.createLICQuery(queryEngine).execute(details);
                 break;
             case "NLMR":
-                NLMRQuery.createNLMRQuery(queryEngine).execute();
+                NLMRQuery.createNLMRQuery(queryEngine).execute(details);
                 break;
             case "CC":
-                CCQuery.createCCQuery(queryEngine).executeFuzzy();
+                CCQuery.createCCQuery(queryEngine).executeFuzzy(details);
                 break;
             case "LM":
-                LMQuery.createLMQuery(queryEngine).executeFuzzy();
+                LMQuery.createLMQuery(queryEngine).executeFuzzy(details);
                 break;
             case "SAK":
-                SAKQuery.createSAKQuery(queryEngine).executeFuzzy();
+                SAKQuery.createSAKQuery(queryEngine).executeFuzzy(details);
                 break;
             case "BLOB":
-                BLOBQuery.createBLOBQuery(queryEngine).executeFuzzy();
+                BLOBQuery.createBLOBQuery(queryEngine).executeFuzzy(details);
                 break;
             case "OVERDRAW":
-                OverdrawQuery.createOverdrawQuery(queryEngine).execute();
+                OverdrawQuery.createOverdrawQuery(queryEngine).execute(details);
                 break;
             case "HSS":
-                HeavyServiceStartQuery.createHeavyServiceStartQuery(queryEngine).executeFuzzy();
+                HeavyServiceStartQuery.createHeavyServiceStartQuery(queryEngine).executeFuzzy(details);
                 break;
             case "HBR":
-                HeavyBroadcastReceiverQuery.createHeavyBroadcastReceiverQuery(queryEngine).executeFuzzy();
+                HeavyBroadcastReceiverQuery.createHeavyBroadcastReceiverQuery(queryEngine).executeFuzzy(details);
                 break;
             case "HAS":
-                HeavyAsyncTaskStepsQuery.createHeavyAsyncTaskStepsQuery(queryEngine).executeFuzzy();
+                HeavyAsyncTaskStepsQuery.createHeavyAsyncTaskStepsQuery(queryEngine).executeFuzzy(details);
                 break;
             case "ALLHEAVY":
-                HeavyServiceStartQuery.createHeavyServiceStartQuery(queryEngine).executeFuzzy();
-                HeavyBroadcastReceiverQuery.createHeavyBroadcastReceiverQuery(queryEngine).executeFuzzy();
-                HeavyAsyncTaskStepsQuery.createHeavyAsyncTaskStepsQuery(queryEngine).executeFuzzy();
+                HeavyServiceStartQuery.createHeavyServiceStartQuery(queryEngine).executeFuzzy(details);
+                HeavyBroadcastReceiverQuery.createHeavyBroadcastReceiverQuery(queryEngine).executeFuzzy(details);
+                HeavyAsyncTaskStepsQuery.createHeavyAsyncTaskStepsQuery(queryEngine).executeFuzzy(details);
                 break;
             case "ANALYZED":
                 queryEngine.AnalyzedAppQuery();
@@ -216,53 +218,53 @@ public class Main {
                 queryEngine.countViews();
                 break;
             case "NONFUZZY":
-                IGSQuery.createIGSQuery(queryEngine).execute();
-                MIMQuery.createMIMQuery(queryEngine).execute();
-                LICQuery.createLICQuery(queryEngine).execute();
-                NLMRQuery.createNLMRQuery(queryEngine).execute();
-                OverdrawQuery.createOverdrawQuery(queryEngine).execute();
-                UnsuitedLRUCacheSizeQuery.createUnsuitedLRUCacheSizeQuery(queryEngine).execute();
-                InitOnDrawQuery.createInitOnDrawQuery(queryEngine).execute();
-                UnsupportedHardwareAccelerationQuery.createUnsupportedHardwareAccelerationQuery(queryEngine).execute();
-                HashMapUsageQuery.createHashMapUsageQuery(queryEngine).execute();
-                InvalidateWithoutRectQuery.createInvalidateWithoutRectQuery(queryEngine).execute();
+                IGSQuery.createIGSQuery(queryEngine).execute(details);
+                MIMQuery.createMIMQuery(queryEngine).execute(details);
+                LICQuery.createLICQuery(queryEngine).execute(details);
+                NLMRQuery.createNLMRQuery(queryEngine).execute(details);
+                OverdrawQuery.createOverdrawQuery(queryEngine).execute(details);
+                UnsuitedLRUCacheSizeQuery.createUnsuitedLRUCacheSizeQuery(queryEngine).execute(details);
+                InitOnDrawQuery.createInitOnDrawQuery(queryEngine).execute(details);
+                UnsupportedHardwareAccelerationQuery.createUnsupportedHardwareAccelerationQuery(queryEngine).execute(details);
+                HashMapUsageQuery.createHashMapUsageQuery(queryEngine).execute(details);
+                InvalidateWithoutRectQuery.createInvalidateWithoutRectQuery(queryEngine).execute(details);
                 break;
             case "FUZZY":
-                CCQuery.createCCQuery(queryEngine).executeFuzzy();
-                LMQuery.createLMQuery(queryEngine).executeFuzzy();
-                SAKQuery.createSAKQuery(queryEngine).executeFuzzy();
-                BLOBQuery.createBLOBQuery(queryEngine).executeFuzzy();
-                HeavyServiceStartQuery.createHeavyServiceStartQuery(queryEngine).executeFuzzy();
-                HeavyBroadcastReceiverQuery.createHeavyBroadcastReceiverQuery(queryEngine).executeFuzzy();
-                HeavyAsyncTaskStepsQuery.createHeavyAsyncTaskStepsQuery(queryEngine).executeFuzzy();
+                CCQuery.createCCQuery(queryEngine).executeFuzzy(details);
+                LMQuery.createLMQuery(queryEngine).executeFuzzy(details);
+                SAKQuery.createSAKQuery(queryEngine).executeFuzzy(details);
+                BLOBQuery.createBLOBQuery(queryEngine).executeFuzzy(details);
+                HeavyServiceStartQuery.createHeavyServiceStartQuery(queryEngine).executeFuzzy(details);
+                HeavyBroadcastReceiverQuery.createHeavyBroadcastReceiverQuery(queryEngine).executeFuzzy(details);
+                HeavyAsyncTaskStepsQuery.createHeavyAsyncTaskStepsQuery(queryEngine).executeFuzzy(details);
                 break;
             case "ALLAP":
-                CCQuery.createCCQuery(queryEngine).executeFuzzy();
-                LMQuery.createLMQuery(queryEngine).executeFuzzy();
-                SAKQuery.createSAKQuery(queryEngine).executeFuzzy();
-                BLOBQuery.createBLOBQuery(queryEngine).executeFuzzy();
-                MIMQuery.createMIMQuery(queryEngine).execute();
-                IGSQuery.createIGSQuery(queryEngine).execute();
-                LICQuery.createLICQuery(queryEngine).execute();
-                NLMRQuery.createNLMRQuery(queryEngine).execute();
-                OverdrawQuery.createOverdrawQuery(queryEngine).execute();
-                HeavyServiceStartQuery.createHeavyServiceStartQuery(queryEngine).executeFuzzy();
-                HeavyBroadcastReceiverQuery.createHeavyBroadcastReceiverQuery(queryEngine).executeFuzzy();
-                HeavyAsyncTaskStepsQuery.createHeavyAsyncTaskStepsQuery(queryEngine).executeFuzzy();
-                UnsuitedLRUCacheSizeQuery.createUnsuitedLRUCacheSizeQuery(queryEngine).execute();
-                InitOnDrawQuery.createInitOnDrawQuery(queryEngine).execute();
-                UnsupportedHardwareAccelerationQuery.createUnsupportedHardwareAccelerationQuery(queryEngine).execute();
-                HashMapUsageQuery.createHashMapUsageQuery(queryEngine).execute();
-                InvalidateWithoutRectQuery.createInvalidateWithoutRectQuery(queryEngine).execute();
+                CCQuery.createCCQuery(queryEngine).executeFuzzy(details);
+                LMQuery.createLMQuery(queryEngine).executeFuzzy(details);
+                SAKQuery.createSAKQuery(queryEngine).executeFuzzy(details);
+                BLOBQuery.createBLOBQuery(queryEngine).executeFuzzy(details);
+                MIMQuery.createMIMQuery(queryEngine).execute(details);
+                IGSQuery.createIGSQuery(queryEngine).execute(details);
+                LICQuery.createLICQuery(queryEngine).execute(details);
+                NLMRQuery.createNLMRQuery(queryEngine).execute(details);
+                OverdrawQuery.createOverdrawQuery(queryEngine).execute(details);
+                HeavyServiceStartQuery.createHeavyServiceStartQuery(queryEngine).executeFuzzy(details);
+                HeavyBroadcastReceiverQuery.createHeavyBroadcastReceiverQuery(queryEngine).executeFuzzy(details);
+                HeavyAsyncTaskStepsQuery.createHeavyAsyncTaskStepsQuery(queryEngine).executeFuzzy(details);
+                UnsuitedLRUCacheSizeQuery.createUnsuitedLRUCacheSizeQuery(queryEngine).execute(details);
+                InitOnDrawQuery.createInitOnDrawQuery(queryEngine).execute(details);
+                UnsupportedHardwareAccelerationQuery.createUnsupportedHardwareAccelerationQuery(queryEngine).execute(details);
+                HashMapUsageQuery.createHashMapUsageQuery(queryEngine).execute(details);
+                InvalidateWithoutRectQuery.createInvalidateWithoutRectQuery(queryEngine).execute(details);
                 break;
             case "FORCENOFUZZY":
-                CCQuery.createCCQuery(queryEngine).execute();
-                LMQuery.createLMQuery(queryEngine).execute();
-                SAKQuery.createSAKQuery(queryEngine).execute();
-                BLOBQuery.createBLOBQuery(queryEngine).execute();
-                HeavyServiceStartQuery.createHeavyServiceStartQuery(queryEngine).execute();
-                HeavyBroadcastReceiverQuery.createHeavyBroadcastReceiverQuery(queryEngine).execute();
-                HeavyAsyncTaskStepsQuery.createHeavyAsyncTaskStepsQuery(queryEngine).execute();
+                CCQuery.createCCQuery(queryEngine).execute(details);
+                LMQuery.createLMQuery(queryEngine).execute(details);
+                SAKQuery.createSAKQuery(queryEngine).execute(details);
+                BLOBQuery.createBLOBQuery(queryEngine).execute(details);
+                HeavyServiceStartQuery.createHeavyServiceStartQuery(queryEngine).execute(details);
+                HeavyBroadcastReceiverQuery.createHeavyBroadcastReceiverQuery(queryEngine).execute(details);
+                HeavyAsyncTaskStepsQuery.createHeavyAsyncTaskStepsQuery(queryEngine).execute(details);
                 break;
             default:
                 System.out.println("Executing custom request");

@@ -20,11 +20,16 @@ public class OverdrawQuery extends Query {
     }
 
     @Override
-    public void execute() throws CypherException, IOException {
+    public void execute(boolean details) throws CypherException, IOException {
         try (Transaction ignored = graphDatabaseService.beginTx()) {
             String query = "MATCH (:Class{parent_name:\"android.view.View\"})-[:CLASS_OWNS_METHOD]->(n:Method{name:\"onDraw\"})-[:METHOD_OWNS_ARGUMENT]->(:Argument{position:1,name:\"android.graphics.Canvas\"}) \n" +
                     "WHERE NOT n-[:CALLS]->(:ExternalMethod{full_name:\"clipRect#android.graphics.Canvas\"}) AND NOT n-[:CALLS]->(:ExternalMethod{full_name:\"quickReject#android.graphics.Canvas\"})\n" +
-                    "RETURN n.app_key as app_key,count(n) as UIO";
+                    "RETURN n.app_key as app_key";
+            if(details){
+                query += ",n.full_name as full_name";
+            }else{
+                query += ",count(n) as UIO";
+            }
             Result result = graphDatabaseService.execute(query);
             queryEngine.resultToCSV(result, "_UIO.csv");
         }
