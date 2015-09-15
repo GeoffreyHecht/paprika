@@ -34,7 +34,7 @@ public class SAKQuery extends FuzzyQuery{
         try (Transaction ignored = graphDatabaseService.beginTx()) {
             String query = "MATCH (cl:Class) WHERE HAS(cl.is_interface) AND cl.number_of_methods > " + veryHigh + " RETURN cl.app_key as app_key";
             if(details){
-                query += ",cl.full_name as full_name";
+                query += ",cl.name as full_name";
             }else{
                 query += ",count(cl) as SAK";
             }
@@ -48,7 +48,7 @@ public class SAKQuery extends FuzzyQuery{
             try (Transaction ignored = graphDatabaseService.beginTx()) {
                 String query = "MATCH (cl:Class) WHERE HAS(cl.is_interface) AND cl.number_of_methods > " + high + " RETURN cl.app_key as app_key,cl.number_of_methods as number_of_methods";
                 if(details){
-                    query += ",cl.full_name as full_name";
+                    query += ",cl.name as full_name";
                 }
                 result = graphDatabaseService.execute(query);
                 List<String> columns = new ArrayList<>(result.columns());
