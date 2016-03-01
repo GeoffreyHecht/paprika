@@ -11,6 +11,7 @@ import soot.jimple.toolkits.callgraph.Edge;
 import soot.options.Options;
 import soot.util.Chain;
 
+import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
@@ -74,7 +75,9 @@ public class SootAnalyzer extends Analyzer {
         //Options.v().set_process_dir(Collections.singletonList("/home/geoffrey/These/LotOfAntiPatternsApplication/app/src/main/java"));
         Options.v().set_whole_program(true);
         Options.v().set_output_format(Options.output_format_grimple);
-        Options.v().set_output_dir("/home/geoffrey/These/decompiler/out");
+        //Options.v().set_output_dir("/home/geoffrey/These/decompiler/out");
+        //Get directly the home directory and work on it
+        Options.v().set_output_dir(System.getProperty("user.home")+ File.separator + "/These/decompiler/out");
         //Options.v().set_soot_classpath();
 
         PhaseOptions.v().setPhaseOption("gop", "enabled:true");
