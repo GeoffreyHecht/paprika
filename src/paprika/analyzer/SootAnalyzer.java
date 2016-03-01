@@ -154,9 +154,7 @@ public class SootAnalyzer extends Analyzer {
             String packs =  pack.concat(".");
             if(name.equals(rClass) || name.startsWith(rsubClassStart) || name.equals(buildConfigClass)) {
                 //sootClass.setLibraryClass();
-            }else if(!mainPackageOnly){
-                collectClassMetrics(sootClass);
-            }else if(name.startsWith(packs)){
+            }else if(!mainPackageOnly || name.startsWith(packs)){
                 collectClassMetrics(sootClass);
             }
         }
