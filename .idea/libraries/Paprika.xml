@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Paprika">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/out/artifacts/Paprika_jar/Paprika.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

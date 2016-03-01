@@ -1,0 +1,37 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/neo4j-cypher-compiler-1.9-2.0.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/neo4j-cypher-compiler-2.2-2.2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/neo4j-primitive-collections-2.2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/neo4j-udc-2.2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/neo4j-lucene-index-2.2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/neo4j-2.2.0-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/soot-trunk.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/sootjavadoc-trunk.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/concurrentlinkedhashmap-lru-1.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/neo4j-cypher-2.2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/parboiled-scala_2.10-1.1.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/neo4j-graph-matching-2.2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/neo4j-kernel-2.2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jFuzzyLogic.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/scala-library-2.10.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/neo4j-2.2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/neo4j-csv-2.2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/neo4j-io-2.2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/argparse4j-0.5.0-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/neo4j-consistency-check-2.2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lucene-core-3.6.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/neo4j-cypher-compiler-2.1-2.1.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/parboiled-core-1.1.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/argparse4j-0.5.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/opencsv-2.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/neo4j-jmx-2.2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/neo4j-graph-algo-2.2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/scala-reflect-2.10.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/neo4j-cypher-compiler-2.0-2.0.4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

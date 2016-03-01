@@ -71,8 +71,8 @@ public class Main {
         queryParser.addArgument("-db", "--database").required(true).help("Path to neo4J Database folder");
         queryParser.addArgument("-r", "--request").help("Request to execute");
         queryParser.addArgument("-c", "--csv").help("path to register csv files").setDefault("");
-        queryParser.addArgument("-k", "--key").help("key to delete");
-        queryParser.addArgument("-p", "--package").help("Package of the applications to delete");
+        queryParser.addArgument("-dk", "--delKey").help("key to delete");
+        queryParser.addArgument("-dp", "--delPackage").help("Package of the applications to delete");
         queryParser.addArgument("-d", "--details").type(Boolean.class).setDefault(false).help("Show the concerned entity in the results");
         try {
             Namespace res = parser.parseArgs(args);
@@ -174,12 +174,12 @@ public class Main {
                 queryEngine.AnalyzedAppQuery();
                 break;
             case "DELETE":
-                queryEngine.deleteQuery(arg.getString("key"));
+                queryEngine.deleteQuery(arg.getString("delKey"));
                 break;
             case "DELETEAPP":
-                if(arg.get("key") != null) { queryEngine.deleteEntireApp(arg.getString("key")); }
+                if(arg.get("delKey") != null) { queryEngine.deleteEntireApp(arg.getString("delKey")); }
                 else {
-                    queryEngine.deleteEntireAppFromPackage(arg.getString("package"));
+                    queryEngine.deleteEntireAppFromPackage(arg.getString("delPackage"));
                 }
                 break;
             case "STATS":
