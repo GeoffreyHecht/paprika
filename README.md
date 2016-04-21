@@ -120,4 +120,4 @@ GNU AFFERO GENERAL PUBLIC LICENSE (version 3)
 
 ### <a name="credits"></a>Credits
 
-Developed by [Geoffrey Hecht](http://geoffreyhecht.github.io/), [LATECE - UQÀM](http://www.latece.uqam.ca/en)
+Developed by [Geoffrey Hecht](http://geoffreyhecht.github.io/), [SOMCA](http://sofa.uqam.ca/somca.php), [SPIRALS](https://team.inria.fr/spirals/) - [LATECE](http://www.latece.uqam.ca/)
