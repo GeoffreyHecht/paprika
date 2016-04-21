@@ -36,13 +36,10 @@ Paprika supports currently 16 Object-Oriented (OO) and Android code smells.
 
 Paprika needs an Android plaftorm to works.  
 You can find many Android platforms in [this Github repository](https://github.com/Sable/android-platforms).  
-
 You can find the java application in ```paprika/out/artifacts/Paprika_jar```.
 
 You can choose between two modes: **analyse** and **query**.
-
 The **analyse** mode will allows you to scan with [Soot](https://sable.github.io/soot/) your Application application, to detect contained code smells.
-
 You can use after the **query** mode on your Neo4J graph to request how much code smells your application contains.
 
 #### Analyse mode usage
@@ -123,4 +120,4 @@ GNU AFFERO GENERAL PUBLIC LICENSE (version 3)
 
 ### <a name="credits"></a>Credits
 
-Developing by [Geoffrey Hecht](http://geoffreyhecht.github.io/), [LATECE - UQÀM](http://www.latece.uqam.ca/en)
+Developed by [Geoffrey Hecht](http://geoffreyhecht.github.io/), [LATECE - UQÀM](http://www.latece.uqam.ca/en)
