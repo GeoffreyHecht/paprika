@@ -187,6 +187,9 @@ public class ModelToGraph {
         argNode.setProperty("app_key", key);
         argNode.setProperty("name", paprikaExternalArgument.getName());
         argNode.setProperty("position", paprikaExternalArgument.getPosition());
+        for(Metric metric : paprikaExternalArgument.getMetrics()){
+            insertMetric(metric, argNode);
+        }
         return argNode;
     }
 
