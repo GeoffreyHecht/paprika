@@ -394,8 +394,15 @@ public class SootAnalyzer extends Analyzer {
         else if(isContentProvider(sootClass)){
             contentProviderCount++;
             IsContentProvider.createIsContentProvider(paprikaClass, true);
-        }else if(isApplication(sootClass)){
+        }
+        else if(isApplication(sootClass)){
             IsApplication.createIsApplication(paprikaClass,true);
+        }
+        else if(isBitmap(sootClass)){
+            IsBitmap.createIsBitmap(paprikaClass, true);
+        }
+        else if(isBitmapConfiguration(sootClass)){
+            IsBitmapConfiguration.createIsBitmapConfiguration(paprikaClass, true);
         }
         if(sootClass.isAbstract()){
             abstractCount++;
@@ -497,6 +504,14 @@ public class SootAnalyzer extends Analyzer {
 
     private boolean isView(SootClass sootClass){
         return isSubClass(sootClass,"android.view.View");
+    }
+
+    private boolean isBitmap(SootClass sootClass){
+        return isSubClass(sootClass,"android.graphics.Bitmap");
+    }
+
+    private boolean isBitmapConfiguration(SootClass sootClass){
+        return isSubClass(sootClass,"android.graphics.Bitmap$Config");
     }
 
     private boolean isBroadcastReceiver(SootClass sootClass){ return isSubClass(sootClass,"android.content.BroadcastReceiver");}
