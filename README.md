@@ -3,12 +3,12 @@
 Paprika is a powerfull toolkit to detect some code smells in analysed Android applications.
 
 # Table of contents
-*   [Detected code smells](#detected_code_smells)
+*   [Code smells detection](#code_smells_detection)
 *   [How to use it?](#how_to_use_it)
 *   [Troubleshootings](#troubleshootings)
 *   [Credits](#credits)
 
-### <a name="detected_code_smells"></a>Detected code smells
+### <a name="code_smells_detection"></a>Code smells detection
 
 Paprika supports currently 16 Object-Oriented (OO) and Android code smells.
 
