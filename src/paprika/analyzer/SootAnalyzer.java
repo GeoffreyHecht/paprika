@@ -193,7 +193,6 @@ public class SootAnalyzer extends Analyzer {
             NPathComplexity.createNPathComplexity(paprikaClass);
         }
         NumberOfMethods.createNumberOfMethods(paprikaApp,methodMap.size());
-        NumberOfArgb8888.createNumberOfArgb8888(paprikaApp, argb8888Count);
     }
 
     /**
@@ -361,6 +360,7 @@ public class SootAnalyzer extends Analyzer {
         }
         NumberOfDirectCalls.createNumberOfDirectCalls(paprikaMethod, edgeOutCount);
         NumberOfCallers.createNumberOfCallers(paprikaMethod, edgeIntoCount);
+        NumberOfArgb8888.createNumberOfArgb8888(paprikaApp, argb8888Count);
     }
 
     public void collectClassMetrics(SootClass sootClass){
