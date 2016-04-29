@@ -29,7 +29,7 @@ public class SootAnalyzer extends Analyzer {
     private Map<SootClass,PaprikaExternalClass>externalClassMap;
     private Map<SootMethod,PaprikaExternalMethod>externalMethodMap;
     private Map<SootMethod,PaprikaMethod>methodMap;
-    int activityCount = 0, innerCount = 0, varCount = 0, asyncCount = 0, serviceCount = 0, viewCount = 0, interfaceCount = 0, abstractCount = 0, broadcastReceiverCount = 0, contentProviderCount = 0;
+    int bitmapCount = 0, activityCount = 0, innerCount = 0, varCount = 0, asyncCount = 0, serviceCount = 0, viewCount = 0, interfaceCount = 0, abstractCount = 0, broadcastReceiverCount = 0, contentProviderCount = 0;
     private String rClass;
     private String buildConfigClass;
     private String pack;
@@ -146,6 +146,7 @@ public class SootAnalyzer extends Analyzer {
         NumberOfAbstractClasses.createNumberOfAbstractClasses(this.paprikaApp, abstractCount);
         NumberOfBroadcastReceivers.createNumberOfBroadcastReceivers(this.paprikaApp, broadcastReceiverCount);
         NumberOfContentProviders.createNumberOfContentProviders(this.paprikaApp, contentProviderCount);
+        NumberOfBitmaps.createNumberOfBitmaps(this.paprikaApp, bitmapCount);
     }
 
     public void collectClassesMetrics(){
@@ -399,6 +400,7 @@ public class SootAnalyzer extends Analyzer {
             IsApplication.createIsApplication(paprikaClass,true);
         }
         else if(isBitmap(sootClass)){
+            bitmapCount++;
             IsBitmap.createIsBitmap(paprikaClass, true);
         }
         else if(isBitmapConfiguration(sootClass)){
