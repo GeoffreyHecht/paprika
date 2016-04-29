@@ -1,11 +1,15 @@
 package paprika.analyzer;
 
+import beaver.Parser;
 import paprika.entities.*;
 import paprika.metrics.*;
 import soot.*;
 import soot.grimp.GrimpBody;
+import soot.grimp.internal.GAssignStmt;
 import soot.grimp.internal.GLookupSwitchStmt;
+import soot.grimp.internal.GRValueBox;
 import soot.jimple.FieldRef;
+import soot.jimple.StaticFieldRef;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
 import soot.options.Options;
@@ -237,6 +241,11 @@ public class SootAnalyzer extends Analyzer {
             for(Type type : sootMethod.getParameterTypes()){
                 i++;
                 PaprikaArgument.createPaprikaArgument(type.toString(),i,paprikaMethod);
+                /*
+                if(isBitmapConfiguration(paprikaClass)){
+                    IsBitmapConfiguration.createIsBitmapConfiguration(paprikaArgument, true);
+                }
+                */
             }
             GrimpBody activeBody = (GrimpBody) sootMethod.getActiveBody();
             // Number of lines is the number of Units - number of Parameter - 1 (function name)
@@ -320,11 +329,27 @@ public class SootAnalyzer extends Analyzer {
                         paprikaExternalClass = PaprikaExternalClass.createPaprikaExternalClass(target.getDeclaringClass().getName(),paprikaApp);
                         externalClassMap.put(target.getDeclaringClass(),paprikaExternalClass);
                     }
+                    else if (paprikaExternalClass.getName() == "android.graphics.Bitmap"){
+                        bitmapCount++;
+                    }
                     externalTgtMethod = PaprikaExternalMethod.createPaprikaExternalMethod(target.getName(),target.getReturnType().toString(),paprikaExternalClass);
                     int i = 0;
                     for(Type type : target.getParameterTypes()){
                         i++;
-                        PaprikaExternalArgument.createPaprikaExternalArgument(type.toString(), i, externalTgtMethod);
+                        PaprikaExternalArgument paprikaExternalArgument = PaprikaExternalArgument.createPaprikaExternalArgument(type.toString(), i, externalTgtMethod);
+                        if (paprikaExternalArgument.getName() == "android.graphics.Bitmap$Config") {
+                            for (Unit unitChain: ((SootMethod) e.getSrc()).getActiveBody().getUnits()) {
+                                try {
+                                    String nameOfStaticFieldRef = ((StaticFieldRef)((GRValueBox)((GAssignStmt) unitChain).getRightOpBox()).getValue()).getFieldRef().name();
+                                    if (nameOfStaticFieldRef.equals("ARGB_8888")) {
+                                        IsARGB8888.createIsARGB8888(paprikaExternalArgument, true);
+                                    }
+                                }
+                                catch (Exception new_exception) {
+
+                                }
+                            }
+                        }
                     }
                     externalMethodMap.put(target,externalTgtMethod);
                 }
@@ -396,15 +421,8 @@ public class SootAnalyzer extends Analyzer {
             contentProviderCount++;
             IsContentProvider.createIsContentProvider(paprikaClass, true);
         }
-        else if(isApplication(sootClass)){
-            IsApplication.createIsApplication(paprikaClass,true);
-        }
-        else if(isBitmap(sootClass)){
-            bitmapCount++;
-            IsBitmap.createIsBitmap(paprikaClass, true);
-        }
-        else if(isBitmapConfiguration(sootClass)){
-            IsBitmapConfiguration.createIsBitmapConfiguration(paprikaClass, true);
+        else if(isApplication(sootClass)) {
+            IsApplication.createIsApplication(paprikaClass, true);
         }
         if(sootClass.isAbstract()){
             abstractCount++;
@@ -506,14 +524,6 @@ public class SootAnalyzer extends Analyzer {
 
     private boolean isView(SootClass sootClass){
         return isSubClass(sootClass,"android.view.View");
-    }
-
-    private boolean isBitmap(SootClass sootClass){
-        return isSubClass(sootClass,"android.graphics.Bitmap");
-    }
-
-    private boolean isBitmapConfiguration(SootClass sootClass){
-        return isSubClass(sootClass,"android.graphics.Bitmap$Config");
     }
 
     private boolean isBroadcastReceiver(SootClass sootClass){ return isSubClass(sootClass,"android.content.BroadcastReceiver");}
