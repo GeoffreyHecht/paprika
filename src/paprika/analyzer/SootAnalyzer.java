@@ -186,6 +186,8 @@ public class SootAnalyzer extends Analyzer {
             CouplingBetweenObjects.createCouplingBetweenObjects(paprikaClass);
             //LCOM
             LackofCohesionInMethods.createLackofCohesionInMethods(paprikaClass);
+            // Compute the NPath complexity
+            NPathComplexity.createNPathComplexity(paprikaClass);
         }
         NumberOfMethods.createNumberOfMethods(paprikaApp,methodMap.size());
     }
