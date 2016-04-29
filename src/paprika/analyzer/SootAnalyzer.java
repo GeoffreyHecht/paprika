@@ -1,6 +1,5 @@
 package paprika.analyzer;
 
-import beaver.Parser;
 import paprika.entities.*;
 import paprika.metrics.*;
 import soot.*;
@@ -33,7 +32,7 @@ public class SootAnalyzer extends Analyzer {
     private Map<SootClass,PaprikaExternalClass>externalClassMap;
     private Map<SootMethod,PaprikaExternalMethod>externalMethodMap;
     private Map<SootMethod,PaprikaMethod>methodMap;
-    int bitmapCount = 0, activityCount = 0, innerCount = 0, varCount = 0, asyncCount = 0, serviceCount = 0, viewCount = 0, interfaceCount = 0, abstractCount = 0, broadcastReceiverCount = 0, contentProviderCount = 0;
+    int argb8888Count = 0, activityCount = 0, innerCount = 0, varCount = 0, asyncCount = 0, serviceCount = 0, viewCount = 0, interfaceCount = 0, abstractCount = 0, broadcastReceiverCount = 0, contentProviderCount = 0;
     private String rClass;
     private String buildConfigClass;
     private String pack;
@@ -150,7 +149,6 @@ public class SootAnalyzer extends Analyzer {
         NumberOfAbstractClasses.createNumberOfAbstractClasses(this.paprikaApp, abstractCount);
         NumberOfBroadcastReceivers.createNumberOfBroadcastReceivers(this.paprikaApp, broadcastReceiverCount);
         NumberOfContentProviders.createNumberOfContentProviders(this.paprikaApp, contentProviderCount);
-        NumberOfBitmaps.createNumberOfBitmaps(this.paprikaApp, bitmapCount);
     }
 
     public void collectClassesMetrics(){
@@ -195,6 +193,7 @@ public class SootAnalyzer extends Analyzer {
             NPathComplexity.createNPathComplexity(paprikaClass);
         }
         NumberOfMethods.createNumberOfMethods(paprikaApp,methodMap.size());
+        NumberOfArgb8888.createNumberOfArgb8888(paprikaApp, argb8888Count);
     }
 
     /**
@@ -241,11 +240,6 @@ public class SootAnalyzer extends Analyzer {
             for(Type type : sootMethod.getParameterTypes()){
                 i++;
                 PaprikaArgument.createPaprikaArgument(type.toString(),i,paprikaMethod);
-                /*
-                if(isBitmapConfiguration(paprikaClass)){
-                    IsBitmapConfiguration.createIsBitmapConfiguration(paprikaArgument, true);
-                }
-                */
             }
             GrimpBody activeBody = (GrimpBody) sootMethod.getActiveBody();
             // Number of lines is the number of Units - number of Parameter - 1 (function name)
@@ -325,12 +319,9 @@ public class SootAnalyzer extends Analyzer {
                 PaprikaExternalMethod externalTgtMethod = externalMethodMap.get(target);
                 if( externalTgtMethod == null){
                     PaprikaExternalClass paprikaExternalClass = externalClassMap.get(target.getDeclaringClass());
-                    if(paprikaExternalClass == null){
-                        paprikaExternalClass = PaprikaExternalClass.createPaprikaExternalClass(target.getDeclaringClass().getName(),paprikaApp);
-                        externalClassMap.put(target.getDeclaringClass(),paprikaExternalClass);
-                    }
-                    else if (paprikaExternalClass.getName() == "android.graphics.Bitmap"){
-                        bitmapCount++;
+                    if(paprikaExternalClass == null) {
+                        paprikaExternalClass = PaprikaExternalClass.createPaprikaExternalClass(target.getDeclaringClass().getName(), paprikaApp);
+                        externalClassMap.put(target.getDeclaringClass(), paprikaExternalClass);
                     }
                     externalTgtMethod = PaprikaExternalMethod.createPaprikaExternalMethod(target.getName(),target.getReturnType().toString(),paprikaExternalClass);
                     int i = 0;
@@ -342,6 +333,7 @@ public class SootAnalyzer extends Analyzer {
                                 try {
                                     String nameOfStaticFieldRef = ((StaticFieldRef)((GRValueBox)((GAssignStmt) unitChain).getRightOpBox()).getValue()).getFieldRef().name();
                                     if (nameOfStaticFieldRef.equals("ARGB_8888")) {
+                                        argb8888Count++;
                                         IsARGB8888.createIsARGB8888(paprikaExternalArgument, true);
                                     }
                                 }
