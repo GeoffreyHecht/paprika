@@ -115,6 +115,14 @@ public class PaprikaClass extends Entity{
         return LCOM > 0 ? LCOM : 0;
     }
 
+    /**
+        Get the NPath complexity of the entire program
+        The NPath complexity is just the combinatorial of the cyclomatic complexity
+     **/
+    public double computeNPathComplexity() {
+        return Math.pow(2.0, (double) getComplexity());
+    }
+
     public void addPaprikaVariable(PaprikaVariable paprikaVariable) {
         paprikaVariables.add(paprikaVariable);
     }

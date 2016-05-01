@@ -4,13 +4,17 @@ import paprika.entities.*;
 import paprika.metrics.*;
 import soot.*;
 import soot.grimp.GrimpBody;
+import soot.grimp.internal.GAssignStmt;
 import soot.grimp.internal.GLookupSwitchStmt;
+import soot.grimp.internal.GRValueBox;
 import soot.jimple.FieldRef;
+import soot.jimple.StaticFieldRef;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
 import soot.options.Options;
 import soot.util.Chain;
 
+import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
@@ -28,7 +32,7 @@ public class SootAnalyzer extends Analyzer {
     private Map<SootClass,PaprikaExternalClass>externalClassMap;
     private Map<SootMethod,PaprikaExternalMethod>externalMethodMap;
     private Map<SootMethod,PaprikaMethod>methodMap;
-    int activityCount = 0, innerCount = 0, varCount = 0, asyncCount = 0, serviceCount = 0, viewCount = 0, interfaceCount = 0, abstractCount = 0, broadcastReceiverCount = 0, contentProviderCount = 0;
+    int argb8888Count = 0, activityCount = 0, innerCount = 0, varCount = 0, asyncCount = 0, serviceCount = 0, viewCount = 0, interfaceCount = 0, abstractCount = 0, broadcastReceiverCount = 0, contentProviderCount = 0;
     private String rClass;
     private String buildConfigClass;
     private String pack;
@@ -74,7 +78,9 @@ public class SootAnalyzer extends Analyzer {
         //Options.v().set_process_dir(Collections.singletonList("/home/geoffrey/These/LotOfAntiPatternsApplication/app/src/main/java"));
         Options.v().set_whole_program(true);
         Options.v().set_output_format(Options.output_format_grimple);
-        Options.v().set_output_dir("/home/geoffrey/These/decompiler/out");
+        //Options.v().set_output_dir("/home/geoffrey/These/decompiler/out");
+        //Get directly the home directory and work on it
+        Options.v().set_output_dir(System.getProperty("user.home")+ File.separator + "/These/decompiler/out");
         //Options.v().set_soot_classpath();
 
         PhaseOptions.v().setPhaseOption("gop", "enabled:true");
@@ -154,9 +160,7 @@ public class SootAnalyzer extends Analyzer {
             String packs =  pack.concat(".");
             if(name.equals(rClass) || name.startsWith(rsubClassStart) || name.equals(buildConfigClass)) {
                 //sootClass.setLibraryClass();
-            }else if(!mainPackageOnly){
-                collectClassMetrics(sootClass);
-            }else if(name.startsWith(packs)){
+            }else if(!mainPackageOnly || name.startsWith(packs)){
                 collectClassMetrics(sootClass);
             }
         }
@@ -185,6 +189,8 @@ public class SootAnalyzer extends Analyzer {
             CouplingBetweenObjects.createCouplingBetweenObjects(paprikaClass);
             //LCOM
             LackofCohesionInMethods.createLackofCohesionInMethods(paprikaClass);
+            // Compute the NPath complexity, per class
+            NPathComplexity.createNPathComplexity(paprikaClass);
         }
         NumberOfMethods.createNumberOfMethods(paprikaApp,methodMap.size());
     }
@@ -312,15 +318,29 @@ public class SootAnalyzer extends Analyzer {
                 PaprikaExternalMethod externalTgtMethod = externalMethodMap.get(target);
                 if( externalTgtMethod == null){
                     PaprikaExternalClass paprikaExternalClass = externalClassMap.get(target.getDeclaringClass());
-                    if(paprikaExternalClass == null){
-                        paprikaExternalClass = PaprikaExternalClass.createPaprikaExternalClass(target.getDeclaringClass().getName(),paprikaApp);
-                        externalClassMap.put(target.getDeclaringClass(),paprikaExternalClass);
+                    if(paprikaExternalClass == null) {
+                        paprikaExternalClass = PaprikaExternalClass.createPaprikaExternalClass(target.getDeclaringClass().getName(), paprikaApp);
+                        externalClassMap.put(target.getDeclaringClass(), paprikaExternalClass);
                     }
                     externalTgtMethod = PaprikaExternalMethod.createPaprikaExternalMethod(target.getName(),target.getReturnType().toString(),paprikaExternalClass);
                     int i = 0;
                     for(Type type : target.getParameterTypes()){
                         i++;
-                        PaprikaExternalArgument.createPaprikaExternalArgument(type.toString(), i, externalTgtMethod);
+                        PaprikaExternalArgument paprikaExternalArgument = PaprikaExternalArgument.createPaprikaExternalArgument(type.toString(), i, externalTgtMethod);
+                        if (paprikaExternalArgument.getName() == "android.graphics.Bitmap$Config") {
+                            for (Unit unitChain: ((SootMethod) e.getSrc()).getActiveBody().getUnits()) {
+                                try {
+                                    String nameOfStaticFieldRef = ((StaticFieldRef)((GRValueBox)((GAssignStmt) unitChain).getRightOpBox()).getValue()).getFieldRef().name();
+                                    if (nameOfStaticFieldRef.equals("ARGB_8888")) {
+                                        argb8888Count++;
+                                        IsARGB8888.createIsARGB8888(paprikaExternalArgument, true);
+                                    }
+                                }
+                                catch (Exception new_exception) {
+
+                                }
+                            }
+                        }
                     }
                     externalMethodMap.put(target,externalTgtMethod);
                 }
@@ -340,6 +360,7 @@ public class SootAnalyzer extends Analyzer {
         }
         NumberOfDirectCalls.createNumberOfDirectCalls(paprikaMethod, edgeOutCount);
         NumberOfCallers.createNumberOfCallers(paprikaMethod, edgeIntoCount);
+        NumberOfArgb8888.createNumberOfArgb8888(paprikaApp, argb8888Count);
     }
 
     public void collectClassMetrics(SootClass sootClass){
@@ -391,8 +412,9 @@ public class SootAnalyzer extends Analyzer {
         else if(isContentProvider(sootClass)){
             contentProviderCount++;
             IsContentProvider.createIsContentProvider(paprikaClass, true);
-        }else if(isApplication(sootClass)){
-            IsApplication.createIsApplication(paprikaClass,true);
+        }
+        else if(isApplication(sootClass)) {
+            IsApplication.createIsApplication(paprikaClass, true);
         }
         if(sootClass.isAbstract()){
             abstractCount++;
