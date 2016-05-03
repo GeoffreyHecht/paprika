@@ -22,7 +22,10 @@ public class ARGB8888Query extends Query {
     @Override
     public void execute(boolean details) throws CypherException, IOException {
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = "MATCH (e: ExternalArgument) WHERE HAS(e.is_argb_8888) RETURN e, count(e) as ARGB8888";
+            String query = "MATCH (e: ExternalArgument) WHERE HAS(e.is_argb_8888) RETURN e";
+            if (details) {
+                query += ", count(e) as ARGB8888";
+            }
             Result result = graphDatabaseService.execute(query);
             queryEngine.resultToCSV(result, "_ARGB8888.csv");
         }
