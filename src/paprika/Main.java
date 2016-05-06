@@ -129,6 +129,8 @@ public class Main {
         System.out.println("Resulting csv file name will start with prefix "+csvPrefix);
         queryEngine.setCsvPrefix(csvPrefix);
         switch(request){
+            case "ARGB8888":
+                ARGB8888Query.createARGB8888Query(queryEngine).execute(details);
             case "MIM":
                 MIMQuery.createMIMQuery(queryEngine).execute(details);
                 break;
@@ -218,6 +220,7 @@ public class Main {
                 queryEngine.countViews();
                 break;
             case "NONFUZZY":
+                ARGB8888Query.createARGB8888Query(queryEngine).execute(details);
                 IGSQuery.createIGSQuery(queryEngine).execute(details);
                 MIMQuery.createMIMQuery(queryEngine).execute(details);
                 LICQuery.createLICQuery(queryEngine).execute(details);
@@ -239,6 +242,7 @@ public class Main {
                 HeavyAsyncTaskStepsQuery.createHeavyAsyncTaskStepsQuery(queryEngine).executeFuzzy(details);
                 break;
             case "ALLAP":
+                ARGB8888Query.createARGB8888Query(queryEngine).execute(details);
                 CCQuery.createCCQuery(queryEngine).executeFuzzy(details);
                 LMQuery.createLMQuery(queryEngine).executeFuzzy(details);
                 SAKQuery.createSAKQuery(queryEngine).executeFuzzy(details);

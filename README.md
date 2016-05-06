@@ -30,7 +30,8 @@ Paprika supports currently 16 Object-Oriented (OO) and Android code smells.
 * Heavy Broadcast Receiver,
 * Init OnDraw,
 * Hashmap Usage,
-* Unsupported Hardware Acceleration.
+* Unsupported Hardware Acceleration,
+* Bitmap Format Usage.
 
 ### <a name="hoz_to_use_it"></a>How to use it ?
 
