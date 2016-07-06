@@ -534,11 +534,29 @@ public class SootAnalyzer extends Analyzer {
 
     private boolean isOverride(SootMethod sootMethod){
         SootClass sootClass = sootMethod.getDeclaringClass();
+        for(SootClass inter : sootClass.getInterfaces()){
+            if (classContainsMethod(inter,sootMethod)) return true;
+            while(inter.hasSuperclass()){
+                    inter = inter.getSuperclass();
+                    if (classContainsMethod(inter,sootMethod)) return true;
+            }
+        }
         while(sootClass.hasSuperclass()){
             sootClass = sootClass.getSuperclass();
-            //Here unsafe just means it will return null (instead of throwing an exception).
-            if (sootClass.getMethodUnsafe(sootMethod.getName(), sootMethod.getParameterTypes(),sootMethod.getReturnType())!= null) return true;
+            if (classContainsMethod(sootClass,sootMethod)) return true;
         }
         return false;
+    }
+
+    /**
+     * Test if a class contains a method with same name, parameters and return type
+     * @param sootClass
+     * @param sootMethod
+     * @return
+     */
+    private boolean classContainsMethod(SootClass sootClass,SootMethod sootMethod){
+        //Here unsafe just means it will return null (instead of throwing an exception).
+        if (sootClass.getMethodUnsafe(sootMethod.getName(), sootMethod.getParameterTypes(),sootMethod.getReturnType())!= null) return true;
+        else return false;
     }
 }
