@@ -20,7 +20,7 @@ END_FUZZIFY
 DEFUZZIFY res
 	METHOD : LM;
 	TERM heavy := (0, 0) (1, 1);
-	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+	DEFAULT := 0;
 END_DEFUZZIFY
 
 RULEBLOCK No1
