@@ -185,6 +185,9 @@ public class Main {
             case "HAS":
                 HeavyAsyncTaskStepsQuery.createHeavyAsyncTaskStepsQuery(queryEngine).executeFuzzy(details);
                 break;
+            case "THI":
+                TrackingHardwareIdQuery.createTrackingHardwareIdQuery(queryEngine).execute(details);
+                break;
             case "ALLHEAVY":
                 HeavyServiceStartQuery.createHeavyServiceStartQuery(queryEngine).executeFuzzy(details);
                 HeavyBroadcastReceiverQuery.createHeavyBroadcastReceiverQuery(queryEngine).executeFuzzy(details);
@@ -278,6 +281,7 @@ public class Main {
                 UnsupportedHardwareAccelerationQuery.createUnsupportedHardwareAccelerationQuery(queryEngine).execute(details);
                 HashMapUsageQuery.createHashMapUsageQuery(queryEngine).execute(details);
                 InvalidateWithoutRectQuery.createInvalidateWithoutRectQuery(queryEngine).execute(details);
+                TrackingHardwareIdQuery.createTrackingHardwareIdQuery(queryEngine).execute(details);
                 break;
             case "FORCENOFUZZY":
                 CCQuery.createCCQuery(queryEngine).execute(details);
