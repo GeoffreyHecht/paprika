@@ -37,8 +37,9 @@ public class DatabaseManager {
 
     public void start(){
         //graphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabase( DB_PATH );
+        File dbFile = new File(DB_PATH);
         graphDatabaseService = new GraphDatabaseFactory().
-                newEmbeddedDatabaseBuilder( DB_PATH ).
+                newEmbeddedDatabaseBuilder(dbFile).
                 newGraphDatabase();
         registerShutdownHook(graphDatabaseService);
     }

@@ -318,7 +318,7 @@ public class QueryEngine {
     public void countInnerClasses() throws CypherException, IOException {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.execute("MATCH (n:Class) WHERE has(n.is_inner_class) return n.app_key as app_key,count(n) as nb_inner_classes");
+            result = graphDatabaseService.execute("MATCH (n:Class) WHERE exists(n.is_inner_class) return n.app_key as app_key,count(n) as nb_inner_classes");
             resultToCSV(result,"_COUNT_INNER.csv");
         }
     }

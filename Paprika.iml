@@ -8,9 +8,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="org.neo4j:neo4j:2.2.0" level="project" />
     <orderEntry type="library" name="soot" level="project" />
     <orderEntry type="library" name="net.sourceforge.argparse4j:argparse4j:0.5.0" level="project" />
     <orderEntry type="library" name="jFuzzyLogic" level="project" />
+    <orderEntry type="library" name="org.neo4j:neo4j:3.1.0" level="project" />
   </component>
 </module>

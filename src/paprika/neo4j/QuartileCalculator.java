@@ -43,7 +43,7 @@ public class QuartileCalculator {
         Map<String, Double> res;
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = "MATCH (n:Class) WHERE NOT HAS(n.is_interface) AND NOT HAS(n.is_abstract) RETURN percentileCont(n.class_complexity,0.25) as Q1, percentileCont(n.class_complexity,0.5) as MED, percentileCont(n.class_complexity,0.75) as Q3";
+            String query = "MATCH (n:Class) WHERE NOT exists(n.is_interface) AND NOT exists(n.is_abstract) RETURN percentileCont(n.class_complexity,0.25) as Q1, percentileCont(n.class_complexity,0.5) as MED, percentileCont(n.class_complexity,0.75) as Q3";
             result = graphDatabaseService.execute(query);
             res = calculeTresholds(result);
         }
@@ -54,7 +54,7 @@ public class QuartileCalculator {
         Map<String, Double> res;
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = "MATCH (n:Method) WHERE NOT HAS(n.is_getter) AND NOT HAS(n.is_setter) AND n.cyclomatic_complexity > 0 RETURN percentileCont(n.cyclomatic_complexity,0.25) as Q1, percentileCont(n.cyclomatic_complexity,0.5) as MED, percentileCont(n.cyclomatic_complexity,0.75) as Q3";
+            String query = "MATCH (n:Method) WHERE NOT exists(n.is_getter) AND NOT exists(n.is_setter) AND n.cyclomatic_complexity > 0 RETURN percentileCont(n.cyclomatic_complexity,0.25) as Q1, percentileCont(n.cyclomatic_complexity,0.5) as MED, percentileCont(n.cyclomatic_complexity,0.75) as Q3";
             result = graphDatabaseService.execute(query);
             res = calculeTresholds(result);
         }
@@ -65,7 +65,7 @@ public class QuartileCalculator {
         Map<String, Double> res;
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = "MATCH (n:Method) WHERE NOT HAS(n.is_getter) AND NOT HAS(n.is_setter) AND n.number_of_instructions > 0 RETURN percentileCont(n.number_of_instructions,0.25) as Q1, percentileCont(n.number_of_instructions,0.5) as MED, percentileCont(n.number_of_instructions,0.75) as Q3";
+            String query = "MATCH (n:Method) WHERE NOT exists(n.is_getter) AND NOT exists(n.is_setter) AND n.number_of_instructions > 0 RETURN percentileCont(n.number_of_instructions,0.25) as Q1, percentileCont(n.number_of_instructions,0.5) as MED, percentileCont(n.number_of_instructions,0.75) as Q3";
             result = graphDatabaseService.execute(query);
             res = calculeTresholds(result);
         }
@@ -121,7 +121,7 @@ public class QuartileCalculator {
         Map<String, Double> res;
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = "MATCH (n:Class) WHERE HAS(n.is_interface) RETURN percentileCont(n.number_of_methods,0.25) as Q1, percentileCont(n.number_of_methods,0.5) as MED, percentileCont(n.number_of_methods,0.75) as Q3";
+            String query = "MATCH (n:Class) WHERE exists(n.is_interface) RETURN percentileCont(n.number_of_methods,0.25) as Q1, percentileCont(n.number_of_methods,0.5) as MED, percentileCont(n.number_of_methods,0.75) as Q3";
             result = graphDatabaseService.execute(query);
             res = calculeTresholds(result);
         }
@@ -132,7 +132,7 @@ public class QuartileCalculator {
         Map<String, Double> res;
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = "MATCH (n:Class) WHERE NOT HAS(n.is_interface) AND NOT HAS(n.is_abstract) RETURN percentileCont(n.lack_of_cohesion_in_methods,0.25) as Q1, percentileCont(n.lack_of_cohesion_in_methods,0.5) as MED, percentileCont(n.lack_of_cohesion_in_methods,0.75) as Q3";
+            String query = "MATCH (n:Class) WHERE NOT exists(n.is_interface) AND NOT exists(n.is_abstract) RETURN percentileCont(n.lack_of_cohesion_in_methods,0.25) as Q1, percentileCont(n.lack_of_cohesion_in_methods,0.5) as MED, percentileCont(n.lack_of_cohesion_in_methods,0.75) as Q3";
             result = graphDatabaseService.execute(query);
             res = calculeTresholds(result);
         }
@@ -143,7 +143,7 @@ public class QuartileCalculator {
         Map<String, Double> res;
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = "MATCH (n:Class) WHERE NOT HAS(n.is_interface) AND NOT HAS(n.is_abstract) RETURN percentileCont(n.number_of_methods,0.25) as Q1, percentileCont(n.number_of_methods,0.5) as MED, percentileCont(n.number_of_methods,0.75) as Q3";
+            String query = "MATCH (n:Class) WHERE NOT exists(n.is_interface) AND NOT exists(n.is_abstract) RETURN percentileCont(n.number_of_methods,0.25) as Q1, percentileCont(n.number_of_methods,0.5) as MED, percentileCont(n.number_of_methods,0.75) as Q3";
             result = graphDatabaseService.execute(query);
             res = calculeTresholds(result);
         }
@@ -154,7 +154,7 @@ public class QuartileCalculator {
         Map<String, Double> res;
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = "MATCH (n:Class) WHERE NOT HAS(n.is_interface) AND NOT HAS(n.is_abstract) RETURN percentileCont(n.number_of_attributes,0.25) as Q1, percentileCont(n.number_of_attributes,0.5) as MED, percentileCont(n.number_of_attributes,0.75) as Q3";
+            String query = "MATCH (n:Class) WHERE NOT exists(n.is_interface) AND NOT exists(n.is_abstract) RETURN percentileCont(n.number_of_attributes,0.25) as Q1, percentileCont(n.number_of_attributes,0.5) as MED, percentileCont(n.number_of_attributes,0.75) as Q3";
             result = graphDatabaseService.execute(query);
             res = calculeTresholds(result);
         }

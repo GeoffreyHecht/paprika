@@ -20,6 +20,7 @@ package paprika.neo4j;
 
 import org.neo4j.graphdb.*;
 import paprika.entities.*;
+import paprika.entities.Entity;
 import paprika.metrics.Metric;
 
 import java.text.SimpleDateFormat;
