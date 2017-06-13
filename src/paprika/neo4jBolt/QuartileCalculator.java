@@ -34,7 +34,7 @@ public class QuartileCalculator {
 
 	public QuartileCalculator(QueryEngineBolt queryEngine) {
 		this.queryEngine = queryEngine;
-		session = Graph.getSession();
+		session = DriverBolt.getSession();
 	}
 
 	public void calculateClassComplexityQuartile() throws IOException {

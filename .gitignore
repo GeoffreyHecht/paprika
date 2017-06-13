@@ -3,3 +3,5 @@ apk/
 out/
 paprika.iml
 /bin/
+
+.DS_Store
