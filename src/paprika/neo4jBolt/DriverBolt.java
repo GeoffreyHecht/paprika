@@ -9,49 +9,89 @@ import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.exceptions.ServiceUnavailableException;
 
 public class DriverBolt {
-	
-	private static String port="7687";
-	private static String user="neo4j";
-	private static String pwd="paprika";
 
-	
-	private static Driver driver = GraphDatabase.driver("bolt://" + getHostName() + ":"+port,
-			AuthTokens.basic(user, pwd));
-	
-	private DriverBolt(){
+	private static String port = "7687";
+	private static String user = "neo4j";
+	private static String pwd = "paprika";
+	private static String containerDocker = "neo4j-paprika";
+	private static String hostname = null;
+
+	private static Driver driver = null;
+
+	private DriverBolt() {
 	}
-	
 
 	/**
-	 * Prend le nom du container neo4j-praprika et renvoie son adresse.
+	 * Take the docker container name, the localhost or just a hostname.
 	 * 
 	 * @return
 	 */
 	private static String getHostName() {
+		if (hostname != null)
+			return hostname;
+
 		try {
-			String str = InetAddress.getByName("neo4j-paprika").getHostAddress();
+			String str = InetAddress.getByName(containerDocker).getHostAddress();
 			return str;
 		} catch (final Exception e) {
 			return "localhost";
 		}
 	}
-	public static void setValue(String port,String user,String pwd){
-		DriverBolt.port=port;
-		DriverBolt.user=user;
-		DriverBolt.pwd=pwd;
+
+	/**
+	 * Equivalent to a constructor
+	 * 
+	 * @param port
+	 * @param user
+	 * @param pwd
+	 */
+	public static void setValue(String port, String user, String pwd) {
+		if (port != null)
+			DriverBolt.port = port;
+		if (user != null)
+			DriverBolt.user = user;
+		if (pwd != null)
+			DriverBolt.pwd = pwd;
+	}
+
+	/**
+	 * Put a dockerContainer and delete the hostname.
+	 * 
+	 * @param nameContainer
+	 */
+	public static void setDockerNeo4j(String nameContainer) {
+		if (nameContainer != null)
+			DriverBolt.containerDocker = nameContainer;
+		DriverBolt.hostname = null;
+	}
+	/**
+	 * Put a hostname and delete the name container.
+	 * 
+	 * @param nameContainer
+	 */
+	public static void setHostName(String hostname) {
+		if (hostname != null)
+			DriverBolt.hostname = hostname;
+		DriverBolt.containerDocker = null;
+	}
+
+	public static void updateDriver() {
+		if (DriverBolt.driver != null)
+			DriverBolt.driver.close();
+		DriverBolt.driver = GraphDatabase.driver("bolt://" + getHostName() + ":" + port, AuthTokens.basic(user, pwd));
 	}
 
 	public static Session getSession() {
 		Session session = null;
-
+		if (DriverBolt.driver == null)
+			DriverBolt.updateDriver();
 		try {
-			session = driver.session();
+			session = DriverBolt.driver.session();
 		} catch (ServiceUnavailableException e) {
-			driver.close();
-			driver = GraphDatabase.driver("bolt://" + getHostName() + ":7687", AuthTokens.basic("neo4j", "paprika"));
-			session = driver.session();
+			DriverBolt.updateDriver();
+			session = DriverBolt.driver.session();
 		}
 		return session;
 	}
-	
+
 }
