@@ -4,5 +4,4 @@ out/
 paprika.iml
 /bin/
 
-
-**/*.DS_Store
+.DS_Store
