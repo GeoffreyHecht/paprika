@@ -29,7 +29,6 @@ public class ModelToGraphBolt {
 	private static final String variableLabel = "Variable";
 	private static final String argumentLabel = "Argument";
 	private static final String externalArgumentLabel = "ExternalArgument";
-	private static final String libraryLabel = "Library";
 
 	private Map<Entity, LowNode> methodNodeMap;
 	private Map<PaprikaClass, LowNode> classNodeMap;
@@ -40,7 +39,7 @@ public class ModelToGraphBolt {
 	public ModelToGraphBolt() {
 
 		graph = new Graph();
-		session = Graph.getSession();
+		session = DriverBolt.getSession();
 		methodNodeMap = new HashMap<>();
 		classNodeMap = new HashMap<>();
 		variableNodeMap = new HashMap<>();

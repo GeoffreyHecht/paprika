@@ -31,7 +31,7 @@ public abstract class Query {
     protected Session session;
     public Query(QueryEngineBolt queryEngine) {
         this.queryEngine = queryEngine;
-        this.session=Graph.getSession();
+        this.session=DriverBolt.getSession();
     }
 
     

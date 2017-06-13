@@ -44,7 +44,7 @@ public class QueryEngineBolt{
 
 	public QueryEngineBolt(long keyApp) {
 		graph = new Graph();
-		session = Graph.getSession();
+		session = DriverBolt.getSession();
 		this.keyApp = keyApp;
 	}
 
