@@ -42,6 +42,7 @@ You can find the java application in ```paprika/out/artifacts/Paprika_jar```.
 You can choose between two modes: **analyse** and **query**.
 The **analyse** mode will allows you to scan with [Soot](https://sable.github.io/soot/) your Application application, to detect contained code smells.
 You can use after the **query** mode on your Neo4J graph to request how much code smells your application contains.
+Note that you don't need to install Neo4J on your side since it's embedded into Paprika (however it can be useful if you want to visualize the database).
 
 #### Analyse mode usage
 
@@ -107,6 +108,17 @@ optional arguments:
                          Package of the applications to delete
   -d DETAILS, --details DETAILS
                          Show the concerned entity in the results
+```
+#### Example of usage
+First we launch the analysis of an app (it can be done multiple times with differents apps into the same database) :
+
+```
+java -Xmx2G -XX:+UseConcMarkSweepGC -jar  Paprika.jar analyse -a "/path/to/androidjars" -db "/path/to/database" -n "myapp" -p "mypackage.app" -k sha256oftheAPK -dev mydev -cat mycat -nd 100 -d "2017-01-001 10:23:39.050315\" -r 1.0 -s 1024 -u "unsafe mode" /path/to/apk.apk
+```
+
+Then you can launch queries on this database using query mode, for example :
+```
+java -Xmx2G -XX:+UseConcMarkSweepGC -jar  Paprika.jar -db "/path/to/database" -d TRUE -r ALLAP
 ```
 
 ### <a name="troubleshootings"></a>Troubleshootings
