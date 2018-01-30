@@ -140,8 +140,12 @@ Developed by [Geoffrey Hecht](http://geoffreyhecht.github.io/), [SOMCA](http://s
 
 If you want to read more about how Paprika work, how you can use it or to cite us, we recommend you to read :
 [Tracking the Software Quality of Android Applications along their Evolution](https://hal.inria.fr/hal-01178734)
+
 [Detecting Antipatterns in Android Apps](https://hal.inria.fr/hal-01122754)
+
 [An Empirical Study of the Performance Impacts of Android Code Smells](https://hal.inria.fr/hal-01276904)
+
 [Investigating the Energy Impact of Android Smells](https://hal.inria.fr/hal-01403485)
+
 [Détection et analyse de l’impact des défauts de code dans les applications mobiles (in French)](https://hal.inria.fr/tel-01418158)
 
