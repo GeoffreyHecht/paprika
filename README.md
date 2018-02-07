@@ -119,7 +119,7 @@ java -Xmx2G -XX:+UseConcMarkSweepGC -jar  Paprika.jar analyse -a "/path/to/andro
 
 Then you can launch queries on this database using query mode, for example :
 ```
-java -Xmx2G -XX:+UseConcMarkSweepGC -jar  Paprika.jar -db "/path/to/database" -d TRUE -r ALLAP
+java -Xmx2G -XX:+UseConcMarkSweepGC -jar  Paprika.jar query -db "/path/to/database" -d TRUE -r ALLAP
 ```
 
 ### <a name="troubleshootings"></a>Troubleshootings
