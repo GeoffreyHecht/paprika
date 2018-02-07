@@ -114,7 +114,7 @@ optional arguments:
 First we launch the analysis of an app (it can be done multiple times with differents apps into the same database) :
 
 ```
-java -Xmx2G -XX:+UseConcMarkSweepGC -jar  Paprika.jar analyse -a "/path/to/androidjars" -db "/path/to/database" -n "myapp" -p "mypackage.app" -k sha256oftheAPK -dev mydev -cat mycat -nd 100 -d "2017-01-001 10:23:39.050315\" -r 1.0 -s 1024 -u "unsafe mode" /path/to/apk.apk
+java -Xmx2G -XX:+UseConcMarkSweepGC -jar  Paprika.jar analyse -a "/path/to/androidjars" -db "/path/to/database" -n "myapp" -p "mypackage.app" -k sha256oftheAPK -dev mydev -cat mycat -nd 100 -d "2017-01-001 10:23:39.050315" -r 1.0 -s 1024 -u "unsafe mode" /path/to/apk.apk
 ```
 
 Then you can launch queries on this database using query mode, for example :
