@@ -40,6 +40,8 @@ Paprika needs an Android plaftorm to works.
 You can find many Android platforms in [this Github repository](https://github.com/Sable/android-platforms).  
 You can find the java application in ```paprika/out/artifacts/Paprika_jar```.
 
+Please note that **Paprika is not working correctly with Java 9**, we recommend to launch it with Java 8 or 7.
+
 You can choose between two modes: **analyse** and **query**.
 The **analyse** mode will allows you to scan with [Soot](https://sable.github.io/soot/) your Application application, to detect contained code smells.
 You can use after the **query** mode on your Neo4J graph to request how much code smells your application contains.
