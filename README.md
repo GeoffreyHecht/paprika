@@ -7,6 +7,7 @@ Paprika is a powerfull toolkit to detect some code smells in analysed Android ap
 *   [How to use it?](#how_to_use_it)
 *   [Troubleshootings](#troubleshootings)
 *   [Credits](#credits)
+*   [Publications](#publications)
 
 ### <a name="code_smells_detection"></a>Code smells detection
 
@@ -39,6 +40,7 @@ Paprika needs an Android plaftorm to works. It also requires a 64 bits version o
 You can find many Android platforms in [this Github repository](https://github.com/Sable/android-platforms).  
 You can find the java application in ```build/libs/Paprika.jar```.
 
+Please note that Paprika is not working correctly with Java 9, we recommend to launch it with Java 7.
 You can choose between two modes: **analyse** and **query**.
 The **analyse** mode will allows you to scan with [Soot](https://sable.github.io/soot/) your Application application, to detect contained code smells.
 You can use after the **query** mode on your Neo4J graph to request how much code smells your application contains.
@@ -135,3 +137,17 @@ GNU AFFERO GENERAL PUBLIC LICENSE (version 3)
 ### <a name="credits"></a>Credits
 
 Developed by [Geoffrey Hecht](http://geoffreyhecht.github.io/), [SOMCA](http://sofa.uqam.ca/somca.php), [SPIRALS](https://team.inria.fr/spirals/) - [LATECE](http://www.latece.uqam.ca/)
+
+### <a name="publications"></a>Publications
+
+If you want to read more about how Paprika work, how you can use it or to cite us, we recommend you to read :
+
+[__Tracking the Software Quality of Android Applications along their Evolution__](https://hal.inria.fr/hal-01178734)
+
+[Detecting Antipatterns in Android Apps](https://hal.inria.fr/hal-01122754)
+
+[An Empirical Study of the Performance Impacts of Android Code Smells](https://hal.inria.fr/hal-01276904)
+
+[Investigating the Energy Impact of Android Smells](https://hal.inria.fr/hal-01403485)
+
+[Détection et analyse de l’impact des défauts de code dans les applications mobiles (in French)](https://hal.inria.fr/tel-01418158)
