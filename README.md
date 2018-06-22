@@ -35,9 +35,9 @@ Paprika supports currently 16 Object-Oriented (OO) and Android code smells.
 
 ### <a name="hoz_to_use_it"></a>How to use it ?
 
-Paprika needs an Android plaftorm to works.  
+Paprika needs an Android plaftorm to works. It also requires a 64 bits version of Java.
 You can find many Android platforms in [this Github repository](https://github.com/Sable/android-platforms).  
-You can find the java application in ```paprika/out/artifacts/Paprika_jar```.
+You can find the java application in ```build/libs/Paprika.jar```.
 
 You can choose between two modes: **analyse** and **query**.
 The **analyse** mode will allows you to scan with [Soot](https://sable.github.io/soot/) your Application application, to detect contained code smells.
@@ -54,16 +54,16 @@ usage: paprika analyse [-h] -a ANDROIDJARS -db DATABASE -n NAME -p PACKAGE -k KE
 positional arguments:
   apk                    Path of the APK to analyze
 
-optional arguments:
+other arguments:
   -h, --help             show this help message and exit
   -a ANDROIDJARS, --androidJars ANDROIDJARS
-                         Path to android platforms jars
+                         REQUIRED - Path to android platforms jars
   -db DATABASE, --database DATABASE
-                         Path to neo4J Database folder
-  -n NAME, --name NAME   Name of the application
+                         REQUIRED - Path to neo4J Database folder
+  -n NAME, --name NAME   REQUIRED - Name of the application
   -p PACKAGE, --package PACKAGE
-                         Application main package
-  -k KEY, --key KEY      sha256 of the apk used as identifier
+                         REQUIRED - Application main package
+  -k KEY, --key KEY      REQUIRED - sha256 of the apk used as identifier
   -dev DEVELOPER, --developer DEVELOPER
                          Application developer
   -cat CATEGORY, --category CATEGORY
@@ -95,7 +95,7 @@ optional arguments:
 ```
 usage: paprika query [-h] -db DATABASE [-r REQUEST] [-c CSV] [-k KEY] [-p PACKAGE] [-d DETAILS]
 
-optional arguments:
+other arguments:
   -h, --help             show this help message and exit
   -db DATABASE, --database DATABASE
                          Path to neo4J Database folder
@@ -108,6 +108,19 @@ optional arguments:
   -d DETAILS, --details DETAILS
                          Show the concerned entity in the results
 ```
+
+#### Example of usage
+First we launch the analysis of an app (it can be done multiple times with different apps into the same database) :
+
+```
+java -Xmx2G -XX:+UseConcMarkSweepGC -jar  Paprika.jar analyse -a "/path/to/androidjars" -db "/path/to/database"
+-n "myapp" -p "mypackage.app" -k sha256oftheAPK -dev mydev -cat mycat -nd 100 -d "2017-01-01 10:23:39.050315" -r 1.0 -s 1024 -u "unsafe mode" /path/to/apk.apk
+```
+
+Then you can launch queries on this database using query mode, for example :
+```
+java -Xmx2G -XX:+UseConcMarkSweepGC -jar  Paprika.jar query -db "/path/to/database" -d TRUE -r ALLAP
+``
 
 ### <a name="troubleshootings"></a>Troubleshootings
 
