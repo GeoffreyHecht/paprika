@@ -42,6 +42,7 @@ import java.util.logging.Logger;
  * Created by Geoffrey Hecht on 20/05/14.
  */
 public class SootAnalyzer extends Analyzer {
+
     private final static Logger LOGGER = Logger.getLogger(SootAnalyzer.class.getName());
 
     private static String androidJAR;
@@ -64,7 +65,7 @@ public class SootAnalyzer extends Analyzer {
                         String dev, String cat, String price, double rating, String nbDownload, String versionCode,
                         String versionName, String sdkVersion, String targetSdkVersion, boolean mainPackageOnly) {
         Analyzer.apk = apk;
-        this.androidJAR = androidJAR;
+        SootAnalyzer.androidJAR = androidJAR;
         this.pack = pack;
         this.paprikaApp = PaprikaApp.createPaprikaApp(name, key, pack, date, size, dev, cat, price, rating,
                 nbDownload, versionCode, versionName, sdkVersion, targetSdkVersion);
@@ -353,7 +354,7 @@ public class SootAnalyzer extends Analyzer {
                     for (Type type : target.getParameterTypes()) {
                         i++;
                         PaprikaExternalArgument paprikaExternalArgument = PaprikaExternalArgument.createPaprikaExternalArgument(type.toString(), i, externalTgtMethod);
-                        if (paprikaExternalArgument.getName() == "android.graphics.Bitmap$Config") {
+                        if (paprikaExternalArgument.getName().equals("android.graphics.Bitmap$Config")) {
                             for (Unit unitChain : ((SootMethod) e.getSrc()).getActiveBody().getUnits()) {
                                 try {
                                     String nameOfStaticFieldRef = ((StaticFieldRef) ((GRValueBox) ((GAssignStmt) unitChain).getRightOpBox()).getValue()).getFieldRef().name();

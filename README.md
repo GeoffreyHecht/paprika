@@ -36,8 +36,9 @@ Paprika supports currently 16 Object-Oriented (OO) and Android code smells.
 
 ### <a name="hoz_to_use_it"></a>How to use it ?
 
-Paprika needs an Android plaftorm to works. It also requires a 64 bits version of Java.
-You can find many Android platforms in [this Github repository](https://github.com/Sable/android-platforms).  
+Paprika needs an Android platform to works. It also requires a 64 bits version of Java.
+You can find many Android platforms with the correct folder structure [this Github repository](https://github.com/Sable/android-platforms).
+To compile Paprika into a jar with its dependencies, run `gradle shadowjar`.
 You can find the java application in ```build/libs/Paprika.jar```.
 
 Please note that Paprika is not working correctly with Java 9, we recommend to launch it with Java 7.
@@ -56,39 +57,41 @@ usage: paprika analyse [-h] -a ANDROIDJARS -db DATABASE -n NAME -p PACKAGE -k KE
 positional arguments:
   apk                    Path of the APK to analyze
 
-other arguments:
-  -h, --help             show this help message and exit
+required arguments:
   -a ANDROIDJARS, --androidJars ANDROIDJARS
-                         REQUIRED - Path to android platforms jars
+                         Path to android platforms jars
   -db DATABASE, --database DATABASE
-                         REQUIRED - Path to neo4J Database folder
-  -n NAME, --name NAME   REQUIRED - Name of the application
+                         Path to neo4J Database folder
   -p PACKAGE, --package PACKAGE
-                         REQUIRED - Application main package
-  -k KEY, --key KEY      REQUIRED - sha256 of the apk used as identifier
+                         Application main package
+  -n NAME, --name NAME   Name of the application
+
+optional arguments:
+  -h, --help             show this help message and exit
+  -k KEY, --key KEY      sha256 of the apk used as identifier
   -dev DEVELOPER, --developer DEVELOPER
-                         Application developer
+                         Application developer, defaults to "default-dev"
   -cat CATEGORY, --category CATEGORY
-                         Application category
+                         Application category, defaults to "default-category"
   -nd NBDOWNLOAD, --nbDownload NBDOWNLOAD
-                         Numbers of downloads for the app
-  -d DATE, --date DATE   Date of download
+                         Numbers of downloads for the app, defaults to 0
+  -d DATE, --date DATE   Date of download, defaults to "2017-01-01 10:23:39.050315"
   -r RATING, --rating RATING
-                         application rating
+                         Application rating, defaults to 1.0
   -pr PRICE, --price PRICE
-                         Price of the application
-  -s SIZE, --size SIZE   Size of the application
+                         Price of the application, defaults to Free
+  -s SIZE, --size SIZE   Size of the application, defaults to 1
   -u UNSAFE, --unsafe UNSAFE
                          Unsafe mode (no args checking)
   -vc VERSIONCODE, --versionCode VERSIONCODE
-                         Version Code of the application (extract from manifest)
+                         Version Code of the application (extract from manifest), empty by default
   -vn VERSIONNAME, --versionName VERSIONNAME
-                         Version Name of the application (extract from manifest)
+                         Version Name of the application (extract from manifest), empty by default
   -tsdk TARGETSDKVERSION, --targetSdkVersion TARGETSDKVERSION
-                         Target SDK Version (extract from manifest)
+                         Target SDK Version (extract from manifest), empty by default
   -sdk SDKVERSION, --sdkVersion SDKVERSION
-                         sdk version (extract from manifest)
-  -omp ONLYMAINPACKAGE, --onlyMainPackage ONLYMAINPACKAGE
+                         SDK version (extract from manifest), empty by default
+  -omp, --onlyMainPackage
                          Analyze only the main package of the application
 ```
 
@@ -97,17 +100,19 @@ other arguments:
 ```
 usage: paprika query [-h] -db DATABASE [-r REQUEST] [-c CSV] [-k KEY] [-p PACKAGE] [-d DETAILS]
 
-other arguments:
-  -h, --help             show this help message and exit
+required arguments:
   -db DATABASE, --database DATABASE
                          Path to neo4J Database folder
   -r REQUEST, --request REQUEST
                          Request to execute
-  -c CSV, --csv CSV      path to register csv files
-  -k KEY, --key KEY      key to delete
+
+optional arguments:
+  -h, --help             Show this help message and exit
+  -c CSV, --csv CSV      Path to register csv files defaults to working directory
+  -k KEY, --key KEY      Key to delete
   -p PACKAGE, --package PACKAGE
                          Package of the applications to delete
-  -d DETAILS, --details DETAILS
+  -d, --details
                          Show the concerned entity in the results
 ```
 
@@ -115,14 +120,14 @@ other arguments:
 First we launch the analysis of an app (it can be done multiple times with different apps into the same database) :
 
 ```
-java -Xmx2G -XX:+UseConcMarkSweepGC -jar  Paprika.jar analyse -a "/path/to/androidjars" -db "/path/to/database"
--n "myapp" -p "mypackage.app" -k sha256oftheAPK -dev mydev -cat mycat -nd 100 -d "2017-01-01 10:23:39.050315" -r 1.0 -s 1024 -u "unsafe mode" /path/to/apk.apk
+java -Xmx2G -XX:+UseConcMarkSweepGC -jar  Paprika.jar analyse -a "/path/to/android-platforms" -db "/path/to/database"
+-n "myapp" -p "mypackage.app" -omp /path/to/apk.apk
 ```
 
 Then you can launch queries on this database using query mode, for example :
 ```
-java -Xmx2G -XX:+UseConcMarkSweepGC -jar  Paprika.jar query -db "/path/to/database" -d TRUE -r ALLAP
-``
+java -Xmx2G -XX:+UseConcMarkSweepGC -jar  Paprika.jar query -db "/path/to/database" -d -r ALLAP
+```
 
 ### <a name="troubleshootings"></a>Troubleshootings
 
