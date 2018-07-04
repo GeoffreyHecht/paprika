@@ -35,6 +35,7 @@ import java.util.Map;
  * Created by Geoffrey Hecht on 14/08/15.
  */
 public class HeavyBroadcastReceiverQuery extends HeavySomethingQuery {
+
     protected static double high_cc = 3.5;
     protected static double veryHigh_cc = 5;
     protected static double high_noi = 17;
@@ -52,7 +53,10 @@ public class HeavyBroadcastReceiverQuery extends HeavySomethingQuery {
     public void execute(boolean details) throws CypherException, IOException {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = "MATCH (c:Class{is_broadcast_receiver:true})-[:CLASS_OWNS_METHOD]->(m:Method{name:'onReceive'}) WHERE m.number_of_instructions > " + veryHigh_noi + " AND m.cyclomatic_complexity>" + veryHigh_cc + " return m.app_key as app_key";
+            String query = "MATCH (c:Class{is_broadcast_receiver:true})-[:CLASS_OWNS_METHOD]->(m:Method{name:'onReceive'}) " +
+                    "WHERE m.number_of_instructions > " + veryHigh_noi + " " +
+                    "AND m.cyclomatic_complexity > " + veryHigh_cc + " " +
+                    "RETURN m.app_key as app_key";
             if (details) {
                 query += ",m.full_name as full_name";
             } else {
@@ -66,7 +70,11 @@ public class HeavyBroadcastReceiverQuery extends HeavySomethingQuery {
     public void executeFuzzy(boolean details) throws CypherException, IOException {
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = "MATCH (c:Class{is_broadcast_receiver:true})-[:CLASS_OWNS_METHOD]->(m:Method{name:'onReceive'}) WHERE m.number_of_instructions > " + high_noi + " AND m.cyclomatic_complexity>" + high_cc + " return m.app_key as app_key,m.cyclomatic_complexity as cyclomatic_complexity, m.number_of_instructions as number_of_instructions";
+            String query = "MATCH (c:Class{is_broadcast_receiver:true})-[:CLASS_OWNS_METHOD]->(m:Method{name:'onReceive'}) " +
+                    "WHERE m.number_of_instructions > " + high_noi + " " +
+                    "AND m.cyclomatic_complexity >" + high_cc + " " +
+                    "RETURN m.app_key as app_key,m.cyclomatic_complexity as cyclomatic_complexity," +
+                    " m.number_of_instructions as number_of_instructions";
             if (details) {
                 query += ",m.full_name as full_name";
             }

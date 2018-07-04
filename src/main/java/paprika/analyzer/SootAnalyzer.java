@@ -24,7 +24,6 @@ import soot.*;
 import soot.grimp.GrimpBody;
 import soot.grimp.internal.GAssignStmt;
 import soot.grimp.internal.GLookupSwitchStmt;
-import soot.grimp.internal.GRValueBox;
 import soot.jimple.FieldRef;
 import soot.jimple.StaticFieldRef;
 import soot.jimple.toolkits.callgraph.CallGraph;
@@ -87,46 +86,29 @@ public class SootAnalyzer extends Analyzer {
                 // NO-OP
             }
         }));
-
         G.reset();
-        Options.v().set_verbose(false);
-        //Options.v().set_keep_line_number(true);
-        //Path to android-sdk-platforms
-        Options.v().set_android_jars(androidJAR);
-        //Options.v().set_soot_classpath("/home/geoffrey/These/decompiler/android-platforms/android-14/android.jar");
-        //prefer Android APK files
-        Options.v().set_src_prec(Options.src_prec_apk);
-        //Options.v().set_src_prec(Options.src_prec_java);
-        // Allow phantom references
         Options.v().set_allow_phantom_refs(true);
-        //Set path to APK
-        Options.v().set_process_dir(Collections.singletonList(apk));
-        //Options.v().set_process_dir(Collections.singletonList("/home/geoffrey/These/LotOfAntiPatternsApplication/app/src/main/java"));
         Options.v().set_whole_program(true);
+        Options.v().set_android_jars(androidJAR);
+        Options.v().set_src_prec(Options.src_prec_apk);
+        Options.v().set_process_dir(Collections.singletonList(apk));
         Options.v().set_output_format(Options.output_format_grimple);
-        //Options.v().set_output_dir("/home/geoffrey/These/decompiler/out");
-        //Get directly the home directory and work on it
-        Options.v().set_output_dir(System.getProperty("user.home") + File.separator + "/These/decompiler/out");
-        //Options.v().set_soot_classpath();
-
+        Options.v().set_output_dir(System.getProperty("user.home")+ File.separator + "/These/decompiler/out");
+        Options.v().set_process_multiple_dex(true);
+        Options.v().set_throw_analysis(Options.throw_analysis_dalvik);
+        PhaseOptions.v().setPhaseOption("cg", "verbose:true");
+        PhaseOptions.v().setPhaseOption("cg", "all-reachable:true");
         PhaseOptions.v().setPhaseOption("gop", "enabled:true");
-        System.setOut(originalStream);
-
-        //Options.v().set_soot_classpath(Scene.v().getAndroidJarPath(androidJAR,apk));
-
-        List<String> excludeList = new LinkedList<String>();
-        excludeList.add("java.");
-        excludeList.add("sun.misc.");
-        excludeList.add("android.");
-        excludeList.add("org.apache.");
-        excludeList.add("soot.");
-        excludeList.add("javax.servlet.");
+        List<String> excludeList = new LinkedList<>();
+        excludeList.add("java.*");
+        excludeList.add("sun.misc.*");
+        excludeList.add("android.*");
+        excludeList.add("org.apache.*");
+        excludeList.add("soot.*");
+        excludeList.add("javax.servlet.*");
         Options.v().set_exclude(excludeList);
-        //Options.v().set_no_bodies_for_excluded(true);
-        //Options.v().setPhaseOption("cg","verbose:true");
-        //Options.v().setPhaseOption("cg.cha", "on");
-
         Scene.v().loadNecessaryClasses();
+        System.setOut(originalStream);
     }
 
     @Override
@@ -134,18 +116,140 @@ public class SootAnalyzer extends Analyzer {
         collectClassesMetrics();
         collectAppMetrics();
         PackManager.v().getPack("gop").add(new Transform("gop.myInstrumenter", new BodyTransformer() {
-
             @Override
             protected void internalTransform(final Body body, String phaseName, @SuppressWarnings("rawtypes") Map options) {
                 collectMethodsMetrics(body.getMethod());
             }
-
-
         }));
         PackManager.v().runPacks();
         computeMetrics();
         collectCallGraphMetrics();
-        //PackManager.v().writeOutput();
+    }
+
+    public void collectClassesMetrics() {
+        Chain<SootClass> sootClasses = Scene.v().getApplicationClasses();
+
+        for (SootClass sootClass : sootClasses) {
+            // Excluding R And BuildConfig class from the analysis
+            String rsubClassStart = rClass + "$";
+            String name = sootClass.getName();
+            String packs = pack.concat(".");
+            if (name.equals(rClass) || name.startsWith(rsubClassStart) || name.equals(buildConfigClass)) {
+                //sootClass.setLibraryClass();
+            } else if (!mainPackageOnly || name.startsWith(packs)) {
+                collectClassMetrics(sootClass);
+            }
+        }
+        // Now that all classes have been processed at least once (and the map filled) we can process NOC
+        for (SootClass sootClass : sootClasses) {
+            if (sootClass.hasSuperclass()) {
+                SootClass superClass = sootClass.getSuperclass();
+                PaprikaClass paprikaClass = classMap.get(superClass);
+                if (paprikaClass != null) classMap.get(superClass).addChildren();
+            }
+        }
+    }
+
+    /**
+     * Should be called after all classes have been processed once
+     */
+    public void collectMethodsMetrics(SootMethod sootMethod) {
+        SootClass sootClass = sootMethod.getDeclaringClass();
+        PaprikaClass paprikaClass = classMap.get(sootClass);
+        if (paprikaClass == null) {
+            // Should be R or external classes
+            try {
+                sootClass.setLibraryClass();
+            } catch (NullPointerException e) {
+                // Soot issue. Can be safely ignored.
+                return;
+            }
+            return;
+        }
+        PaprikaModifiers modifiers = PaprikaModifiers.PRIVATE;
+        if (sootMethod.isPublic()) {
+            modifiers = PaprikaModifiers.PUBLIC;
+        } else if (sootMethod.isProtected()) {
+            modifiers = PaprikaModifiers.PROTECTED;
+        }
+
+        PaprikaMethod paprikaMethod = PaprikaMethod.createPaprikaMethod(sootMethod.getName(), modifiers,
+                sootMethod.getReturnType().toString(), paprikaClass);
+        methodMap.put(sootMethod, paprikaMethod);
+        if (sootMethod.isStatic()) {
+            IsStatic.createIsStatic(paprikaMethod, true);
+        }
+        if (sootMethod.isFinal()) {
+            IsFinal.createIsFinal(paprikaMethod, true);
+        }
+        if (sootMethod.isSynchronized()) {
+            IsSynchronized.createIsSynchronized(paprikaMethod, true);
+        }
+        if (sootMethod.isAbstract()) {
+            IsAbstract.createIsAbstract(paprikaMethod, true);
+        }
+        NumberOfParameters.createNumberOfParameters(paprikaMethod, sootMethod.getParameterCount());
+        if (sootMethod.hasActiveBody()) {
+            // Args
+            int i = 0;
+            for (Type type : sootMethod.getParameterTypes()) {
+                i++;
+                PaprikaArgument.createPaprikaArgument(type.toString(), i, paprikaMethod);
+            }
+            GrimpBody activeBody = (GrimpBody) sootMethod.getActiveBody();
+
+            // Number of lines is the number of Units - number of parameters
+            int nbOfLines = activeBody.getUnits().size() - sootMethod.getParameterCount();
+            NumberOfDeclaredLocals.createNumberOfDeclaredLocals(paprikaMethod, activeBody.getLocals().size());
+            NumberOfInstructions.createNumberOfInstructions(paprikaMethod, nbOfLines);
+
+            // Cyclomatic complexity & Lack of Cohesion methods
+            int nbOfBranches = 1;
+            PaprikaVariable paprikaVariable;
+            for (Unit sootUnit : activeBody.getUnits()) {
+                // LCOM
+                List<ValueBox> boxes = sootUnit.getUseAndDefBoxes();
+                for (ValueBox valueBox : boxes) {
+                    Value value = valueBox.getValue();
+                    if (value instanceof FieldRef) {
+                        SootFieldRef field = ((FieldRef) value).getFieldRef();
+                        if (field.declaringClass() == sootClass) {
+                            paprikaVariable = paprikaClass.findVariable(field.name());
+                            //If we don't find the field it's inherited and thus not used for LCOM2
+                            if (paprikaVariable != null) {
+                                paprikaMethod.useVariable(paprikaVariable);
+                            }
+                        }
+                    }
+                }
+                // Cyclomatic complexity
+                if (sootUnit.branches()) {
+                    if (sootUnit.fallsThrough()) nbOfBranches++;
+                    else if (sootUnit instanceof GLookupSwitchStmt)
+                        nbOfBranches += ((GLookupSwitchStmt) sootUnit).getLookupValues().size();
+                }
+            }
+            CyclomaticComplexity.createCyclomaticComplexity(paprikaMethod, nbOfBranches);
+            if (isInit(sootMethod)) {
+                IsInit.createIsInit(paprikaMethod, true);
+            } else {
+                if (isOverride(sootMethod)) {
+                    IsOverride.createIsOverride(paprikaMethod, true);
+                }
+                // Is it a probable getter/setter ?
+                if (nbOfBranches == 1 && paprikaMethod.getUsedVariables().size() == 1 && sootMethod.getExceptions().size() == 0) {
+                    paprikaVariable = paprikaMethod.getUsedVariables().iterator().next();
+                    int parameterCount = sootMethod.getParameterCount();
+                    int unitSize = sootMethod.getActiveBody().getUnits().size();
+                    String returnType = paprikaMethod.getReturnType();
+                    if (parameterCount == 1 && unitSize <= 4 && returnType.equals("void")) {
+                        IsSetter.createIsSetter(paprikaMethod, true);
+                    } else if (parameterCount == 0 && unitSize <= 3 && returnType.equals(paprikaVariable.getType())) {
+                        IsGetter.createIsGetter(paprikaMethod, true);
+                    }
+                }
+            }
+        }
 
     }
 
@@ -177,29 +281,6 @@ public class SootAnalyzer extends Analyzer {
         NumberOfContentProviders.createNumberOfContentProviders(this.paprikaApp, contentProviderCount);
     }
 
-    public void collectClassesMetrics() {
-        Chain<SootClass> sootClasses = Scene.v().getApplicationClasses();
-        for (SootClass sootClass : sootClasses) {
-            // Excluding R And BuildConfig class from the analysis
-            String rsubClassStart = rClass + "$";
-            String name = sootClass.getName();
-            String packs = pack.concat(".");
-            if (name.equals(rClass) || name.startsWith(rsubClassStart) || name.equals(buildConfigClass)) {
-                //sootClass.setLibraryClass();
-            } else if (!mainPackageOnly || name.startsWith(packs)) {
-                collectClassMetrics(sootClass);
-            }
-        }
-        // Now that all classes have been processed at least once (and the map filled) we can process NOC
-        for (SootClass sootClass : sootClasses) {
-            if (sootClass.hasSuperclass()) {
-                SootClass superClass = sootClass.getSuperclass();
-                PaprikaClass paprikaClass = classMap.get(superClass);
-                if (paprikaClass != null) classMap.get(superClass).addChildren();
-            }
-        }
-    }
-
     /**
      * Should be called last
      */
@@ -213,114 +294,12 @@ public class SootAnalyzer extends Analyzer {
             NumberOfChildren.createNumberOfChildren(paprikaClass);
             // CBO with final value
             CouplingBetweenObjects.createCouplingBetweenObjects(paprikaClass);
-            //LCOM
+            // LCOM
             LackofCohesionInMethods.createLackofCohesionInMethods(paprikaClass);
             // Compute the NPath complexity, per class
             NPathComplexity.createNPathComplexity(paprikaClass);
         }
         NumberOfMethods.createNumberOfMethods(paprikaApp, methodMap.size());
-    }
-
-    /**
-     * Should be called after all classes have been processed once
-     */
-    public void collectMethodsMetrics(SootMethod sootMethod) {
-        SootClass sootClass = sootMethod.getDeclaringClass();
-        PaprikaClass paprikaClass = classMap.get(sootClass);
-        if (paprikaClass == null) {
-            //Should be R or external classes
-            //LOGGER.warning("Class not analyzed : "+ sootClass);
-            sootClass.setLibraryClass();
-            return;
-            /*
-            paprikaClass = PaprikaClass.createPaprikaClass(sootClass.getName(), this.paprikaApp);
-            classMap.put(sootClass, paprikaClass);
-            */
-        }
-        PaprikaModifiers modifiers = PaprikaModifiers.PRIVATE;
-        if (sootMethod.isPublic()) {
-            modifiers = PaprikaModifiers.PUBLIC;
-        } else if (sootMethod.isProtected()) {
-            modifiers = PaprikaModifiers.PROTECTED;
-        }
-
-        PaprikaMethod paprikaMethod = PaprikaMethod.createPaprikaMethod(sootMethod.getName(), modifiers, sootMethod.getReturnType().toString(), paprikaClass);
-        methodMap.put(sootMethod, paprikaMethod);
-        if (sootMethod.isStatic()) {
-            IsStatic.createIsStatic(paprikaMethod, true);
-        }
-        if (sootMethod.isFinal()) {
-            IsFinal.createIsFinal(paprikaMethod, true);
-        }
-        if (sootMethod.isSynchronized()) {
-            IsSynchronized.createIsSynchronized(paprikaMethod, true);
-        }
-        if (sootMethod.isAbstract()) {
-            IsAbstract.createIsAbstract(paprikaMethod, true);
-        }
-        NumberOfParameters.createNumberOfParameters(paprikaMethod, sootMethod.getParameterCount());
-        if (sootMethod.hasActiveBody()) {
-            //Args
-            int i = 0;
-            for (Type type : sootMethod.getParameterTypes()) {
-                i++;
-                PaprikaArgument.createPaprikaArgument(type.toString(), i, paprikaMethod);
-            }
-            GrimpBody activeBody = (GrimpBody) sootMethod.getActiveBody();
-            // Number of lines is the number of Units - number of Parameter - 1 (function name)
-            int nbOfLines = activeBody.getUnits().size() - sootMethod.getParameterCount() - 1;
-            NumberOfDeclaredLocals.createNumberOfDeclaredLocals(paprikaMethod, activeBody.getLocals().size());
-            NumberOfInstructions.createNumberOfInstructions(paprikaMethod, nbOfLines);
-            // Cyclomatic complexity & Lack of Cohesion methods
-            int nbOfBranches = 1;
-            PaprikaVariable paprikaVariable = null;
-            for (Unit sootUnit : activeBody.getUnits()) {
-                //LCOM
-
-                List<ValueBox> boxes = sootUnit.getUseAndDefBoxes();
-                for (ValueBox valueBox : boxes) {
-                    Value value = valueBox.getValue();
-                    if (value instanceof FieldRef) {
-                        SootFieldRef field = ((FieldRef) value).getFieldRef();
-                        if (field.declaringClass() == sootClass) {
-                            paprikaVariable = paprikaClass.findVariable(field.name());
-                            //If we don't find the field it's inherited and thus not used for LCOM2
-                            if (paprikaVariable != null) {
-                                paprikaMethod.useVariable(paprikaVariable);
-                            }
-                        }
-                    }
-                }
-                //Cyclomatic complexity
-                if (sootUnit.branches()) {
-                    if (sootUnit.fallsThrough()) nbOfBranches++;
-                    else if (sootUnit instanceof GLookupSwitchStmt)
-                        nbOfBranches += ((GLookupSwitchStmt) sootUnit).getLookupValues().size();
-                }
-            }
-            CyclomaticComplexity.createCyclomaticComplexity(paprikaMethod, nbOfBranches);
-            if (isInit(sootMethod)) {
-                IsInit.createIsInit(paprikaMethod, true);
-            } else {
-                if (isOverride(sootMethod)) {
-                    IsOverride.createIsOverride(paprikaMethod, true);
-                }
-                //Is it a probable getter/setter ?
-                if (nbOfBranches == 1 && paprikaMethod.getUsedVariables().size() == 1 && sootMethod.getExceptions().size() == 0) {
-                    paprikaVariable = paprikaMethod.getUsedVariables().iterator().next();
-                    int parameterCount = sootMethod.getParameterCount();
-                    int unitSize = sootMethod.getActiveBody().getUnits().size();
-                    String returnType = paprikaMethod.getReturnType();
-                    if (parameterCount == 1 && unitSize <= 4 && returnType.equals("void")) {
-                        IsSetter.createIsSetter(paprikaMethod, true);
-                    } else if (parameterCount == 0 && unitSize <= 3 && returnType.equals(paprikaVariable.getType())) {
-                        IsGetter.createIsGetter(paprikaMethod, true);
-                    }
-                }
-            }
-        } else {
-            //LOGGER.info("No body for "+paprikaMethod);
-        }
     }
 
     private boolean isInit(SootMethod sootMethod) {
@@ -330,17 +309,19 @@ public class SootAnalyzer extends Analyzer {
 
     private void collectMethodMetricsFromCallGraph(PaprikaMethod paprikaMethod, SootMethod sootMethod) {
         CallGraph callGraph = Scene.v().getCallGraph();
+
+        if (sootMethod.getParameterCount() > 0) {
+            int i = 0;
+        }
         int edgeOutCount = 0, edgeIntoCount = 0;
         Iterator<Edge> edgeOutIterator = callGraph.edgesOutOf(sootMethod);
         Iterator<Edge> edgeIntoIterator = callGraph.edgesInto(sootMethod);
-        callGraph = null;
         PaprikaClass currentClass = paprikaMethod.getPaprikaClass();
         while (edgeOutIterator.hasNext()) {
             Edge e = edgeOutIterator.next();
             SootMethod target = e.tgt();
             PaprikaMethod targetMethod = methodMap.get(target);
-            //In the case we are calling an external method (sdk or library)
-            //if(targetMethod == null && !isInit(e.tgt())){
+            // In the case we are calling an external method (sdk or library)
             if (targetMethod == null) {
                 PaprikaExternalMethod externalTgtMethod = externalMethodMap.get(target);
                 if (externalTgtMethod == null) {
@@ -357,13 +338,13 @@ public class SootAnalyzer extends Analyzer {
                         if (paprikaExternalArgument.getName().equals("android.graphics.Bitmap$Config")) {
                             for (Unit unitChain : ((SootMethod) e.getSrc()).getActiveBody().getUnits()) {
                                 try {
-                                    String nameOfStaticFieldRef = ((StaticFieldRef) ((GRValueBox) ((GAssignStmt) unitChain).getRightOpBox()).getValue()).getFieldRef().name();
+                                    String nameOfStaticFieldRef = ((StaticFieldRef) ((GAssignStmt) unitChain).getRightOpBox().getValue()).getFieldRef().name();
                                     if (nameOfStaticFieldRef.equals("ARGB_8888")) {
                                         argb8888Count++;
                                         IsARGB8888.createIsARGB8888(paprikaExternalArgument, true);
                                     }
                                 } catch (Exception new_exception) {
-
+                                    // Do nothing
                                 }
                             }
                         }
@@ -377,7 +358,7 @@ public class SootAnalyzer extends Analyzer {
             }
             PaprikaClass targetClass = classMap.get(target.getDeclaringClass());
             if (e.isVirtual() || e.isSpecial() || e.isStatic()) edgeOutCount++;
-            //Detecting coupling (may include calls to inherited methods)
+            // Detecting coupling (may include calls to inherited methods)
             if (targetClass != null && targetClass != currentClass) currentClass.coupledTo(targetClass);
         }
         while (edgeIntoIterator.hasNext()) {
@@ -475,15 +456,12 @@ public class SootAnalyzer extends Analyzer {
 
     /**
      * Fix to determine if a class is static or not
-     *
-     * @param innerClass
-     * @return
      */
     private boolean isInnerClassStatic(SootClass innerClass) {
         for (SootField sootField : innerClass.getFields()) {
-            //we are looking if the field for non static inner class generated during the compilation (with the convention name) exists
+            // we are looking if the field for non static inner class generated during the compilation (with the convention name) exists
             if (sootField.getName().equals("this$0")) {
-                //in this case we can return false
+                // in this case we can return false
                 return false;
             }
         }
@@ -578,10 +556,6 @@ public class SootAnalyzer extends Analyzer {
 
     /**
      * Test if a class contains a method with same name, parameters and return type
-     *
-     * @param sootClass
-     * @param sootMethod
-     * @return
      */
     private boolean classContainsMethod(SootClass sootClass, SootMethod sootMethod) {
         // Here unsafe just means it will return null (instead of throwing an exception).

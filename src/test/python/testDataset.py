@@ -1,9 +1,9 @@
 import csv
-import filecmp
 import os
 import re
 import shutil
 import sys
+import time
 from subprocess import call
 
 
@@ -118,13 +118,26 @@ def compare_csv(reference, test, filename):
         if key not in test_map:
             not_found.append(key)
 
+    if len(ref_map) < len(test_map):
+        offset = len(test_map) - len(ref_map)
+        print("--------- FOUND " + str(offset) + " MORE " + get_entry_label(offset)
+              + " THAN EXPECTED -----------")
+
     if len(not_found) != 0:
-        print("--------- FAILURE: " + filename + " - EXPECTED BUT NOT FOUND -----------")
+        print("--------- FAILURE: " + filename + " - " + str(len(not_found)) + " MISSING " +
+              get_entry_label(len(not_found)) + " -----------")
         for item in not_found:
             print(item)
         print('\n')
         return False
     return True
+
+
+def get_entry_label(count):
+    if count == 1:
+        return "ENTRY"
+    else:
+        return "ENTRIES"
 
 
 def compare_files():
@@ -143,9 +156,11 @@ def compare_files():
         print('--------- TEST SUCCESS -----------')
     else:
         print('--------- TEST FAILURE -----------')
+        sys.exit(1)
 
 
 def run_test():
+    total_time = 0
     override = False
     if len(sys.argv) > 1 and sys.argv[1] == "--replace":
         override = True
@@ -157,9 +172,14 @@ def run_test():
         print("Starting test...")
 
     for data in test_data:
+        start = time.time()
         print("Analyzing " + data.name)
         analyse_paprika(data)
+        exec_time = time.time() - start
+        total_time += exec_time
+        print("Completed in " + "{0:.2f}".format(exec_time) + " seconds.")
 
+    print("Total analysis time: " + "{0:.2f}".format(total_time) + " seconds")
     print("Querying results...")
     if override:
         clean_folder(expected_folder)
@@ -175,4 +195,3 @@ def run_test():
 
 if __name__ == '__main__':
     run_test()
-

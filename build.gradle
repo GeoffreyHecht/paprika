@@ -11,6 +11,16 @@ repositories {
     mavenLocal()
     mavenCentral()
 
+    maven {
+        name = "soot-snapshot"
+        url = "https://soot-build.cs.uni-paderborn.de/nexus/repository/soot-snapshot"
+    }
+
+    maven {
+        name = "soot-release"
+        url = "https://soot-build.cs.uni-paderborn.de/nexus/repository/soot-release"
+    }
+
     flatDir {
         dirs 'lib'
     }
@@ -25,11 +35,13 @@ shadowJar {
 }
 
 dependencies {
-    compile 'ca.mcgill.sable:soot-trunk'
+    compile 'ca.mcgill.sable:soot:3.1.0-SNAPSHOT'
     compile 'org.neo4j:neo4j-kernel:3.4.1'
     compile 'org.neo4j:neo4j-cypher:3.4.1'
     compile 'net.sourceforge.jFuzzyLogic:JFuzzyLogic'
     compile 'net.sourceforge.argparse4j:argparse4j:0.8.1'
     compile 'org.slf4j:slf4j-nop:1.7.25'
+    compile 'de.tud.sse:soot-infoflow-android:2.5.1'
+    compile 'de.tud.sse:soot-infoflow'
 }
 

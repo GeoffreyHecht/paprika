@@ -1,4 +1,3 @@
 app_key,cyclomatic_complexity,number_of_instructions,full_name,fuzzy_value
 30ef6f312880442ea01d177d744e652cc2b25c1548ba16d33b7d1b2dcfa37c60,34,135,onReceive#com.antipatterns.app.BroadCastRC,1
-16d11c6c79d678c3a99d58cced02b565ccd9b1267adc1c1dfdf4ad1a29d0dd72,4,41,onReceive#org.brandroid.openmanager.activities.BluetoothActivity$2,0.334
-2c337bd33316b0894212dbca85436248c1c43019eb72cd3faa4241f7ae6d8e0e,6,20,onReceive#org.wikipedia.zero.WikipediaZeroHandler,0.334
+16d11c6c79d678c3a99d58cced02b565ccd9b1267adc1c1dfdf4ad1a29d0dd72,4,37,onReceive#org.brandroid.openmanager.activities.BluetoothActivity$2,0.334
