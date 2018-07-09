@@ -24,9 +24,10 @@ import paprika.entities.PaprikaApp;
  * Created by Geoffrey Hecht on 20/05/14.
  */
 public abstract class Analyzer {
-    protected static String apk;
 
-    public abstract void init();
+    protected String apk;
+
+    public abstract void prepareSoot();
 
     public abstract void runAnalysis();
 

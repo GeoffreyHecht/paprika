@@ -25,6 +25,7 @@ import java.util.List;
  * Created by Geoffrey Hecht on 20/05/14.
  */
 public class PaprikaApp extends Entity {
+
     private double rating;
     private String date;
     private String pack; //Package
@@ -138,4 +139,5 @@ public class PaprikaApp extends Entity {
     public String getTargetSdkVersion() {
         return targetSdkVersion;
     }
+
 }

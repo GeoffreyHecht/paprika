@@ -38,7 +38,6 @@ public class QuartileCalculator {
         graphDatabaseService = queryEngine.getGraphDatabaseService();
     }
 
-
     public void calculateClassComplexityQuartile() throws IOException {
         Map<String, Double> res;
         Result result;
@@ -47,7 +46,7 @@ public class QuartileCalculator {
                     "RETURN percentileCont(n.class_complexity,0.25) as Q1, percentileCont(n.class_complexity,0.5)" +
                     " as MED, percentileCont(n.class_complexity,0.75) as Q3";
             result = graphDatabaseService.execute(query);
-            res = calculeTresholds(result);
+            res = calculateThresholds(result);
         }
         queryEngine.statsToCSV(res, "_STAT_CLASS_COMPLEXITY.csv");
     }
@@ -60,7 +59,7 @@ public class QuartileCalculator {
                     " RETURN percentileCont(n.cyclomatic_complexity,0.25) as Q1, percentileCont(n.cyclomatic_complexity,0.5) as MED," +
                     " percentileCont(n.cyclomatic_complexity,0.75) as Q3";
             result = graphDatabaseService.execute(query);
-            res = calculeTresholds(result);
+            res = calculateThresholds(result);
         }
         queryEngine.statsToCSV(res, "_STAT_CYCLOMATIC_COMPLEXITY.csv");
     }
@@ -75,7 +74,7 @@ public class QuartileCalculator {
                     "percentileCont(n.number_of_instructions,0.5) as MED," +
                     " percentileCont(n.number_of_instructions,0.75) as Q3";
             result = graphDatabaseService.execute(query);
-            res = calculeTresholds(result);
+            res = calculateThresholds(result);
         }
         queryEngine.statsToCSV(res, "_STAT_NB_INSTRUCTIONS.csv");
     }
@@ -87,16 +86,16 @@ public class QuartileCalculator {
                     "RETURN percentileCont(n." + property + ",0.25) as Q1," +
                     "percentileCont(n." + property + ",0.5) as MED, percentileCont(n." + property + ",0.75) as Q3";
             result = graphDatabaseService.execute(query);
-            return calculeTresholds(result);
+            return calculateThresholds(result);
         }
     }
 
-    private Map calculeTresholds(Result result) {
+    private Map<String, Double> calculateThresholds(Result result) {
         Map<String, Double> res = new HashMap<>();
-        //Only one result in that case
+        // Only one result in that case
         while (result.hasNext()) {
             Map<String, Object> row = result.next();
-            //Sometime neo4J return a double or an int... With toString it's works in all cases
+            // Sometime neo4J returns a double or an int... with toString it works in all cases
             double q1 = Double.valueOf(row.get("Q1").toString());
             double med = Double.valueOf(row.get("MED").toString());
             double q3 = Double.valueOf(row.get("Q3").toString());
@@ -113,8 +112,6 @@ public class QuartileCalculator {
 
     /**
      * Excluding classes implementing 0 or 1 interface
-     *
-     * @return
      */
     public void calculateNumberOfImplementedInterfacesQuartile() throws IOException {
         Map<String, Double> res;
@@ -125,7 +122,7 @@ public class QuartileCalculator {
                     " percentileCont(n.number_of_implemented_interfaces,0.5) as MED, " +
                     "percentileCont(n.number_of_implemented_interfaces,0.75) as Q3";
             result = graphDatabaseService.execute(query);
-            res = calculeTresholds(result);
+            res = calculateThresholds(result);
         }
         queryEngine.statsToCSV(res, "_STAT_NB_INTERFACES.csv");
     }
@@ -139,12 +136,12 @@ public class QuartileCalculator {
                     " percentileCont(n.number_of_methods,0.5) as MED, " +
                     "percentileCont(n.number_of_methods,0.75) as Q3";
             result = graphDatabaseService.execute(query);
-            res = calculeTresholds(result);
+            res = calculateThresholds(result);
         }
         queryEngine.statsToCSV(res, "_STAT_NB_METHODS_INTERFACE.csv");
     }
 
-    public void calculateLackofCohesionInMethodsQuartile() throws IOException {
+    public void calculateLackOfCohesionInMethodsQuartile() throws IOException {
         Map<String, Double> res;
         Result result;
         try (Transaction ignored = graphDatabaseService.beginTx()) {
@@ -153,7 +150,7 @@ public class QuartileCalculator {
                     " percentileCont(n.lack_of_cohesion_in_methods,0.5) as MED," +
                     " percentileCont(n.lack_of_cohesion_in_methods,0.75) as Q3";
             result = graphDatabaseService.execute(query);
-            res = calculeTresholds(result);
+            res = calculateThresholds(result);
         }
         queryEngine.statsToCSV(res, "_STAT_LCOM.csv");
     }
@@ -167,7 +164,7 @@ public class QuartileCalculator {
                     "percentileCont(n.number_of_methods,0.5) as MED, " +
                     "percentileCont(n.number_of_methods,0.75) as Q3";
             result = graphDatabaseService.execute(query);
-            res = calculeTresholds(result);
+            res = calculateThresholds(result);
         }
         queryEngine.statsToCSV(res, "_STAT_NB_METHODS.csv");
     }
@@ -181,7 +178,7 @@ public class QuartileCalculator {
                     "percentileCont(n.number_of_attributes,0.5) as MED," +
                     " percentileCont(n.number_of_attributes,0.75) as Q3";
             result = graphDatabaseService.execute(query);
-            res = calculeTresholds(result);
+            res = calculateThresholds(result);
         }
         queryEngine.statsToCSV(res, "_STAT_NB_ATTRIBUTES.csv");
     }

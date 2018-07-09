@@ -31,18 +31,14 @@ public class PaprikaMethod extends Entity {
     private String returnType;
     private Set<PaprikaVariable> usedVariables;
     private Set<Entity> calledMethods;
-    private PaprikaModifiers modifier;
+    private PaprikaModifier modifier;
     private List<PaprikaArgument> arguments;
 
     public String getReturnType() {
         return returnType;
     }
 
-    public PaprikaModifiers getModifier() {
-        return modifier;
-    }
-
-    private PaprikaMethod(String name, PaprikaModifiers modifier, String returnType, PaprikaClass paprikaClass) {
+    private PaprikaMethod(String name, PaprikaModifier modifier, String returnType, PaprikaClass paprikaClass) {
         this.setName(name);
         this.paprikaClass = paprikaClass;
         this.usedVariables = new HashSet<>(0);
@@ -52,10 +48,14 @@ public class PaprikaMethod extends Entity {
         this.returnType = returnType;
     }
 
-    public static PaprikaMethod createPaprikaMethod(String name, PaprikaModifiers modifier, String returnType, PaprikaClass paprikaClass) {
+    public static PaprikaMethod createPaprikaMethod(String name, PaprikaModifier modifier, String returnType, PaprikaClass paprikaClass) {
         PaprikaMethod paprikaMethod = new PaprikaMethod(name, modifier, returnType, paprikaClass);
         paprikaClass.addPaprikaMethod(paprikaMethod);
         return paprikaMethod;
+    }
+
+    public PaprikaModifier getModifier() {
+        return modifier;
     }
 
     public PaprikaClass getPaprikaClass() {

@@ -27,6 +27,7 @@ import java.io.File;
  * Created by Geoffrey Hecht on 05/06/14.
  */
 public class DatabaseManager {
+
     private final String DB_PATH;
     private GraphDatabaseService graphDatabaseService;
 
@@ -50,6 +51,7 @@ public class DatabaseManager {
     private static void deleteFileOrDirectory(File file) {
         if (file.exists()) {
             if (file.isDirectory()) {
+                //noinspection ConstantConditions
                 for (File child : file.listFiles()) {
                     deleteFileOrDirectory(child);
                 }
@@ -59,7 +61,6 @@ public class DatabaseManager {
     }
 
     public void start() {
-        //graphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabase( DB_PATH );
         File dbFile = new File(DB_PATH);
         graphDatabaseService = new GraphDatabaseFactory().
                 newEmbeddedDatabaseBuilder(dbFile).

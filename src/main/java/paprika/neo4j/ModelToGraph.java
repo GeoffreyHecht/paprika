@@ -18,8 +18,10 @@
 
 package paprika.neo4j;
 
-import org.neo4j.graphdb.*;
-import paprika.entities.Entity;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
 import paprika.entities.*;
 import paprika.metrics.Metric;
 
@@ -32,16 +34,16 @@ import java.util.Map;
  * Created by Geoffrey Hecht on 05/06/14.
  */
 public class ModelToGraph {
+
     private GraphDatabaseService graphDatabaseService;
-    private DatabaseManager databaseManager;
-    private static final Label appLabel = DynamicLabel.label("App");
-    private static final Label classLabel = DynamicLabel.label("Class");
-    private static final Label externalClassLabel = DynamicLabel.label("ExternalClass");
-    private static final Label methodLabel = DynamicLabel.label("Method");
-    private static final Label externalMethodLabel = DynamicLabel.label("ExternalMethod");
-    private static final Label variableLabel = DynamicLabel.label("Variable");
-    private static final Label argumentLabel = DynamicLabel.label("Argument");
-    private static final Label externalArgumentLabel = DynamicLabel.label("ExternalArgument");
+    private static final Label appLabel = Label.label("App");
+    private static final Label classLabel = Label.label("Class");
+    private static final Label externalClassLabel = Label.label("ExternalClass");
+    private static final Label methodLabel = Label.label("Method");
+    private static final Label externalMethodLabel = Label.label("ExternalMethod");
+    private static final Label variableLabel = Label.label("Variable");
+    private static final Label argumentLabel = Label.label("Argument");
+    private static final Label externalArgumentLabel = Label.label("ExternalArgument");
 
     private Map<Entity, Node> methodNodeMap;
     private Map<PaprikaClass, Node> classNodeMap;
@@ -50,7 +52,7 @@ public class ModelToGraph {
     private String key;
 
     public ModelToGraph(String DatabasePath) {
-        this.databaseManager = new DatabaseManager(DatabasePath);
+        DatabaseManager databaseManager = new DatabaseManager(DatabasePath);
         databaseManager.start();
         this.graphDatabaseService = databaseManager.getGraphDatabaseService();
         methodNodeMap = new HashMap<>();
@@ -60,7 +62,7 @@ public class ModelToGraph {
         indexManager.createIndex();
     }
 
-    public Node insertApp(PaprikaApp paprikaApp) {
+    public void insertApp(PaprikaApp paprikaApp) {
         this.key = paprikaApp.getKey();
         Node appNode;
         try (Transaction tx = graphDatabaseService.beginTx()) {
@@ -98,7 +100,6 @@ public class ModelToGraph {
             createCallGraph(paprikaApp);
             tx.success();
         }
-        return appNode;
     }
 
     private void insertMetric(Metric metric, Node node) {
@@ -128,7 +129,7 @@ public class ModelToGraph {
         return classNode;
     }
 
-    public Node insertExternalClass(PaprikaExternalClass paprikaClass) {
+    public void insertExternalClass(PaprikaExternalClass paprikaClass) {
         Node classNode = graphDatabaseService.createNode(externalClassLabel);
         classNode.setProperty("app_key", key);
         classNode.setProperty("name", paprikaClass.getName());
@@ -141,7 +142,6 @@ public class ModelToGraph {
         for (Metric metric : paprikaClass.getMetrics()) {
             insertMetric(metric, classNode);
         }
-        return classNode;
     }
 
     public Node insertVariable(PaprikaVariable paprikaVariable) {

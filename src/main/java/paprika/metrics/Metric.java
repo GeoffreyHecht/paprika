@@ -22,14 +22,20 @@ package paprika.metrics;
  * Created by Geoffrey Hecht on 23/05/14.
  */
 public abstract class Metric<E> {
-    protected Object value;
-    protected String name = "anonymous_metric";
 
-    public Object getValue() {
+    protected E value;
+    protected String name;
+
+    public Metric(String name, E value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    public E getValue() {
         return value;
     }
 
-    public void setValue(Object value) {
+    public void setValue(E value) {
         this.value = value;
     }
 

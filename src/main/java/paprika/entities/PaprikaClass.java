@@ -25,9 +25,10 @@ import java.util.Set;
  * Created by Geoffrey Hecht on 20/05/14.
  */
 public class PaprikaClass extends Entity {
+
     private PaprikaApp paprikaApp;
     private PaprikaClass parent;
-    //parent name to cover library case
+    // parent name to cover library case
     private String parentName;
     private int complexity;
     private int children;
@@ -35,10 +36,24 @@ public class PaprikaClass extends Entity {
     private Set<PaprikaMethod> paprikaMethods;
     private Set<PaprikaVariable> paprikaVariables;
     private Set<PaprikaClass> interfaces;
-    private PaprikaModifiers modifier;
+    private PaprikaModifier modifier;
 
-    public PaprikaModifiers getModifier() {
-        return modifier;
+    private PaprikaClass(String name, PaprikaApp paprikaApp, PaprikaModifier modifier) {
+        this.setName(name);
+        this.paprikaApp = paprikaApp;
+        this.complexity = 0;
+        this.children = 0;
+        this.paprikaMethods = new HashSet<>();
+        this.paprikaVariables = new HashSet<>();
+        this.coupled = new HashSet<>();
+        this.interfaces = new HashSet<>();
+        this.modifier = modifier;
+    }
+
+    public static PaprikaClass createPaprikaClass(String name, PaprikaApp paprikaApp, PaprikaModifier modifier) {
+        PaprikaClass paprikaClass = new PaprikaClass(name, paprikaApp, modifier);
+        paprikaApp.addPaprikaClass(paprikaClass);
+        return paprikaClass;
     }
 
     public Set<PaprikaVariable> getPaprikaVariables() {
@@ -57,22 +72,8 @@ public class PaprikaClass extends Entity {
         this.parentName = parentName;
     }
 
-    private PaprikaClass(String name, PaprikaApp paprikaApp, PaprikaModifiers modifier) {
-        this.setName(name);
-        this.paprikaApp = paprikaApp;
-        this.complexity = 0;
-        this.children = 0;
-        this.paprikaMethods = new HashSet<>();
-        this.paprikaVariables = new HashSet<>();
-        this.coupled = new HashSet<>();
-        this.interfaces = new HashSet<>();
-        this.modifier = modifier;
-    }
-
-    public static PaprikaClass createPaprikaClass(String name, PaprikaApp paprikaApp, PaprikaModifiers modifier) {
-        PaprikaClass paprikaClass = new PaprikaClass(name, paprikaApp, modifier);
-        paprikaApp.addPaprikaClass(paprikaClass);
-        return paprikaClass;
+    public PaprikaModifier getModifier() {
+        return modifier;
     }
 
     public PaprikaClass getParent() {

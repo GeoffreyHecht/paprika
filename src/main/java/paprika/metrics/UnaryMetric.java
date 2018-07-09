@@ -23,8 +23,14 @@ import paprika.entities.Entity;
 /**
  * Created by Geoffrey Hecht on 20/05/14.
  */
-public abstract class UnaryMetric<E> extends Metric {
+public class UnaryMetric<E> extends Metric<E> {
+
     protected Entity entity;
+
+    public UnaryMetric(String name, Entity entity, E value) {
+        super(name, value);
+        this.entity = entity;
+    }
 
     public Entity getEntity() {
         return entity;
@@ -38,7 +44,8 @@ public abstract class UnaryMetric<E> extends Metric {
         return this.entity + " " + this.name + " : " + this.value;
     }
 
-    protected void updateEntity() {
+    public void updateEntity() {
         entity.addMetric(this);
     }
+
 }

@@ -22,7 +22,10 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import paprika.analyzer.Analyzer;
 import paprika.analyzer.SootAnalyzer;
-import paprika.neo4j.*;
+import paprika.neo4j.ModelToGraph;
+import paprika.neo4j.QuartileCalculator;
+import paprika.neo4j.QueryEngine;
+import paprika.neo4j.queries.*;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -61,7 +64,7 @@ public class Main {
                 arg.getDouble("rating"), arg.getString("nbDownload"), arg.getString("versionCode"), arg.getString("versionName"),
                 arg.getString("sdkVersion"), arg.getString("targetSdkVersion"),
                 arg.getBoolean("onlyMainPackage") != null);
-        analyzer.init();
+        analyzer.prepareSoot();
         analyzer.runAnalysis();
         System.out.println("Saving into database " + arg.getString("database"));
         ModelToGraph modelToGraph = new ModelToGraph(arg.getString("database"));
@@ -145,7 +148,7 @@ public class Main {
             case "STATS":
                 QuartileCalculator quartileCalculator = new QuartileCalculator(queryEngine);
                 quartileCalculator.calculateClassComplexityQuartile();
-                quartileCalculator.calculateLackofCohesionInMethodsQuartile();
+                quartileCalculator.calculateLackOfCohesionInMethodsQuartile();
                 quartileCalculator.calculateNumberOfAttributesQuartile();
                 quartileCalculator.calculateNumberOfImplementedInterfacesQuartile();
                 quartileCalculator.calculateNumberOfMethodsQuartile();
