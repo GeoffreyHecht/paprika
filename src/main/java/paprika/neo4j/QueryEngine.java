@@ -18,10 +18,12 @@
 
 package paprika.neo4j;
 
+import net.sourceforge.argparse4j.inf.Namespace;
 import org.neo4j.cypher.CypherException;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
+import paprika.neo4j.queries.PaprikaQuery;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -38,6 +40,7 @@ public class QueryEngine {
 
     protected GraphDatabaseService graphDatabaseService;
     protected DatabaseManager databaseManager;
+    protected Namespace arg;
 
     protected String csvPrefix;
 
@@ -53,121 +56,68 @@ public class QueryEngine {
         return graphDatabaseService;
     }
 
-
-    public QueryEngine(String DatabasePath) {
+    public QueryEngine(String DatabasePath, Namespace arg) {
         this.databaseManager = new DatabaseManager(DatabasePath);
+        this.arg = arg;
         databaseManager.start();
         graphDatabaseService = databaseManager.getGraphDatabaseService();
         csvPrefix = "";
+    }
+
+    public Namespace getArg() {
+        return arg;
     }
 
     public void shutDown() {
         databaseManager.shutDown();
     }
 
-    public void AnalyzedAppQuery() throws CypherException, IOException {
-        Result result;
-        try (Transaction ignored = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.execute("MATCH (a:App) RETURN  a.app_key as app_key, a.category as category,a.package as package," +
-                    " a.version_code as version_code, a.date_analysis as date_analysis,a.number_of_classes as number_of_classes," +
-                    "a.size as size,a.rating as rating,a.nb_download as nb_download, a.number_of_methods as number_of_methods," +
-                    " a.number_of_activities as number_of_activities,a.number_of_services as number_of_services," +
-                    "a.number_of_interfaces as number_of_interfaces,a.number_of_abstract_classes as number_of_abstract_classes," +
-                    "a.number_of_broadcast_receivers as number_of_broadcast_receivers,a.number_of_content_providers as number_of_content_providers," +
-                    " a.number_of_variables as number_of_variables, a.number_of_views as number_of_views," +
-                    " a.number_of_inner_classes as number_of_inner_classes, a.number_of_async_tasks as number_of_async_tasks");
-            resultToCSV(result, "_ANALYZED.csv");
-        }
-    }
-
-    public void getPropertyForAllApk(String nodeType, String property, String suffix) throws IOException {
-        Result result;
-        try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = "MATCH (n:" + nodeType + ") RETURN n.app_key as app_key, n.name as name, n." + property + " as " + property;
-            result = graphDatabaseService.execute(query);
-            resultToCSV(result, suffix);
-        }
-    }
-
-    public void getAllLCOM() throws IOException {
-        getPropertyForAllApk("Class", "lack_of_cohesion_in_methods", "_ALL_LCOM.csv");
-    }
-
-    public void getAllClassComplexity() throws IOException {
-        getPropertyForAllApk("Class", "class_complexity", "_ALL_CLASS_COMPLEXITY.csv");
-    }
-
-    public void getAllNumberOfMethods() throws IOException {
-        getPropertyForAllApk("Class", "number_of_methods", "_ALL_NUMBER_OF_METHODS.csv");
-    }
-
-    public void getAllCyclomaticComplexity() throws IOException {
-        getPropertyForAllApk("Method", "cyclomatic_complexity", "_ALL_CYCLOMATIC_COMPLEXITY.csv");
-    }
-
-
     public void resultToCSV(Result result, String csvSuffix) throws IOException {
         String name = csvPrefix + csvSuffix;
-        FileWriter fw = new FileWriter(name);
-        BufferedWriter writer = new BufferedWriter(fw);
+        BufferedWriter writer = new BufferedWriter(new FileWriter(name));
         List<String> columns = result.columns();
-        Object val;
-        int i;
-        int columns_size = columns.size() - 1;
-        for (i = 0; i < columns_size; i++) {
-            writer.write(columns.get(i));
-            writer.write(',');
-        }
-        writer.write(columns.get(i));
-        writer.newLine();
+        writeColumnLabels(columns, writer);
         while (result.hasNext()) {
-            Map<String, Object> row = result.next();
-            for (i = 0; i < columns_size; i++) {
-                val = row.get(columns.get(i));
-                if (val != null) {
-                    writer.write(val.toString());
-                    writer.write(',');
-                }
-            }
-            val = row.get(columns.get(i));
-            if (val != null) {
-                writer.write(val.toString());
-            }
-            writer.newLine();
+            writeRowValues(result.next(), columns, writer);
         }
         writer.close();
-        fw.close();
     }
 
-    public void resultToCSV(List<Map> rows, List<String> columns, String csvSuffix) throws IOException {
-        String name = csvPrefix + csvSuffix;
-        FileWriter fw = new FileWriter(name);
-        BufferedWriter writer = new BufferedWriter(fw);
-        Object val;
-        int i;
-        int columns_size = columns.size() - 1;
-        for (i = 0; i < columns_size; i++) {
+    private void writeColumnLabels(List<String> columns, BufferedWriter writer) throws IOException {
+        for (int i = 0; i < columns.size() - 1; i++) {
             writer.write(columns.get(i));
             writer.write(',');
         }
-        writer.write(columns.get(i));
+        writer.write(columns.get(columns.size() - 1));
         writer.newLine();
-        for (Map<String, Object> row : rows) {
-            for (i = 0; i < columns_size; i++) {
-                val = row.get(columns.get(i));
-                if (val != null) {
-                    writer.write(val.toString());
-                    writer.write(',');
-                }
-            }
+    }
+
+    private void writeRowValues(Map<String, Object> row, List<String> columns, BufferedWriter writer)
+            throws IOException {
+        Object val;
+        for (int i = 0; i < columns.size() - 1; i++) {
             val = row.get(columns.get(i));
             if (val != null) {
                 writer.write(val.toString());
+                writer.write(',');
             }
-            writer.newLine();
+        }
+        val = row.get(columns.get(columns.size() - 1));
+        if (val != null) {
+            writer.write(val.toString());
+        }
+        writer.newLine();
+    }
+
+    public void fuzzyResultToCSV(List<Map<String, Object>> rows, List<String> columns, String csvSuffix)
+            throws IOException {
+        String name = csvPrefix + csvSuffix;
+        BufferedWriter writer = new BufferedWriter(new FileWriter(name));
+        writeColumnLabels(columns, writer);
+        for (Map<String, Object> row : rows) {
+            writeRowValues(row, columns, writer);
         }
         writer.close();
-        fw.close();
     }
 
     public void statsToCSV(Map<String, Double> stats, String csvSuffix) throws IOException {
@@ -188,7 +138,7 @@ public class QueryEngine {
         fw.close();
     }
 
-    public void deleteQuery(String appKey) throws CypherException, IOException {
+    public void deleteQuery(String appKey) throws CypherException {
         Result result;
         try (Transaction tx = graphDatabaseService.beginTx()) {
             result = graphDatabaseService.execute("MATCH (n {app_key: '" + appKey + "'})-[r]-() DELETE n,r");
@@ -296,7 +246,7 @@ public class QueryEngine {
         deleteApp(appKey);
     }
 
-    public List<String> findKeysFromPackageName(String appName) throws CypherException, IOException {
+    public List<String> findKeysFromPackageName(String appName) throws CypherException {
         ArrayList<String> keys = new ArrayList<>();
         try (Transaction ignored = graphDatabaseService.beginTx()) {
             Result result = graphDatabaseService.execute("MATCH (n:App) WHERE n.package='" + appName + "' RETURN n.app_key as key");
@@ -308,7 +258,7 @@ public class QueryEngine {
         return keys;
     }
 
-    public void deleteEntireAppFromPackage(String name) throws IOException {
+    public void deleteEntireAppFromPackage(String name) {
         System.out.println("Deleting app with package :" + name);
         List<String> keys = findKeysFromPackageName(name);
         for (String key : keys) {
@@ -317,43 +267,12 @@ public class QueryEngine {
         }
     }
 
-    public void countVariables() throws CypherException, IOException {
-        Result result;
-        try (Transaction ignored = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.execute("MATCH (n:Variable) return n.app_key as app_key, count(n) as nb_variables");
-            resultToCSV(result, "_COUNT_VARIABLE.csv");
-        }
-    }
-
-    public void countInnerClasses() throws CypherException, IOException {
-        Result result;
-        try (Transaction ignored = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.execute("MATCH (n:Class) WHERE exists(n.is_inner_class) return n.app_key as app_key,count(n) as nb_inner_classes");
-            resultToCSV(result, "_COUNT_INNER.csv");
-        }
-    }
-
-    public void countAsyncClasses() throws CypherException, IOException {
-        Result result;
-        try (Transaction ignored = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.execute("MATCH (n:Class{parent_name:'android.os.AsyncTask'}) return n.app_key as app_key,count(n) as number_of_async");
-            resultToCSV(result, "_COUNT_ASYNC.csv");
-        }
-    }
-
-    public void countViews() throws CypherException, IOException {
-        Result result;
-        try (Transaction ignored = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.execute("MATCH (n:Class{parent_name:'android.view.View'}) return n.app_key as app_key,count(n) as number_of_views");
-            resultToCSV(result, "_COUNT_VIEWS.csv");
-        }
-    }
-
-    public void executeRequest(String request) throws CypherException, IOException {
-        Result result;
-        try (Transaction ignored = graphDatabaseService.beginTx()) {
-            result = graphDatabaseService.execute(request);
-            resultToCSV(result, "_CUSTOM.csv");
-        }
+    public void executeRequest(String request) throws IOException {
+        new PaprikaQuery("CUSTOM", this) {
+            @Override
+            public String getQuery(boolean details) {
+                return request;
+            }
+        }.execute(false);
     }
 }

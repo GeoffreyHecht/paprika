@@ -38,10 +38,11 @@ dependencies {
     compile 'ca.mcgill.sable:soot:3.1.0-SNAPSHOT'
     compile 'org.neo4j:neo4j-kernel:3.4.1'
     compile 'org.neo4j:neo4j-cypher:3.4.1'
-    compile 'net.sourceforge.jFuzzyLogic:JFuzzyLogic'
     compile 'net.sourceforge.argparse4j:argparse4j:0.8.1'
     compile 'org.slf4j:slf4j-nop:1.7.25'
-    compile 'de.tud.sse:soot-infoflow-android:2.5.1'
-    compile 'de.tud.sse:soot-infoflow'
+
+    // Not on maven central
+    compile 'org.neo4j:neo4j-cypher-dsl-3.3' // Last version on maven central is outdated
+    compile 'net.sourceforge.jFuzzyLogic:JFuzzyLogic'
 }
 
