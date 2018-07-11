@@ -25,8 +25,10 @@ import soot.SootMethod;
  */
 public class IsInit extends MethodCondition {
 
+    public static final String NAME = "is_init";
+
     public IsInit() {
-        super("is_init");
+        super(NAME);
     }
 
     @Override

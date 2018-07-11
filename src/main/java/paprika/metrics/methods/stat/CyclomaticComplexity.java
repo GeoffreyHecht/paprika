@@ -29,12 +29,14 @@ import soot.grimp.internal.GLookupSwitchStmt;
  */
 public class CyclomaticComplexity implements MethodStatistic {
 
+    public static final String NAME = "cyclomatic_complexity";
+
     private int lastMethodBranches;
 
     @Override
     public void collectMetric(SootMethod sootMethod, PaprikaMethod paprikaMethod) {
         int complexity = getCyclomaticComplexity(sootMethod);
-        UnaryMetric<Integer> metric = new UnaryMetric<>("cyclomatic_complexity", paprikaMethod,
+        UnaryMetric<Integer> metric = new UnaryMetric<>(NAME, paprikaMethod,
                 complexity);
         metric.updateEntity();
         paprikaMethod.getPaprikaClass().addComplexity(complexity);

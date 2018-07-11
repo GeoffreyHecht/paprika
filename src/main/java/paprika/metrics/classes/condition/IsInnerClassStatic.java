@@ -28,8 +28,10 @@ import soot.SootField;
  */
 public class IsInnerClassStatic extends CountedClassCondition {
 
+    public static final String NAME = "is_inner_class";
+
     public IsInnerClassStatic() {
-        super("is_inner_class", "number_of_inner_classes");
+        super(NAME, "number_of_inner_classes");
     }
 
     @Override

@@ -25,8 +25,10 @@ import soot.SootClass;
  */
 public class IsInterface extends CountedClassCondition {
 
+    public static final String NAME = "is_interface";
+
     public IsInterface() {
-        super("is_interface", "number_of_interfaces");
+        super(NAME, "number_of_interfaces");
     }
 
     @Override

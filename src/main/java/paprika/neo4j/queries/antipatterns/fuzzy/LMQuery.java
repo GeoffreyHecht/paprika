@@ -20,7 +20,12 @@ package paprika.neo4j.queries.antipatterns.fuzzy;
 
 import net.sourceforge.jFuzzyLogic.FIS;
 import net.sourceforge.jFuzzyLogic.FunctionBlock;
+import org.neo4j.cypherdsl.Identifier;
+import org.neo4j.cypherdsl.expression.Expression;
+import org.neo4j.cypherdsl.grammar.Where;
 import org.neo4j.graphdb.Result;
+import paprika.entities.PaprikaMethod;
+import paprika.metrics.methods.stat.NumberOfInstructions;
 import paprika.neo4j.QueryEngine;
 
 import java.util.ArrayList;
@@ -28,12 +33,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.neo4j.cypherdsl.CypherQuery.*;
+import static paprika.neo4j.ModelToGraph.METHOD_TYPE;
+import static paprika.neo4j.queries.QueryBuilderUtils.getMethodResults;
+
 /**
  * Created by Geoffrey Hecht on 14/08/15.
  */
 public class LMQuery extends FuzzyQuery {
 
     public static final String KEY = "LM";
+
     protected static double high = 17;
     protected static double veryHigh = 26;
 
@@ -41,25 +51,49 @@ public class LMQuery extends FuzzyQuery {
         super(KEY, queryEngine, "LongMethod.fcl");
     }
 
+    /*
+        MATCH (m:Method) WHERE m.number_of_instructions > veryHigh
+        RETURN m.app_key as app_key
+
+        details -> m.full_name as full_name
+        else -> count(m) as LM
+     */
+
     @Override
     public String getQuery(boolean details) {
-        String query = "MATCH (m:Method) WHERE m.number_of_instructions >" + veryHigh + " RETURN m.app_key as app_key";
-        if (details) {
-            query += ",m.full_name as full_name";
-        } else {
-            query += ",count(m) as LM";
-        }
-        return query;
+        Identifier method = identifier("m");
+
+        return getLMNodes(method, veryHigh)
+                .returns(getMethodResults(method, details, KEY))
+                .toString();
     }
+
+    /*
+        MATCH (m:Method) WHERE m.number_of_instructions > high
+        RETURN m.app_key as app_key,m.number_of_instructions as number_of_instructions,
+
+        details -> m.full_name as full_name
+     */
 
     @Override
     public String getFuzzyQuery(boolean details) {
-        String query = "MATCH (m:Method) WHERE m.number_of_instructions >" + high +
-                " RETURN m.app_key as app_key,m.number_of_instructions as number_of_instructions";
+        Identifier method = identifier("m");
+
+        List<Expression> results = new ArrayList<>();
+        results.add(as(method.property(PaprikaMethod.APP_KEY), "app_key"));
+        results.add(as(method.property(NumberOfInstructions.NAME), "number_of_instructions"));
         if (details) {
-            query += ",m.full_name as full_name";
+            results.add(as(method.property(PaprikaMethod.FULL_NAME), "full_name"));
         }
-        return query;
+
+        return getLMNodes(method, high)
+                .returns(results)
+                .toString();
+    }
+
+    private Where getLMNodes(Identifier method, double threshold) {
+        return match(node(method).label(METHOD_TYPE))
+                .where(method.property(NumberOfInstructions.NAME).gt(threshold));
     }
 
     @Override
@@ -81,4 +115,5 @@ public class LMQuery extends FuzzyQuery {
         }
         return fuzzyResult;
     }
+
 }

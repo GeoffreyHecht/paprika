@@ -29,7 +29,7 @@ import soot.SootMethod;
  */
 public class IsStatic extends CommonCondition {
 
-    private static final String NAME = "is_static";
+    public static final String NAME = "is_static";
 
     public IsStatic() {
         super(NAME);

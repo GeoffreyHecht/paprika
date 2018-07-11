@@ -26,6 +26,12 @@ import java.util.Set;
  */
 public class PaprikaClass extends Entity {
 
+    // Neo4J attributes names
+    public static final String APP_KEY = PaprikaApp.APP_KEY;
+    public static final String NAME = "name";
+    public static final String MODIFIER = "modifier";
+    public static final String PARENT = "parent_name";
+
     private PaprikaApp paprikaApp;
     private PaprikaClass parent;
     // parent name to cover library case

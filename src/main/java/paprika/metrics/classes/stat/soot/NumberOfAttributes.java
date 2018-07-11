@@ -27,9 +27,11 @@ import soot.SootClass;
  */
 public class NumberOfAttributes implements SootClassStatistic {
 
+    public static final String NAME = "number_of_attributes";
+
     @Override
     public void collectMetric(SootClass sootClass, PaprikaClass paprikaClass) {
-        UnaryMetric<Integer> metric = new UnaryMetric<>("number_of_attributes", paprikaClass, sootClass.getFieldCount());
+        UnaryMetric<Integer> metric = new UnaryMetric<>(NAME, paprikaClass, sootClass.getFieldCount());
         metric.updateEntity();
     }
 

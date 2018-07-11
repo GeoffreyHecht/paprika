@@ -25,6 +25,12 @@ import java.util.Set;
  * Created by Geoffrey Hecht on 20/05/14.
  */
 public class PaprikaExternalClass extends Entity {
+
+    // Neo4J attributes names
+    public static final String APP_KEY = PaprikaApp.APP_KEY;
+    public static final String NAME = "name";
+    public static final String PARENT = "parent_name";
+
     private PaprikaApp paprikaApp;
     private String parentName;
     private Set<PaprikaExternalMethod> paprikaExternalMethods;

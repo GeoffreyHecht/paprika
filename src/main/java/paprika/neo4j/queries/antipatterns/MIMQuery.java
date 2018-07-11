@@ -18,8 +18,19 @@
 
 package paprika.neo4j.queries.antipatterns;
 
+import org.neo4j.cypherdsl.Identifier;
+import paprika.metrics.common.IsStatic;
+import paprika.metrics.methods.NumberOfCallers;
+import paprika.metrics.methods.condition.IsInit;
+import paprika.metrics.methods.condition.IsOverride;
 import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
+
+import static org.neo4j.cypherdsl.CypherQuery.*;
+import static paprika.neo4j.ModelToGraph.*;
+import static paprika.neo4j.RelationTypes.CALLS;
+import static paprika.neo4j.RelationTypes.USES;
+import static paprika.neo4j.queries.QueryBuilderUtils.getMethodResults;
 
 /**
  * Created by Geoffrey Hecht on 18/08/15.
@@ -32,18 +43,35 @@ public class MIMQuery extends PaprikaQuery {
         super(KEY, queryEngine);
     }
 
+    /*
+        MATCH (m1:Method)
+        WHERE m1.number_of_callers > 0 AND NOT exists(m1.is_static)
+            AND NOT exists(m1.is_override)
+            AND NOT (m1)-[:USES]->(:Variable)
+            AND NOT (m1)-[:CALLS]->(:ExternalMethod)
+            AND NOT (m1)-[:CALLS]->(:Method)
+            AND NOT exists(m1.is_init)
+        RETURN m1.app_key as app_key
+
+        details -> m1.full_name as full_name
+        else -> count(m1) as MIM
+     */
+
     @Override
     public String getQuery(boolean details) {
-        String query = "MATCH (m1:Method) WHERE m1.number_of_callers > 0 AND NOT exists(m1.is_static) " +
-                "AND NOT exists(m1.is_override) AND NOT (m1)-[:USES]->(:Variable) " +
-                "AND NOT (m1)-[:CALLS]->(:ExternalMethod) AND NOT (m1)-[:CALLS]->(:Method) AND NOT exists(m1.is_init)  " +
-                "RETURN m1.app_key as app_key";
-        if (details) {
-            query += ",m1.full_name as full_name";
-        } else {
-            query += ",count(m1) as " + queryName;
-        }
-        return query;
+        Identifier method = identifier("m1");
+
+        return match(node(method).label(METHOD_TYPE))
+                .where(and(
+                        method.property(NumberOfCallers.NAME).gt(0),
+                        not(exists(method.property(IsStatic.NAME))),
+                        not(exists(method.property(IsOverride.NAME))),
+                        not(node(method).out(USES).node().label(VARIABLE_TYPE)),
+                        not(node(method).out(CALLS).node().label(EXTERNAL_METHOD_TYPE)),
+                        not(node(method).out(CALLS).node().label(METHOD_TYPE)),
+                        not(exists(method.property(IsInit.NAME)))))
+                .returns(getMethodResults(method, details, KEY))
+                .toString();
     }
 
 }

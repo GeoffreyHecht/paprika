@@ -22,17 +22,23 @@ package paprika.entities;
  * Created by Geoffrey Hecht on 13/08/14.
  */
 public class PaprikaArgument extends Entity {
-    private PaprikaMethod paprikaMethod;
+
+    // Neo4J attributes names
+    public static final String APP_KEY = PaprikaApp.APP_KEY;
+    public static final String NAME = "name";
+    public static final String POSITION = "position";
+
     private int position;
 
-    private PaprikaArgument(String name, int position, PaprikaMethod paprikaMethod) {
-        this.paprikaMethod = paprikaMethod;
+    private PaprikaArgument(String name, int position) {
         this.name = name;
         this.position = position;
     }
 
-    public static PaprikaArgument createPaprikaArgument(String name, int position, PaprikaMethod paprikaMethod) {
-        PaprikaArgument paprikaArgument = new PaprikaArgument(name, position, paprikaMethod);
+    @SuppressWarnings("UnusedReturnValue")
+    public static PaprikaArgument createPaprikaArgument(String name, int position,
+                                                        PaprikaMethod paprikaMethod) {
+        PaprikaArgument paprikaArgument = new PaprikaArgument(name, position);
         paprikaMethod.addArgument(paprikaArgument);
         return paprikaArgument;
     }

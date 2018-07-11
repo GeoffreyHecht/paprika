@@ -26,8 +26,10 @@ import paprika.metrics.UnaryMetric;
  */
 public class IsARGB8888 extends UnaryMetric<Boolean> {
 
+    public static final String NAME = "is_argb_8888";
+
     private IsARGB8888(PaprikaExternalArgument paprikaExternalArgument, boolean value) {
-        super("is_argb_8888", paprikaExternalArgument, value);
+        super(NAME, paprikaExternalArgument, value);
     }
 
     public static void createIsARGB8888(PaprikaExternalArgument paprikaExternalArgument) {

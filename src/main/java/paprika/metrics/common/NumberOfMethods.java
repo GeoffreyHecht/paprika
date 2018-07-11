@@ -30,12 +30,14 @@ import soot.SootClass;
  */
 public class NumberOfMethods implements SootClassStatistic {
 
+    public static final String NAME = "number_of_methods";
+
     public static void createNumberOfMethods(PaprikaApp app, int value) {
         createMetric(app, value);
     }
 
     private static void createMetric(Entity entity, int value) {
-        UnaryMetric<Integer> metric = new UnaryMetric<>("number_of_methods", entity, value);
+        UnaryMetric<Integer> metric = new UnaryMetric<>(NAME, entity, value);
         metric.updateEntity();
     }
 

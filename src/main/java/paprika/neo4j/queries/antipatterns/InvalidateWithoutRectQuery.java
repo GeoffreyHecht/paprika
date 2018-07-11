@@ -18,8 +18,18 @@
 
 package paprika.neo4j.queries.antipatterns;
 
+import org.neo4j.cypherdsl.Identifier;
+import paprika.entities.PaprikaClass;
+import paprika.entities.PaprikaExternalMethod;
+import paprika.entities.PaprikaMethod;
 import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
+
+import static org.neo4j.cypherdsl.CypherQuery.*;
+import static paprika.neo4j.ModelToGraph.*;
+import static paprika.neo4j.RelationTypes.*;
+import static paprika.neo4j.queries.QueryBuilderUtils.ANDROID_VIEW;
+import static paprika.neo4j.queries.QueryBuilderUtils.getMethodResults;
 
 /**
  * Created by Geoffrey Hecht on 18/08/15.
@@ -32,17 +42,31 @@ public class InvalidateWithoutRectQuery extends PaprikaQuery {
         super(KEY, queryEngine);
     }
 
+
+    /*
+        MATCH (:Class{parent_name:'android.view.View'})-[:CLASS_OWNS_METHOD]->
+              (n:Method{name:'onDraw'})-[:CALLS]->(e:ExternalMethod{name:'invalidate'})
+        WHERE NOT (e)-[:METHOD_OWNS_ARGUMENT]->(:ExternalArgument)
+        RETURN n.app_key
+
+        details -> n.full_name as full_name
+
+        else -> count(n) as IWR
+     */
+
     @Override
     public String getQuery(boolean details) {
-        String query = "MATCH (:Class{parent_name:'android.view.View'})-[:CLASS_OWNS_METHOD]->(n:Method{name:'onDraw'})-[:CALLS]->(e:ExternalMethod{name:'invalidate'}) " +
-                "WHERE NOT (e)-[:METHOD_OWNS_ARGUMENT]->(:ExternalArgument)" +
-                " RETURN n.app_key";
-        if (details) {
-            query += ",n.full_name as full_name";
-        } else {
-            query += ",count(n) as " + queryName;
-        }
-        return query;
+        Identifier method = identifier("n");
+        Identifier externalMethod = identifier("e");
+
+        return match(node().label(CLASS_TYPE).values(value(PaprikaClass.PARENT, ANDROID_VIEW))
+                .out(CLASS_OWNS_METHOD)
+                .node(method).label(METHOD_TYPE).values(value(PaprikaMethod.NAME, "onDraw"))
+                .out(CALLS)
+                .node(externalMethod).label(EXTERNAL_METHOD_TYPE).values(value(PaprikaExternalMethod.NAME, "invalidate")))
+                .where(not(node(externalMethod).out(METHOD_OWNS_ARGUMENT).node().label(EXTERNAL_ARGUMENT_TYPE)))
+                .returns(getMethodResults(method, details, KEY))
+                .toString();
     }
 
 }

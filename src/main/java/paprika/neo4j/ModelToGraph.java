@@ -35,15 +35,24 @@ import java.util.Map;
  */
 public class ModelToGraph {
 
+    public static final String APP_TYPE = "App";
+    public static final String CLASS_TYPE = "Class";
+    public static final String EXTERNAL_CLASS_TYPE = "ExternalClass";
+    public static final String METHOD_TYPE = "Method";
+    public static final String EXTERNAL_METHOD_TYPE = "ExternalMethod";
+    public static final String VARIABLE_TYPE = "Variable";
+    public static final String ARGUMENT_TYPE = "Argument";
+    public static final String EXTERNAL_ARGUMENT_TYPE = "ExternalArgument";
+
     private GraphDatabaseService graphDatabaseService;
-    private static final Label appLabel = Label.label("App");
-    private static final Label classLabel = Label.label("Class");
-    private static final Label externalClassLabel = Label.label("ExternalClass");
-    private static final Label methodLabel = Label.label("Method");
-    private static final Label externalMethodLabel = Label.label("ExternalMethod");
-    private static final Label variableLabel = Label.label("Variable");
-    private static final Label argumentLabel = Label.label("Argument");
-    private static final Label externalArgumentLabel = Label.label("ExternalArgument");
+    private static final Label appLabel = Label.label(APP_TYPE);
+    private static final Label classLabel = Label.label(CLASS_TYPE);
+    private static final Label externalClassLabel = Label.label(EXTERNAL_CLASS_TYPE);
+    private static final Label methodLabel = Label.label(METHOD_TYPE);
+    private static final Label externalMethodLabel = Label.label(EXTERNAL_METHOD_TYPE);
+    private static final Label variableLabel = Label.label(VARIABLE_TYPE);
+    private static final Label argumentLabel = Label.label(ARGUMENT_TYPE);
+    private static final Label externalArgumentLabel = Label.label(EXTERNAL_ARGUMENT_TYPE);
 
     private Map<Entity, Node> methodNodeMap;
     private Map<PaprikaClass, Node> classNodeMap;
@@ -67,23 +76,23 @@ public class ModelToGraph {
         Node appNode;
         try (Transaction tx = graphDatabaseService.beginTx()) {
             appNode = graphDatabaseService.createNode(appLabel);
-            appNode.setProperty("app_key", key);
-            appNode.setProperty("name", paprikaApp.getName());
-            appNode.setProperty("category", paprikaApp.getCategory());
-            appNode.setProperty("package", paprikaApp.getPack());
-            appNode.setProperty("developer", paprikaApp.getDeveloper());
-            appNode.setProperty("rating", paprikaApp.getRating());
-            appNode.setProperty("nb_download", paprikaApp.getNbDownload());
-            appNode.setProperty("date_download", paprikaApp.getDate());
-            appNode.setProperty("version_code", paprikaApp.getVersionCode());
-            appNode.setProperty("version_name", paprikaApp.getVersionName());
-            appNode.setProperty("sdk", paprikaApp.getSdkVersion());
-            appNode.setProperty("target_sdk", paprikaApp.getTargetSdkVersion());
+            appNode.setProperty(PaprikaApp.APP_KEY, key);
+            appNode.setProperty(PaprikaApp.NAME, paprikaApp.getName());
+            appNode.setProperty(PaprikaApp.CATEGORY, paprikaApp.getCategory());
+            appNode.setProperty(PaprikaApp.PACKAGE, paprikaApp.getPack());
+            appNode.setProperty(PaprikaApp.DEVELOPER, paprikaApp.getDeveloper());
+            appNode.setProperty(PaprikaApp.RATING, paprikaApp.getRating());
+            appNode.setProperty(PaprikaApp.NB_DOWN, paprikaApp.getNbDownload());
+            appNode.setProperty(PaprikaApp.DATE_DOWN, paprikaApp.getDate());
+            appNode.setProperty(PaprikaApp.VERSION_CODE, paprikaApp.getVersionCode());
+            appNode.setProperty(PaprikaApp.VERSION_NAME, paprikaApp.getVersionName());
+            appNode.setProperty(PaprikaApp.SDK, paprikaApp.getSdkVersion());
+            appNode.setProperty(PaprikaApp.TARGET_SDK, paprikaApp.getTargetSdkVersion());
             Date date = new Date();
             SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss.S");
-            appNode.setProperty("date_analysis", simpleFormat.format(date));
-            appNode.setProperty("size", paprikaApp.getSize());
-            appNode.setProperty("price", paprikaApp.getPrice());
+            appNode.setProperty(PaprikaApp.DATE_ANALYSIS, simpleFormat.format(date));
+            appNode.setProperty(PaprikaApp.SIZE, paprikaApp.getSize());
+            appNode.setProperty(PaprikaApp.PRICE, paprikaApp.getPrice());
             for (PaprikaClass paprikaClass : paprikaApp.getPaprikaClasses()) {
                 appNode.createRelationshipTo(insertClass(paprikaClass), RelationTypes.APP_OWNS_CLASS);
             }
@@ -110,11 +119,11 @@ public class ModelToGraph {
     public Node insertClass(PaprikaClass paprikaClass) {
         Node classNode = graphDatabaseService.createNode(classLabel);
         classNodeMap.put(paprikaClass, classNode);
-        classNode.setProperty("app_key", key);
-        classNode.setProperty("name", paprikaClass.getName());
-        classNode.setProperty("modifier", paprikaClass.getModifier().toString().toLowerCase());
+        classNode.setProperty(PaprikaClass.APP_KEY, key);
+        classNode.setProperty(PaprikaClass.NAME, paprikaClass.getName());
+        classNode.setProperty(PaprikaClass.MODIFIER, paprikaClass.getModifier().toString().toLowerCase());
         if (paprikaClass.getParentName() != null) {
-            classNode.setProperty("parent_name", paprikaClass.getParentName());
+            classNode.setProperty(PaprikaClass.PARENT, paprikaClass.getParentName());
         }
         for (PaprikaVariable paprikaVariable : paprikaClass.getPaprikaVariables()) {
             classNode.createRelationshipTo(insertVariable(paprikaVariable), RelationTypes.CLASS_OWNS_VARIABLE);
@@ -131,10 +140,10 @@ public class ModelToGraph {
 
     public void insertExternalClass(PaprikaExternalClass paprikaClass) {
         Node classNode = graphDatabaseService.createNode(externalClassLabel);
-        classNode.setProperty("app_key", key);
-        classNode.setProperty("name", paprikaClass.getName());
+        classNode.setProperty(PaprikaExternalClass.APP_KEY, key);
+        classNode.setProperty(PaprikaExternalClass.NAME, paprikaClass.getName());
         if (paprikaClass.getParentName() != null) {
-            classNode.setProperty("parent_name", paprikaClass.getParentName());
+            classNode.setProperty(PaprikaExternalClass.PARENT, paprikaClass.getParentName());
         }
         for (PaprikaExternalMethod paprikaExternalMethod : paprikaClass.getPaprikaExternalMethods()) {
             classNode.createRelationshipTo(insertExternalMethod(paprikaExternalMethod), RelationTypes.CLASS_OWNS_METHOD);
@@ -147,10 +156,11 @@ public class ModelToGraph {
     public Node insertVariable(PaprikaVariable paprikaVariable) {
         Node variableNode = graphDatabaseService.createNode(variableLabel);
         variableNodeMap.put(paprikaVariable, variableNode);
-        variableNode.setProperty("app_key", key);
-        variableNode.setProperty("name", paprikaVariable.getName());
-        variableNode.setProperty("modifier", paprikaVariable.getModifier().toString().toLowerCase());
-        variableNode.setProperty("type", paprikaVariable.getType());
+        variableNode.setProperty(PaprikaVariable.APP_KEY, key);
+        variableNode.setProperty(PaprikaVariable.NAME, paprikaVariable.getName());
+        variableNode.setProperty(PaprikaVariable.MODIFIER,
+                paprikaVariable.getModifier().toString().toLowerCase());
+        variableNode.setProperty(PaprikaVariable.TYPE, paprikaVariable.getType());
         for (Metric metric : paprikaVariable.getMetrics()) {
             insertMetric(metric, variableNode);
         }
@@ -160,11 +170,11 @@ public class ModelToGraph {
     public Node insertMethod(PaprikaMethod paprikaMethod) {
         Node methodNode = graphDatabaseService.createNode(methodLabel);
         methodNodeMap.put(paprikaMethod, methodNode);
-        methodNode.setProperty("app_key", key);
-        methodNode.setProperty("name", paprikaMethod.getName());
-        methodNode.setProperty("modifier", paprikaMethod.getModifier().toString().toLowerCase());
-        methodNode.setProperty("full_name", paprikaMethod.toString());
-        methodNode.setProperty("return_type", paprikaMethod.getReturnType());
+        methodNode.setProperty(PaprikaMethod.APP_KEY, key);
+        methodNode.setProperty(PaprikaMethod.NAME, paprikaMethod.getName());
+        methodNode.setProperty(PaprikaMethod.MODIFIER, paprikaMethod.getModifier().toString().toLowerCase());
+        methodNode.setProperty(PaprikaMethod.FULL_NAME, paprikaMethod.toString());
+        methodNode.setProperty(PaprikaMethod.RETURN_TYPE, paprikaMethod.getReturnType());
         for (Metric metric : paprikaMethod.getMetrics()) {
             insertMetric(metric, methodNode);
         }
@@ -180,10 +190,10 @@ public class ModelToGraph {
     public Node insertExternalMethod(PaprikaExternalMethod paprikaMethod) {
         Node methodNode = graphDatabaseService.createNode(externalMethodLabel);
         methodNodeMap.put(paprikaMethod, methodNode);
-        methodNode.setProperty("app_key", key);
-        methodNode.setProperty("name", paprikaMethod.getName());
-        methodNode.setProperty("full_name", paprikaMethod.toString());
-        methodNode.setProperty("return_type", paprikaMethod.getReturnType());
+        methodNode.setProperty(PaprikaExternalMethod.APP_KEY, key);
+        methodNode.setProperty(PaprikaExternalMethod.NAME, paprikaMethod.getName());
+        methodNode.setProperty(PaprikaExternalMethod.FULL_NAME, paprikaMethod.toString());
+        methodNode.setProperty(PaprikaExternalMethod.RETURN_TYPE, paprikaMethod.getReturnType());
         for (Metric metric : paprikaMethod.getMetrics()) {
             insertMetric(metric, methodNode);
         }
@@ -195,17 +205,17 @@ public class ModelToGraph {
 
     public Node insertArgument(PaprikaArgument paprikaArgument) {
         Node argNode = graphDatabaseService.createNode(argumentLabel);
-        argNode.setProperty("app_key", key);
-        argNode.setProperty("name", paprikaArgument.getName());
-        argNode.setProperty("position", paprikaArgument.getPosition());
+        argNode.setProperty(PaprikaArgument.APP_KEY, key);
+        argNode.setProperty(PaprikaArgument.NAME, paprikaArgument.getName());
+        argNode.setProperty(PaprikaArgument.POSITION, paprikaArgument.getPosition());
         return argNode;
     }
 
     public Node insertExternalArgument(PaprikaExternalArgument paprikaExternalArgument) {
         Node argNode = graphDatabaseService.createNode(externalArgumentLabel);
-        argNode.setProperty("app_key", key);
-        argNode.setProperty("name", paprikaExternalArgument.getName());
-        argNode.setProperty("position", paprikaExternalArgument.getPosition());
+        argNode.setProperty(PaprikaExternalArgument.APP_KEY, key);
+        argNode.setProperty(PaprikaExternalArgument.NAME, paprikaExternalArgument.getName());
+        argNode.setProperty(PaprikaExternalArgument.POSITION, paprikaExternalArgument.getPosition());
         for (Metric metric : paprikaExternalArgument.getMetrics()) {
             insertMetric(metric, argNode);
         }

@@ -26,8 +26,10 @@ import soot.SootMethod;
  */
 public class IsOverride extends MethodCondition {
 
+    public static final String NAME = "is_override";
+
     public IsOverride() {
-        super("is_override");
+        super(NAME);
     }
 
     @Override
@@ -53,7 +55,8 @@ public class IsOverride extends MethodCondition {
      */
     private boolean classContainsMethod(SootClass sootClass, SootMethod sootMethod) {
         // Here unsafe just means it will return null (instead of throwing an exception)
-        return sootClass.getMethodUnsafe(sootMethod.getName(), sootMethod.getParameterTypes(), sootMethod.getReturnType()) != null;
+        return sootClass.getMethodUnsafe(sootMethod.getName(),
+                sootMethod.getParameterTypes(), sootMethod.getReturnType()) != null;
     }
 
 }

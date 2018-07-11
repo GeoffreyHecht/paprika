@@ -26,9 +26,11 @@ import paprika.metrics.UnaryMetric;
  */
 public class ClassComplexity implements PaprikaClassStatistic {
 
+    public static final String NAME = "class_complexity";
+
     @Override
     public void collectMetric(PaprikaClass paprikaClass) {
-        UnaryMetric<Integer> metric = new UnaryMetric<>("class_complexity", paprikaClass,
+        UnaryMetric<Integer> metric = new UnaryMetric<>(NAME, paprikaClass,
                 paprikaClass.getComplexity());
         metric.updateEntity();
     }

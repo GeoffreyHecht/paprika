@@ -25,6 +25,13 @@ import java.util.List;
  * Created by Geoffrey Hecht on 20/05/14.
  */
 public class PaprikaExternalMethod extends Entity {
+
+    // Neo4J attributes names
+    public static final String APP_KEY = PaprikaApp.APP_KEY;
+    public static final String NAME = "name";
+    public static final String FULL_NAME = "full_name";
+    public static final String RETURN_TYPE = "return_type";
+
     private PaprikaExternalClass paprikaExternalClass;
     private List<PaprikaExternalArgument> paprikaExternalArguments;
     private String returnType;
@@ -37,14 +44,16 @@ public class PaprikaExternalMethod extends Entity {
         return paprikaExternalArguments;
     }
 
-    private PaprikaExternalMethod(String name, String returnType, PaprikaExternalClass paprikaExternalClass) {
+    private PaprikaExternalMethod(String name, String returnType,
+                                  PaprikaExternalClass paprikaExternalClass) {
         this.setName(name);
         this.paprikaExternalClass = paprikaExternalClass;
         this.returnType = returnType;
         this.paprikaExternalArguments = new ArrayList<>();
     }
 
-    public static PaprikaExternalMethod createPaprikaExternalMethod(String name, String returnType, PaprikaExternalClass paprikaClass) {
+    public static PaprikaExternalMethod createPaprikaExternalMethod(String name, String returnType,
+                                                                    PaprikaExternalClass paprikaClass) {
         PaprikaExternalMethod paprikaMethod = new PaprikaExternalMethod(name, returnType, paprikaClass);
         paprikaClass.addPaprikaExternalMethod(paprikaMethod);
         return paprikaMethod;

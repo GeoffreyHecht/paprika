@@ -18,8 +18,14 @@
 
 package paprika.neo4j.queries.antipatterns;
 
+import org.neo4j.cypherdsl.Identifier;
 import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
+
+import static org.neo4j.cypherdsl.CypherQuery.identifier;
+import static org.neo4j.cypherdsl.CypherQuery.match;
+import static paprika.neo4j.queries.QueryBuilderUtils.getMethodResults;
+import static paprika.neo4j.queries.QueryBuilderUtils.methodCallsExternal;
 
 /**
  * Created by Geoffrey Hecht on 18/08/15.
@@ -32,16 +38,21 @@ public class TrackingHardwareIdQuery extends PaprikaQuery {
         super(KEY, queryEngine);
     }
 
+    /*
+        MATCH (m1:Method)-[:CALLS]->(:ExternalMethod { full_name:'getDeviceId#android.telephony.TelephonyManager'})
+        RETURN m1.app_key as app_key
+
+        details -> m1.full_name as full_name
+        else -> count(m1) as THI
+     */
+
     @Override
     public String getQuery(boolean details) {
-        String query = "MATCH (m1:Method)-[:CALLS]->(:ExternalMethod { full_name:'getDeviceId#android.telephony.TelephonyManager'}) " +
-                "RETURN m1.app_key as app_key";
-        if (details) {
-            query += ",m1.full_name as full_name";
-        } else {
-            query += ",count(m1) as THI";
-        }
-        return query;
+        Identifier method = identifier("m1");
+
+        return match(methodCallsExternal(method, "getDeviceId#android.telephony.TelephonyManager"))
+                .returns(getMethodResults(method, details, KEY))
+                .toString();
     }
 
 }

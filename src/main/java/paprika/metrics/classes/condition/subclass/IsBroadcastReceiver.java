@@ -20,8 +20,10 @@ package paprika.metrics.classes.condition.subclass;
 
 public class IsBroadcastReceiver extends IsSubClass {
 
+    public static final String NAME = "is_broadcast_receiver";
+
     public IsBroadcastReceiver() {
-        super("is_broadcast_receiver", "number_of_broadcast_receivers", "android.content.BroadcastReceiver");
+        super(NAME, "number_of_broadcast_receivers", "android.content.BroadcastReceiver");
     }
 
 }

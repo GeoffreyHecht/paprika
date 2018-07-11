@@ -20,8 +20,10 @@ package paprika.metrics.classes.condition.subclass;
 
 public class IsActivity extends IsSubClass {
 
+    public static final String NAME  = "is_activity";
+
     public IsActivity() {
-        super("is_activity", "number_of_activities", "android.app.Activity");
+        super(NAME, "number_of_activities", "android.app.Activity");
     }
 
 }

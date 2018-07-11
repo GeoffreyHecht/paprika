@@ -27,16 +27,20 @@ import java.util.Set;
  * Created by Geoffrey Hecht on 20/05/14.
  */
 public class PaprikaMethod extends Entity {
+
+    // Neo4J attributes names
+    public static final String APP_KEY = PaprikaApp.APP_KEY;
+    public static final String NAME = "name";
+    public static final String MODIFIER = "modifier";
+    public static final String FULL_NAME = "full_name";
+    public static final String RETURN_TYPE = "return_type";
+
     private PaprikaClass paprikaClass;
     private String returnType;
     private Set<PaprikaVariable> usedVariables;
     private Set<Entity> calledMethods;
     private PaprikaModifier modifier;
     private List<PaprikaArgument> arguments;
-
-    public String getReturnType() {
-        return returnType;
-    }
 
     private PaprikaMethod(String name, PaprikaModifier modifier, String returnType, PaprikaClass paprikaClass) {
         this.setName(name);
@@ -48,10 +52,15 @@ public class PaprikaMethod extends Entity {
         this.returnType = returnType;
     }
 
+
     public static PaprikaMethod createPaprikaMethod(String name, PaprikaModifier modifier, String returnType, PaprikaClass paprikaClass) {
         PaprikaMethod paprikaMethod = new PaprikaMethod(name, modifier, returnType, paprikaClass);
         paprikaClass.addPaprikaMethod(paprikaMethod);
         return paprikaMethod;
+    }
+
+    public String getReturnType() {
+        return returnType;
     }
 
     public PaprikaModifier getModifier() {

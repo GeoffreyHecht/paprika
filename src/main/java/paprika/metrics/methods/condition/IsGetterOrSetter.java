@@ -28,6 +28,9 @@ import soot.SootMethod;
  */
 public class IsGetterOrSetter {
 
+    public static final String IS_GETTER_NAME = "is_getter";
+    public static final String IS_SETTER_NAME = "is_setter";
+
     public void createIfMatching(SootMethod sootMethod, PaprikaMethod paprikaMethod,
                                  boolean lastMethodHadSingleBranch) {
         if (lastMethodHadSingleBranch && paprikaMethod.getUsedVariables().size() == 1
@@ -37,9 +40,9 @@ public class IsGetterOrSetter {
             int unitSize = sootMethod.getActiveBody().getUnits().size();
             String returnType = paprikaMethod.getReturnType();
             if (parameterCount == 1 && unitSize <= 4 && returnType.equals("void")) {
-                createMetric("is_setter", paprikaMethod);
+                createMetric(IS_SETTER_NAME, paprikaMethod);
             } else if (parameterCount == 0 && unitSize <= 3 && returnType.equals(paprikaVariable.getType())) {
-                createMetric("is_getter", paprikaMethod);
+                createMetric(IS_GETTER_NAME, paprikaMethod);
             }
         }
     }

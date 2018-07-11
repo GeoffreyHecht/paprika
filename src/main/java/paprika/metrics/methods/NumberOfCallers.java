@@ -26,8 +26,10 @@ import paprika.metrics.UnaryMetric;
  */
 public class NumberOfCallers extends UnaryMetric<Integer> {
 
+    public static final String NAME = "number_of_callers";
+
     private NumberOfCallers(PaprikaMethod paprikaMethod, int value) {
-        super("number_of_callers", paprikaMethod, value);
+        super(NAME, paprikaMethod, value);
     }
 
     public static void createNumberOfCallers(PaprikaMethod paprikaMethod, int value) {

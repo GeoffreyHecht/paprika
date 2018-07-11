@@ -18,8 +18,21 @@
 
 package paprika.neo4j.queries.antipatterns;
 
+import org.neo4j.cypherdsl.Identifier;
+import org.neo4j.cypherdsl.expression.BooleanExpression;
+import paprika.entities.PaprikaExternalMethod;
 import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.neo4j.cypherdsl.CypherQuery.*;
+import static paprika.neo4j.ModelToGraph.EXTERNAL_METHOD_TYPE;
+import static paprika.neo4j.ModelToGraph.METHOD_TYPE;
+import static paprika.neo4j.RelationTypes.CALLS;
+import static paprika.neo4j.queries.QueryBuilderUtils.ANDROID_CANVAS;
+import static paprika.neo4j.queries.QueryBuilderUtils.getAlternativeMethodResults;
 
 /**
  * Created by Geoffrey Hecht on 18/08/15.
@@ -28,35 +41,62 @@ public class UHAQuery extends PaprikaQuery {
 
     public static final String KEY = "UHA";
 
+    private static final String ANDROID_PAINT = "android.graphics.Paint";
+
+    private static final List<String> UNSUPPORTED_OPS = Arrays.asList(
+            formatMethod("drawPicture", ANDROID_CANVAS),
+            formatMethod("drawVertices", ANDROID_CANVAS),
+            formatMethod("drawPosText", ANDROID_CANVAS),
+            formatMethod("drawTextOnPath", ANDROID_CANVAS),
+            formatMethod("drawPath", ANDROID_CANVAS),
+
+            formatMethod("setLinearText", ANDROID_PAINT),
+            formatMethod("setMaskFilter", ANDROID_PAINT),
+            formatMethod("setPathEffect", ANDROID_PAINT),
+            formatMethod("setRasterizer", ANDROID_PAINT),
+            formatMethod("setSubpixelText", ANDROID_PAINT)
+    );
+
+    private static String formatMethod(String method, String aClass) {
+        return method + "#" + aClass;
+    }
+
     public UHAQuery(QueryEngine queryEngine) {
         super(KEY, queryEngine);
     }
 
+    /*
+        MATCH (m:Method)-[:CALLS]->(e:ExternalMethod)
+        WHERE e.full_name parmi UHAs
+        RETURN m.app_key
+
+        details -> m.full_name as full_name
+        else -> count(m) as UHA
+     */
+
     @Override
     public String getQuery(boolean details) {
-        String[] uhas = {
-                "drawPicture#android.graphics.Canvas",
-                "drawVertices#android.graphics.Canvas",
-                "drawPosText#android.graphics.Canvas",
-                "drawTextOnPath#android.graphics.Canvas",
-                "drawPath#android.graphics.Canvas",
-                "setLinearText#android.graphics.Paint",
-                "setMaskFilter#android.graphics.Paint",
-                "setPathEffect#android.graphics.Paint",
-                "setRasterizer#android.graphics.Paint",
-                "setSubpixelText#android.graphics.Paint"
-        };
-        StringBuilder query = new StringBuilder("MATCH (m:Method)-[:CALLS]->(e:ExternalMethod) WHERE e.full_name='" + uhas[0] + "'");
-        for (int i = 1; i < uhas.length; i++) {
-            query.append(" OR e.full_name='").append(uhas[i]).append("' ");
+        Identifier method = identifier("m");
+        Identifier externalMethod = identifier("e");
+
+        return match(node(method).label(METHOD_TYPE)
+                .out(CALLS)
+                .node(externalMethod).label(EXTERNAL_METHOD_TYPE))
+                .where(isUHAMethod(externalMethod))
+                .returns(getAlternativeMethodResults(method, details, KEY))
+                .toString();
+    }
+
+    private BooleanExpression isUHAMethod(Identifier externalMethod) {
+        BooleanExpression base = nameMatches(externalMethod, UNSUPPORTED_OPS.get(0));
+        for (int i = 1; i < UNSUPPORTED_OPS.size(); i++) {
+            base = base.or(nameMatches(externalMethod, UNSUPPORTED_OPS.get(i)));
         }
-        query.append("RETURN m.app_key");
-        if (details) {
-            query.append(",m.full_name as full_name");
-        } else {
-            query.append(",count(m) as UHA");
-        }
-        return query.toString();
+        return base;
+    }
+
+    private BooleanExpression nameMatches(Identifier externalMethod, String call) {
+        return externalMethod.property(PaprikaExternalMethod.FULL_NAME).eq(call);
     }
 
 }

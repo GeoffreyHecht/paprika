@@ -20,7 +20,13 @@ package paprika.neo4j.queries.antipatterns.fuzzy;
 
 import net.sourceforge.jFuzzyLogic.FIS;
 import net.sourceforge.jFuzzyLogic.FunctionBlock;
+import org.neo4j.cypherdsl.Identifier;
+import org.neo4j.cypherdsl.expression.Expression;
+import org.neo4j.cypherdsl.grammar.Where;
 import org.neo4j.graphdb.Result;
+import paprika.entities.PaprikaClass;
+import paprika.metrics.classes.condition.IsInterface;
+import paprika.metrics.common.NumberOfMethods;
 import paprika.neo4j.QueryEngine;
 
 import java.util.ArrayList;
@@ -28,12 +34,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.neo4j.cypherdsl.CypherQuery.*;
+import static paprika.neo4j.ModelToGraph.CLASS_TYPE;
+import static paprika.neo4j.queries.QueryBuilderUtils.getClassResults;
+
 /**
  * Created by Geoffrey Hecht on 14/08/15.
  */
 public class SAKQuery extends FuzzyQuery {
 
     public static final String KEY = "SAK";
+
     protected static double high = 8.5;
     protected static double veryHigh = 13;
 
@@ -41,26 +52,55 @@ public class SAKQuery extends FuzzyQuery {
         super(KEY, queryEngine, "SwissArmyKnife.fcl");
     }
 
+    /*
+        MATCH (cl:Class)
+        WHERE exists(cl.is_interface)
+            AND cl.number_of_methods > veryHigh
+        RETURN cl.app_key as app_key
+
+        details -> cl.name as full_name
+        else -> count(cl) as SAK
+     */
+
     @Override
     public String getQuery(boolean details) {
-        String query = "MATCH (cl:Class) WHERE exists(cl.is_interface) AND cl.number_of_methods > " + veryHigh +
-                " RETURN cl.app_key as app_key";
-        if (details) {
-            query += ",cl.name as full_name";
-        } else {
-            query += ",count(cl) as SAK";
-        }
-        return query;
+        Identifier aClass = identifier("cl");
+
+        return getSAKNodes(aClass, veryHigh)
+                .returns(getClassResults(aClass, details, KEY))
+                .toString();
     }
+
+    /*
+        MATCH (cl:Class)
+        WHERE exists(cl.is_interface)
+            AND cl.number_of_methods > high
+        RETURN cl.app_key as app_key,cl.number_of_methods as number_of_methods
+
+        details -> cl.name as full_name
+     */
 
     @Override
     public String getFuzzyQuery(boolean details) {
-        String query = "MATCH (cl:Class) WHERE exists(cl.is_interface) AND cl.number_of_methods > " + high +
-                " RETURN cl.app_key as app_key,cl.number_of_methods as number_of_methods";
+        Identifier aClass = identifier("cl");
+
+        List<Expression> results = new ArrayList<>();
+        results.add(as(aClass.property(PaprikaClass.APP_KEY), "app_key"));
+        results.add(as(aClass.property(NumberOfMethods.NAME), "number_of_methods"));
         if (details) {
-            query += ",cl.name as full_name";
+            results.add(as(aClass.property(PaprikaClass.NAME), "full_name"));
         }
-        return query;
+
+        return getSAKNodes(aClass, high)
+                .returns(results)
+                .toString();
+    }
+
+    private Where getSAKNodes(Identifier aClass, double threshold) {
+        return match(node(aClass).label(CLASS_TYPE))
+                .where(and(
+                        exists(aClass.property(IsInterface.NAME)),
+                        aClass.property(NumberOfMethods.NAME).gt(threshold)));
     }
 
     @Override

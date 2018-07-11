@@ -26,6 +26,23 @@ import java.util.List;
  */
 public class PaprikaApp extends Entity {
 
+    // Neo4J attributes names
+    public static final String APP_KEY = "app_key";
+    public static final String NAME = "name";
+    public static final String CATEGORY = "category";
+    public static final String PACKAGE = "package";
+    public static final String DEVELOPER = "developer";
+    public static final String RATING = "rating";
+    public static final String NB_DOWN = "nb_download";
+    public static final String DATE_DOWN = "date_download";
+    public static final String VERSION_CODE = "version_code";
+    public static final String VERSION_NAME = "version_name";
+    public static final String SDK = "sdk";
+    public static final String TARGET_SDK = "target_sdk";
+    public static final String DATE_ANALYSIS = "date_analysis";
+    public static final String SIZE = "size";
+    public static final String PRICE = "price";
+
     private double rating;
     private String date;
     private String pack; //Package

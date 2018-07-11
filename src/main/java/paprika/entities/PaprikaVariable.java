@@ -22,23 +22,30 @@ package paprika.entities;
  * Created by Geoffrey Hecht on 26/06/14.
  */
 public class PaprikaVariable extends Entity {
-    private PaprikaClass paprikaClass;
+
     private String type;
     private PaprikaModifier modifier;
+
+    // Neo4J attributes names
+    public static final String APP_KEY = PaprikaApp.APP_KEY;
+    public static final String NAME = "name";
+    public static final String MODIFIER = "modifier";
+    public static final String TYPE = "type";
 
     public String getType() {
         return type;
     }
 
-    private PaprikaVariable(String name, String type, PaprikaModifier modifier, PaprikaClass paprikaClass) {
+    private PaprikaVariable(String name, String type, PaprikaModifier modifier) {
         this.type = type;
         this.name = name;
         this.modifier = modifier;
-        this.paprikaClass = paprikaClass;
     }
 
-    public static PaprikaVariable createPaprikaVariable(String name, String type, PaprikaModifier modifier, PaprikaClass paprikaClass) {
-        PaprikaVariable paprikaVariable = new PaprikaVariable(name, type, modifier, paprikaClass);
+    public static PaprikaVariable createPaprikaVariable(String name, String type,
+                                                        PaprikaModifier modifier,
+                                                        PaprikaClass paprikaClass) {
+        PaprikaVariable paprikaVariable = new PaprikaVariable(name, type, modifier);
         paprikaClass.addPaprikaVariable(paprikaVariable);
         return paprikaVariable;
     }

@@ -18,8 +18,13 @@
 
 package paprika.neo4j.queries.antipatterns;
 
+import org.neo4j.cypherdsl.Identifier;
 import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
+
+import static org.neo4j.cypherdsl.CypherQuery.*;
+import static paprika.neo4j.queries.QueryBuilderUtils.getMethodResults;
+import static paprika.neo4j.queries.QueryBuilderUtils.methodCallsExternal;
 
 /**
  * Created by Geoffrey Hecht on 18/08/15.
@@ -32,18 +37,23 @@ public class UnsuitedLRUCacheSizeQuery extends PaprikaQuery {
         super(KEY, queryEngine);
     }
 
+    /*
+        MATCH (m:Method)-[:CALLS]->(e:ExternalMethod {full_name:'<init>#android.util.LruCache'})
+        WHERE NOT (m)-[:CALLS]->(:ExternalMethod {full_name:'getMemoryClass#android.app.ActivityManager'})
+        RETURN m.app_key as app_key
+
+        details -> m.full_name as full_name
+        else -> count(m) as UCS
+     */
 
     @Override
     public String getQuery(boolean details) {
-        String query = "Match (m:Method)-[:CALLS]->(e:ExternalMethod {full_name:'<init>#android.util.LruCache'})" +
-                " WHERE NOT (m)-[:CALLS]->(:ExternalMethod {full_name:'getMemoryClass#android.app.ActivityManager'})" +
-                " RETURN m.app_key as app_key";
-        if (details) {
-            query += ",m.full_name as full_name";
-        } else {
-            query += ",count(m) as " + queryName;
-        }
-        return query;
+        Identifier method = identifier("m");
+
+        return match(methodCallsExternal(method, "<init>#android.util.LruCache"))
+                .where(not(methodCallsExternal(method, "getMemoryClass#android.app.ActivityManager")))
+                .returns(getMethodResults(method, details, KEY))
+                .toString();
     }
 
 }

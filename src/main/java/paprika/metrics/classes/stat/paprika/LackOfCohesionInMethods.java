@@ -27,9 +27,11 @@ import paprika.metrics.UnaryMetric;
  */
 public class LackOfCohesionInMethods implements PaprikaClassStatistic {
 
+    public static final String NAME = "lack_of_cohesion_in_methods";
+
     @Override
     public void collectMetric(PaprikaClass paprikaClass) {
-        UnaryMetric<Integer> metric = new UnaryMetric<>("lack_of_cohesion_in_methods", paprikaClass,
+        UnaryMetric<Integer> metric = new UnaryMetric<>(NAME, paprikaClass,
                 paprikaClass.computeLCOM());
         metric.updateEntity();
     }
