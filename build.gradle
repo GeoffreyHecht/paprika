@@ -42,7 +42,7 @@ dependencies {
     compile 'org.slf4j:slf4j-nop:1.7.25'
 
     // Not on maven central
-    compile 'org.neo4j:neo4j-cypher-dsl-3.3' // Last version on maven central is outdated
+    compile 'org.neo4j:neo4j-cypher-dsl-3.3' // Latest maven central version is outdated
     compile 'net.sourceforge.jFuzzyLogic:JFuzzyLogic'
 }
 

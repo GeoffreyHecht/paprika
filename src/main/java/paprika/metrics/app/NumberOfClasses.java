@@ -26,8 +26,10 @@ import paprika.metrics.UnaryMetric;
  */
 public class NumberOfClasses extends UnaryMetric<Integer> {
 
+    public static final String NAME = "number_of_classes";
+
     private NumberOfClasses(PaprikaApp paprikaApp, int value) {
-        super("number_of_classes", paprikaApp, value);
+        super(NAME, paprikaApp, value);
     }
 
     public static void createNumberOfClasses(PaprikaApp paprikaApp, int value) {

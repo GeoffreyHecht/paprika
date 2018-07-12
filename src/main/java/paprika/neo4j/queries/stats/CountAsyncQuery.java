@@ -18,20 +18,36 @@
 
 package paprika.neo4j.queries.stats;
 
+import org.neo4j.cypherdsl.Identifier;
+import paprika.entities.PaprikaClass;
 import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
 
+import static org.neo4j.cypherdsl.CypherQuery.*;
+import static paprika.metrics.classes.condition.subclass.IsAsyncTask.ASYNC_ANDROID;
+import static paprika.neo4j.ModelToGraph.CLASS_TYPE;
+import static paprika.neo4j.queries.QueryBuilderUtils.getCountResults;
+
 public class CountAsyncQuery extends PaprikaQuery {
 
-    public static final String KEY = "COUNTASYNC";
+    public static final String COMMAND_KEY = "COUNTASYNC";
 
     public CountAsyncQuery(QueryEngine queryEngine) {
         super("COUNT_ASYNC", queryEngine);
     }
 
+    /*
+        MATCH (n:Class{parent_name:'android.os.AsyncTask'})
+        RETURN n.app_key as app_key,count(n) as number_of_async
+     */
+
     @Override
     public String getQuery(boolean details) {
-        return "MATCH (n:Class{parent_name:'android.os.AsyncTask'}) " +
-                "RETURN n.app_key as app_key,count(n) as number_of_async";
+        Identifier aClass = identifier("n");
+
+        return match(node(aClass).label(CLASS_TYPE).values(value(PaprikaClass.PARENT, ASYNC_ANDROID)))
+                .returns(getCountResults(aClass, "number_of_async"))
+                .toString();
     }
+
 }

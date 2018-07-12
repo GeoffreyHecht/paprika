@@ -18,20 +18,35 @@
 
 package paprika.neo4j.queries.stats;
 
+import org.neo4j.cypherdsl.Identifier;
 import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
 
+import static org.neo4j.cypherdsl.CypherQuery.identifier;
+import static org.neo4j.cypherdsl.CypherQuery.match;
+import static paprika.metrics.classes.condition.subclass.IsView.ANDROID_VIEW;
+import static paprika.neo4j.queries.QueryBuilderUtils.getCountResults;
+import static paprika.neo4j.queries.QueryBuilderUtils.getSubClassNodes;
+
 public class CountViewsQuery extends PaprikaQuery {
 
-    public static final String KEY = "COUNTVIEWS";
+    public static final String COMMAND_KEY = "COUNTVIEWS";
 
     public CountViewsQuery(QueryEngine queryEngine) {
         super("COUNT_VIEWS", queryEngine);
     }
 
+    /*
+        MATCH (n:Class{parent_name:'android.view.View'})
+        RETURN n.app_key as app_key,count(n) as number_of_views
+     */
+
     @Override
     public String getQuery(boolean details) {
-        return "MATCH (n:Class{parent_name:'android.view.View'}) " +
-                "RETURN n.app_key as app_key,count(n) as number_of_views";
+        Identifier aClass = identifier("n");
+
+        return match(getSubClassNodes(aClass, ANDROID_VIEW))
+                .returns(getCountResults(aClass, "number_of_views"))
+                .toString();
     }
 }

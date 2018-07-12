@@ -21,9 +21,10 @@ package paprika.metrics.classes.condition.subclass;
 public class IsService extends IsSubClass {
 
     public static final String NAME = "is_service";
+    public static final String NUMBER_METRIC = "number_of_services";
 
     public IsService() {
-        super(NAME, "number_of_services", "android.app.Service");
+        super(NAME, NUMBER_METRIC, "android.app.Service");
     }
 
 }

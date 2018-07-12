@@ -27,10 +27,11 @@ import paprika.metrics.methods.stat.NumberOfInstructions;
 import paprika.neo4j.QueryEngine;
 
 import static org.neo4j.cypherdsl.CypherQuery.*;
+import static paprika.metrics.classes.condition.subclass.IsAsyncTask.ASYNC_ANDROID;
 import static paprika.neo4j.ModelToGraph.METHOD_TYPE;
 import static paprika.neo4j.RelationTypes.CLASS_OWNS_METHOD;
 import static paprika.neo4j.queries.QueryBuilderUtils.getMethodResults;
-import static paprika.neo4j.queries.QueryBuilderUtils.getSubClassNode;
+import static paprika.neo4j.queries.QueryBuilderUtils.getSubClassNodes;
 
 /**
  * Created by Geoffrey Hecht on 14/08/15.
@@ -38,8 +39,6 @@ import static paprika.neo4j.queries.QueryBuilderUtils.getSubClassNode;
 public class HeavyAsyncTaskStepsQuery extends HeavySomethingQuery {
 
     public static final String KEY = "HAS";
-
-    private static final String ASYNC_ANDROID = "android.os.AsyncTask";
 
     public HeavyAsyncTaskStepsQuery(QueryEngine queryEngine) {
         super(KEY, queryEngine);
@@ -88,7 +87,7 @@ public class HeavyAsyncTaskStepsQuery extends HeavySomethingQuery {
     }
 
     private Where getAsyncStepNodes(Identifier aClass, Identifier method, double noiThreshold, double ccThreshold) {
-        return match(getSubClassNode(aClass, ASYNC_ANDROID)
+        return match(getSubClassNodes(aClass, ASYNC_ANDROID)
                 .out(CLASS_OWNS_METHOD)
                 .node(method).label(METHOD_TYPE))
                 .where(and(

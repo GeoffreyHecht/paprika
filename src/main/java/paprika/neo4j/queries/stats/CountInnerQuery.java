@@ -18,21 +18,36 @@
 
 package paprika.neo4j.queries.stats;
 
+import org.neo4j.cypherdsl.Identifier;
+import paprika.metrics.classes.condition.IsInnerClassStatic;
 import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
 
+import static org.neo4j.cypherdsl.CypherQuery.*;
+import static paprika.neo4j.ModelToGraph.CLASS_TYPE;
+import static paprika.neo4j.queries.QueryBuilderUtils.getCountResults;
+
 public class CountInnerQuery extends PaprikaQuery {
 
-    public static final String KEY = "COUNTINNER";
+    public static final String COMMAND_KEY = "COUNTINNER";
 
     public CountInnerQuery(QueryEngine queryEngine) {
         super("COUNT_INNER", queryEngine);
     }
 
+    /*
+        MATCH (n:Class) WHERE exists(n.is_inner_class)
+        RETURN n.app_key as app_key,count(n) as nb_inner_classes
+     */
+
     @Override
     public String getQuery(boolean details) {
-        return "MATCH (n:Class) WHERE exists(n.is_inner_class) " +
-                "RETURN n.app_key as app_key,count(n) as nb_inner_classes";
+        Identifier aClass = identifier("n");
+
+        return match(node(aClass).label(CLASS_TYPE))
+                .where(exists(aClass.property(IsInnerClassStatic.NAME)))
+                .returns(getCountResults(aClass, "nb_inner_classes"))
+                .toString();
     }
 
 }

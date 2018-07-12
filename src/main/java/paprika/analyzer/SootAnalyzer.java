@@ -49,7 +49,7 @@ public class SootAnalyzer extends Analyzer {
 
     public SootAnalyzer(String apk, String androidJAR, String name, String key, String pack, String date, int size,
                         String dev, String cat, String price, double rating, String nbDownload, String versionCode,
-                        String versionName, String sdkVersion, String targetSdkVersion, boolean mainPackageOnly) {
+                        String versionName, int sdkVersion, int targetSdkVersion, boolean mainPackageOnly) {
         this.apk = apk;
         this.androidJAR = androidJAR;
         this.container = new PaprikaContainer(PaprikaApp.createPaprikaApp(name, key, pack, date, size, dev, cat, price, rating,
@@ -94,6 +94,7 @@ public class SootAnalyzer extends Analyzer {
 
     @Override
     public void runAnalysis() {
+        container.loadSDKVersion();
         classProcessor.processClasses();
         PackManager.v().getPack("gop").add(new Transform("gop.myInstrumenter", new BodyTransformer() {
             @Override

@@ -27,6 +27,7 @@ import paprika.entities.PaprikaExternalMethod;
 import paprika.entities.PaprikaMethod;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.neo4j.cypherdsl.CypherQuery.*;
@@ -35,7 +36,6 @@ import static paprika.neo4j.RelationTypes.CALLS;
 
 public class QueryBuilderUtils {
 
-    public static final String ANDROID_VIEW = "android.view.View";
     public static final String ANDROID_CANVAS = "android.graphics.Canvas";
 
     public static StartNext getMethodCallingExternal(Identifier method, Identifier externalMethod,
@@ -79,15 +79,20 @@ public class QueryBuilderUtils {
         return results;
     }
 
+    public static List<Expression> getCountResults(Identifier aClass, String countLabel) {
+        return Arrays.asList(
+                as(aClass.property(PaprikaClass.APP_KEY), "app_key"),
+                as(count(aClass), countLabel));
+    }
+
     public static Path methodCallsExternal(Identifier method, String callFullName) {
         return node(method).out(CALLS)
                 .node().label(EXTERNAL_METHOD_TYPE).values(
                         value(PaprikaExternalMethod.FULL_NAME, callFullName));
     }
 
-    public static Path getSubClassNode(Identifier aClass, String parent) {
+    public static Path getSubClassNodes(Identifier aClass, String parent) {
         return node(aClass).label(CLASS_TYPE).values(value(PaprikaClass.PARENT, parent));
     }
-
 
 }

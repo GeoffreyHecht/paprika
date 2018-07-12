@@ -20,8 +20,12 @@ package paprika.metrics.classes.condition.subclass;
 
 public class IsAsyncTask extends IsSubClass {
 
+    public static final String NAME = "is_async_task";
+    public static final String NUMBER_METRIC = "number_of_async_tasks";
+    public static final String ASYNC_ANDROID = "android.os.AsyncTask";
+
     public IsAsyncTask() {
-        super("is_async_task", "number_of_async_tasks", "android.os.AsyncTask");
+        super(NAME, NUMBER_METRIC, ASYNC_ANDROID);
     }
 
 }

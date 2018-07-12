@@ -25,11 +25,11 @@ import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
 
 import static org.neo4j.cypherdsl.CypherQuery.*;
+import static paprika.metrics.classes.condition.subclass.IsView.ANDROID_VIEW;
 import static paprika.neo4j.ModelToGraph.CLASS_TYPE;
 import static paprika.neo4j.ModelToGraph.METHOD_TYPE;
 import static paprika.neo4j.RelationTypes.CALLS;
 import static paprika.neo4j.RelationTypes.CLASS_OWNS_METHOD;
-import static paprika.neo4j.queries.QueryBuilderUtils.ANDROID_VIEW;
 import static paprika.neo4j.queries.QueryBuilderUtils.getMethodResults;
 
 /**

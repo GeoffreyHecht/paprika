@@ -18,20 +18,38 @@
 
 package paprika.neo4j.queries.stats;
 
+import org.neo4j.cypherdsl.Identifier;
+import paprika.entities.PaprikaVariable;
 import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
 
+import java.util.Arrays;
+
+import static org.neo4j.cypherdsl.CypherQuery.*;
+import static paprika.neo4j.ModelToGraph.VARIABLE_TYPE;
+
 public class CountVariablesQuery extends PaprikaQuery {
 
-    public static final String KEY = "COUNTVAR";
+    public static final String COMMAND_KEY = "COUNTVAR";
 
     public CountVariablesQuery(QueryEngine queryEngine) {
         super("COUNT_VARIABLE", queryEngine);
     }
 
+    /*
+        MATCH (n:Variable)
+        RETURN n.app_key as app_key, count(n) as nb_variables
+     */
+
     @Override
     public String getQuery(boolean details) {
-        return "MATCH (n:Variable) return n.app_key as app_key, count(n) as nb_variables";
+        Identifier variable = identifier("n");
+
+        return match(node(variable).label(VARIABLE_TYPE))
+                .returns(Arrays.asList(
+                        as(variable.property(PaprikaVariable.APP_KEY), "app_key"),
+                        as(count(variable), "nb_variables")
+                )).toString();
     }
 
 }

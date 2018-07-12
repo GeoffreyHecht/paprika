@@ -19,6 +19,7 @@
 package paprika.analyzer;
 
 import paprika.entities.*;
+import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -41,6 +42,12 @@ public class PaprikaContainer {
         this.methodMap = new HashMap<>();
         this.externalClassMap = new HashMap<>();
         this.externalMethodMap = new HashMap<>();
+    }
+
+    public void loadSDKVersion() {
+        if (!paprikaApp.hasTargetSDK()) {
+            paprikaApp.setTargetSdkVersion(Scene.v().getAndroidAPIVersion());
+        }
     }
 
     public PaprikaApp getPaprikaApp() {

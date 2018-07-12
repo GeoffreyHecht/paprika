@@ -20,8 +20,11 @@ package paprika.metrics.classes.condition.subclass;
 
 public class IsContentProvider extends IsSubClass {
 
+    public static final String NUMBER_METRIC = "number_of_content_providers";
+    public static final String NAME = "is_content_provider";
+
     public IsContentProvider() {
-        super("is_content_provider", "number_of_content_providers", "android.content.ContentProvider");
+        super(NAME, NUMBER_METRIC, "android.content.ContentProvider");
     }
 
 }

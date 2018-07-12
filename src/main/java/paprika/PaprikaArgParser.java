@@ -28,6 +28,8 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import static paprika.entities.PaprikaApp.NO_SDK;
+
 public class PaprikaArgParser {
 
     private static final String DATE_REGEX =
@@ -104,10 +106,10 @@ public class PaprikaArgParser {
         analyseParser.addArgument("-vn", "--versionName").setDefault("")
                 .help("Version Name of the application (extract from manifest)");
         analyseParser.addArgument("-tsdk", "--targetSdkVersion")
-                .setDefault("")
+                .setDefault(NO_SDK)
                 .help("Target SDK Version (extract from manifest)");
         analyseParser.addArgument("-sdk", "--sdkVersion")
-                .setDefault("")
+                .setDefault(NO_SDK)
                 .help("sdk version (extract from manifest)");
         analyseParser.addArgument("-omp", "--onlyMainPackage")
                 .action(Arguments.storeTrue())

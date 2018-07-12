@@ -22,8 +22,11 @@ import soot.SootClass;
 
 public class IsAbstractClass extends CountedClassCondition {
 
+    public static final String NUMBER_METRIC = "number_of_abstract_classes";
+    public static final String NAME = "is_abstract";
+
     public IsAbstractClass() {
-        super("is_abstract", "number_of_abstract_classes");
+        super(NAME, NUMBER_METRIC);
     }
 
     @Override

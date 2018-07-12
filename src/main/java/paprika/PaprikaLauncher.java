@@ -56,7 +56,7 @@ public class PaprikaLauncher {
                 arg.getString("package"), arg.getString("date"), arg.getInt("size"),
                 arg.getString("developer"), arg.getString("category"), arg.getString("price"),
                 arg.getDouble("rating"), arg.getString("nbDownload"), arg.getString("versionCode"), arg.getString("versionName"),
-                arg.getString("sdkVersion"), arg.getString("targetSdkVersion"),
+                arg.getInt("sdkVersion"), arg.getInt("targetSdkVersion"),
                 arg.getBoolean("onlyMainPackage") != null);
         analyzer.prepareSoot();
         analyzer.runAnalysis();

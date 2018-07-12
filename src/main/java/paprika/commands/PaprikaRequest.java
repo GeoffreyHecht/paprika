@@ -165,7 +165,7 @@ public enum PaprikaRequest {
         }
     },
 
-    ANALYZED(AnalyzedAppQuery.KEY) {
+    ANALYZED(AnalyzedAppQuery.COMMAND_KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
             return new AnalyzedAppQuery(engine);
@@ -208,28 +208,28 @@ public enum PaprikaRequest {
         }
     },
 
-    COUNT_VARS(CountVariablesQuery.KEY) {
+    COUNT_VARS(CountVariablesQuery.COMMAND_KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
             return new CountVariablesQuery(engine);
         }
     },
 
-    COUNT_INNER(CountInnerQuery.KEY) {
+    COUNT_INNER(CountInnerQuery.COMMAND_KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
             return new CountInnerQuery(engine);
         }
     },
 
-    COUNT_ASYNC(CountAsyncQuery.KEY) {
+    COUNT_ASYNC(CountAsyncQuery.COMMAND_KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
             return new CountAsyncQuery(engine);
         }
     },
 
-    COUNT_VIEWS(CountViewsQuery.KEY) {
+    COUNT_VIEWS(CountViewsQuery.COMMAND_KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
             return new CountViewsQuery(engine);

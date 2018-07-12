@@ -43,6 +43,8 @@ public class PaprikaApp extends Entity {
     public static final String SIZE = "size";
     public static final String PRICE = "price";
 
+    public static final int NO_SDK = -1;
+
     private double rating;
     private String date;
     private String pack; //Package
@@ -54,14 +56,14 @@ public class PaprikaApp extends Entity {
     private String nbDownload;
     private String versionCode;
     private String versionName;
-    private String sdkVersion;
-    private String targetSdkVersion;
+    private int sdkVersion;
+    private int targetSdkVersion;
     private List<PaprikaClass> paprikaClasses;
     private List<PaprikaExternalClass> paprikaExternalClasses;
 
     private PaprikaApp(String name, String key, String pack, String date, int size, String developer,
                        String category, String price, double rating, String nbDownload, String versionCode,
-                       String versionName, String sdkVersion, String targetSdkVersion) {
+                       String versionName, int sdkVersion, int targetSdkVersion) {
         this.name = name;
         this.key = key;
         this.pack = pack;
@@ -88,7 +90,7 @@ public class PaprikaApp extends Entity {
     public static PaprikaApp createPaprikaApp(String name, String key, String pack, String date,
                                               int size, String dev, String cat, String price,
                                               double rating, String nbDownload, String versionCode,
-                                              String versionName, String sdkVersion, String targetSdkVersion) {
+                                              String versionName, int sdkVersion, int targetSdkVersion) {
         return new PaprikaApp(name, key, pack, date, size, dev, cat, price, rating, nbDownload,
                 versionCode, versionName, sdkVersion, targetSdkVersion);
     }
@@ -149,12 +151,19 @@ public class PaprikaApp extends Entity {
         return versionName;
     }
 
-    public String getSdkVersion() {
+    public int getSdkVersion() {
         return sdkVersion;
     }
 
-    public String getTargetSdkVersion() {
+    public int getTargetSdkVersion() {
         return targetSdkVersion;
     }
 
+    public void setTargetSdkVersion(int targetSdkVersion) {
+        this.targetSdkVersion = targetSdkVersion;
+    }
+
+    public boolean hasTargetSDK() {
+        return targetSdkVersion != NO_SDK;
+    }
 }

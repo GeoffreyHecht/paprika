@@ -20,8 +20,12 @@ package paprika.metrics.classes.condition.subclass;
 
 public class IsView extends IsSubClass {
 
+    public static final String NAME = "is_view";
+    public static final String NUMBER_METRIC = "number_of_views";
+    public static final String ANDROID_VIEW = "android.view.View";
+
     public IsView() {
-        super("is_view", "number_of_views", "android.view.View");
+        super(NAME, NUMBER_METRIC, ANDROID_VIEW);
     }
 
 }

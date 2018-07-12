@@ -201,7 +201,8 @@ public class QueryEngine {
     private void deleteRelations(String appKey, String nodeType1, String nodeType2, String reltype) {
         Result result;
         try (Transaction tx = graphDatabaseService.beginTx()) {
-            String request = "MATCH (n:" + nodeType1 + "  {app_key: '" + appKey + "'})-[r:" + reltype + "]->(m:" + nodeType2 + "{app_key: '" + appKey + "'}) DELETE r";
+            String request = "MATCH (n:" + nodeType1 + "  {app_key: '" + appKey + "'})-[r:" + reltype +
+                    "]->(m:" + nodeType2 + "{app_key: '" + appKey + "'}) DELETE r";
             System.out.println(request);
             result = graphDatabaseService.execute(request);
             System.out.println(result.resultAsString());
@@ -212,7 +213,8 @@ public class QueryEngine {
     private void deleteEntityIn(String appKey, String nodeType1, String nodeType2, String reltype) {
         Result result;
         try (Transaction tx = graphDatabaseService.beginTx()) {
-            String request = "MATCH (n:" + nodeType1 + " {app_key: '" + appKey + "'})<-[r:" + reltype + "]-(m:" + nodeType2 + "{app_key: '" + appKey + "'}) DELETE n,r";
+            String request = "MATCH (n:" + nodeType1 + " {app_key: '" + appKey + "'})<-[r:" + reltype +
+                    "]-(m:" + nodeType2 + "{app_key: '" + appKey + "'}) DELETE n,r";
             System.out.println(request);
             result = graphDatabaseService.execute(request);
             System.out.println(result.resultAsString());
@@ -223,7 +225,8 @@ public class QueryEngine {
     private void deleteEntityOut(String appKey, String nodeType1, String nodeType2, String reltype) {
         Result result;
         try (Transaction tx = graphDatabaseService.beginTx()) {
-            String request = "MATCH (n:" + nodeType1 + " {app_key: '" + appKey + "'})-[r:" + reltype + "]->(m:" + nodeType2 + "{app_key: '" + appKey + "'}) DELETE n,r";
+            String request = "MATCH (n:" + nodeType1 + " {app_key: '" + appKey + "'})-[r:" + reltype +
+                    "]->(m:" + nodeType2 + "{app_key: '" + appKey + "'}) DELETE n,r";
             System.out.println(request);
             result = graphDatabaseService.execute(request);
             System.out.println(result.resultAsString());
@@ -249,7 +252,8 @@ public class QueryEngine {
     public List<String> findKeysFromPackageName(String appName) throws CypherException {
         ArrayList<String> keys = new ArrayList<>();
         try (Transaction ignored = graphDatabaseService.beginTx()) {
-            Result result = graphDatabaseService.execute("MATCH (n:App) WHERE n.package='" + appName + "' RETURN n.app_key as key");
+            Result result = graphDatabaseService.execute("MATCH (n:App) WHERE n.package='" + appName + "' " +
+                    "RETURN n.app_key as key");
             while (result.hasNext()) {
                 Map<String, Object> row = result.next();
                 keys.add((String) row.get("key"));
