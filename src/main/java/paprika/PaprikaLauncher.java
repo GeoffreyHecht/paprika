@@ -73,7 +73,7 @@ public class PaprikaLauncher {
         System.out.println("Executing Queries");
         Namespace arg = parser.getArguments();
         QueryEngine queryEngine = new QueryEngine(arg.getString(DATABASE_ARG), arg);
-        new QueryPropertiesReader(arg.getString(THRESHOLDS_ARG)).loadThresholds();
+        QueryPropertiesReader.loadProperties(arg.getString(THRESHOLDS_ARG));
         String request = arg.get(REQUEST_ARG);
         Boolean details = arg.get(DETAILS_ARG);
         String csvPrefix = getCSVPrefix(arg.getString(CSV_ARG));

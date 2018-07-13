@@ -28,13 +28,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static paprika.neo4j.queries.QueryPropertiesReader.PROPERTIES;
+
 public abstract class HeavySomethingQuery extends FuzzyQuery {
-
-    public static double high_cc;
-    public static double veryHigh_cc;
-
-    public static double high_noi;
-    public static double veryHigh_noi;
 
     public HeavySomethingQuery(String queryName, QueryEngine queryEngine) {
         super(queryName, queryEngine, "HeavySomething.fcl");
@@ -49,7 +45,8 @@ public abstract class HeavySomethingQuery extends FuzzyQuery {
             HashMap<String, Object> res = new HashMap<>(result.next());
             cc = (int) res.get("cyclomatic_complexity");
             noi = (int) res.get("number_of_instructions");
-            if (cc >= veryHigh_cc && noi >= veryHigh_noi) {
+            if (cc >= PROPERTIES.get("Heavy_class_veryHigh_cc")
+                    && noi >= PROPERTIES.get("Heavy_class_veryHigh_noi")) {
                 res.put("fuzzy_value", 1);
             } else {
                 fb.setVariable("cyclomatic_complexity", cc);

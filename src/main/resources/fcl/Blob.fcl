@@ -11,15 +11,15 @@ VAR_OUTPUT
 END_VAR
 
 FUZZIFY lack_of_cohesion_in_methods
-    TERM high := (25, 0) (40, 1);
+    TERM high := (Blob_high_lcom, 0) (Blob_veryHigh_lcom, 1);
 END_FUZZIFY
 
 FUZZIFY number_of_methods
-    TERM high := (14.5, 0) (22, 1);
+    TERM high := (Blob_high_nom, 0) (Blob_veryHigh_nom, 1);
 END_FUZZIFY
 
 FUZZIFY number_of_attributes
-    TERM high := (8.5, 0) (13, 1);
+    TERM high := (Blob_high_noa, 0) (Blob_veryHigh_noa, 1);
 END_FUZZIFY
 
 

@@ -23,12 +23,13 @@ import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
+import paprika.neo4j.queries.QueryPropertiesReader;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by Geoffrey Hecht on 17/08/15.
@@ -40,7 +41,7 @@ public abstract class FuzzyQuery extends PaprikaQuery {
 
     public FuzzyQuery(String name, QueryEngine queryEngine, String fclFile) {
         super(name, queryEngine);
-        this.fclFile =  fclFile;
+        this.fclFile = fclFile;
     }
 
     public void executeFuzzy(boolean details) throws IOException {
@@ -53,14 +54,21 @@ public abstract class FuzzyQuery extends PaprikaQuery {
         }
     }
 
-    private FIS getFcl() {
+    private FIS getFcl() throws FileNotFoundException {
         File fcf = new File(fclFile);
         // We look if the file is in a directory otherwise we look inside the jar
         if (fcf.exists() && !fcf.isDirectory()) {
-            return FIS.load(fclFile, false);
+            return FIS.load(injectProperties(new FileInputStream(fclFile)), false);
         } else {
-            return FIS.load(getClass().getResourceAsStream(fclFolder + fclFile), false);
+            return FIS.load(injectProperties(getClass().getResourceAsStream(fclFolder + fclFile)), false);
         }
+    }
+
+    private InputStream injectProperties(InputStream original) {
+        String function = new BufferedReader(new InputStreamReader(original))
+                .lines().collect(Collectors.joining("\n"));
+        function = QueryPropertiesReader.replaceProperties(function);
+        return new ByteArrayInputStream(function.getBytes());
     }
 
     public abstract String getFuzzyQuery(boolean details);

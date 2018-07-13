@@ -28,15 +28,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static paprika.neo4j.queries.QueryPropertiesReader.PROPERTIES;
+
 /**
  * Created by Geoffrey Hecht on 14/08/15.
  */
 public class CCQuery extends FuzzyQuery {
 
     public static final String KEY = "CC";
-
-    public static double high;
-    public static double veryHigh;
 
     public CCQuery(QueryEngine queryEngine) {
         super(KEY, queryEngine, "ComplexClass.fcl");
@@ -53,7 +52,7 @@ public class CCQuery extends FuzzyQuery {
 
     @Override
     public String getQuery(boolean details) {
-        String query = getCCNodes(veryHigh);
+        String query = getCCNodes(PROPERTIES.get("Class_complexity_veryHigh"));
         query += "RETURN cl.app_key as app_key,";
         if (details) {
             query += "cl.name as full_name";
@@ -72,7 +71,7 @@ public class CCQuery extends FuzzyQuery {
 
     @Override
     public String getFuzzyQuery(boolean details) {
-        String query = getCCNodes(high);
+        String query = getCCNodes(PROPERTIES.get("Class_complexity_high"));
         query += "RETURN cl.app_key as app_key, cl.class_complexity as class_complexity";
         if (details) {
             query += ",cl.name as full_name";
@@ -93,7 +92,7 @@ public class CCQuery extends FuzzyQuery {
         while (result.hasNext()) {
             HashMap<String, Object> res = new HashMap<>(result.next());
             cc = (int) res.get("class_complexity");
-            if (cc >= veryHigh) {
+            if (cc >= PROPERTIES.get("Class_complexity_veryHigh")) {
                 res.put("fuzzy_value", 1);
             } else {
                 fb.setVariable("class_complexity", cc);

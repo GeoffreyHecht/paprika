@@ -20,6 +20,8 @@ package paprika.neo4j.queries.antipatterns.fuzzy;
 
 import paprika.neo4j.QueryEngine;
 
+import static paprika.neo4j.queries.QueryPropertiesReader.PROPERTIES;
+
 /**
  * Created by Geoffrey Hecht on 14/08/15.
  */
@@ -43,7 +45,8 @@ public class HeavyBroadcastReceiverQuery extends HeavySomethingQuery {
 
     @Override
     public String getQuery(boolean details) {
-        String query = getHBRNodes(veryHigh_noi, veryHigh_cc);
+        String query = getHBRNodes(PROPERTIES.get("Heavy_class_veryHigh_noi"),
+                PROPERTIES.get("Heavy_class_veryHigh_cc"));
         query += "RETURN m.app_key as app_key,";
         if(details) {
             query += "m.full_name as full_name";
@@ -65,7 +68,8 @@ public class HeavyBroadcastReceiverQuery extends HeavySomethingQuery {
 
     @Override
     public String getFuzzyQuery(boolean details) {
-        String query = getHBRNodes(high_noi, high_cc);
+        String query = getHBRNodes(PROPERTIES.get("Heavy_class_high_noi"),
+                PROPERTIES.get("Heavy_class_high_cc"));
         query += "RETURN m.app_key as app_key,m.cyclomatic_complexity as cyclomatic_complexity,\n" +
                 "m.number_of_instructions as number_of_instructions";
         if(details) {

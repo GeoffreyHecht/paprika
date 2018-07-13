@@ -9,7 +9,7 @@ VAR_OUTPUT
 END_VAR
 
 FUZZIFY class_complexity
-	TERM high := (28, 0) (43, 1);
+	TERM high := (Class_complexity_high, 0) (Class_complexity_veryHigh, 1);
 END_FUZZIFY
 
 DEFUZZIFY res

@@ -18,51 +18,36 @@
 
 package paprika.neo4j.queries;
 
-import paprika.neo4j.queries.antipatterns.fuzzy.*;
-
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 public class QueryPropertiesReader {
 
-    private Properties props;
+    public static Map<String, Double> PROPERTIES = new HashMap<>();
 
-    public QueryPropertiesReader(String propsArg) throws IOException {
-        this.props = new Properties();
+    public static void loadProperties(String propsArg) throws IOException {
+        Properties props = new Properties();
         if (propsArg != null) {
             props.load(new FileInputStream(propsArg));
         } else {
-            props.load(getClass().getClassLoader().getResourceAsStream("thresholds.properties"));
+            props.load(QueryPropertiesReader.class
+                    .getClassLoader().getResourceAsStream("thresholds.properties"));
+        }
+        for (Map.Entry<Object, Object> entry : props.entrySet()) {
+            PROPERTIES.put(entry.getKey().toString(), Double.valueOf(entry.getValue().toString()));
         }
     }
 
-    public void loadThresholds() {
-        BLOBQuery.high_lcom = readDoubleProperty("Blob_high_lcom");
-        BLOBQuery.veryHigh_lcom = readDoubleProperty("Blob_veryHigh_lcom");
-        BLOBQuery.high_noa = readDoubleProperty("Blob_high_noa");
-        BLOBQuery.veryHigh_noa = readDoubleProperty("Blob_veryHigh_noa");
-        BLOBQuery.high_nom = readDoubleProperty("Blob_high_nom");
-        BLOBQuery.veryHigh_nom = readDoubleProperty("Blob_veryHigh_nom");
-
-        CCQuery.high = readDoubleProperty("Class_complexity_high");
-        CCQuery.veryHigh = readDoubleProperty("Class_complexity_veryHigh");
-
-        HeavySomethingQuery.high_cc = readDoubleProperty("Heavy_class_high_cc");
-        HeavySomethingQuery.veryHigh_cc = readDoubleProperty("Heavy_class_veryHigh_cc");
-        HeavySomethingQuery.high_noi = readDoubleProperty("Heavy_class_high_noi");
-        HeavySomethingQuery.veryHigh_noi = readDoubleProperty("Heavy_class_veryHigh_noi");
-
-        LMQuery.high = readDoubleProperty("Long_method_noi_high");
-        LMQuery.veryHigh  = readDoubleProperty("Long_method_noi_veryHigh");
-
-        SAKQuery.high = readDoubleProperty("SAK_methods_high");
-        SAKQuery.veryHigh = readDoubleProperty("SAK_methods_veryHigh");
+    public static String replaceProperties(String function) {
+        for (String key : PROPERTIES.keySet()) {
+            if (function.contains(key)) {
+                function = function.replaceAll(key, Double.toString(PROPERTIES.get(key)));
+            }
+        }
+        return function;
     }
-
-    private double readDoubleProperty(String property) {
-        return Double.valueOf(props.getProperty(property));
-    }
-
 
 }

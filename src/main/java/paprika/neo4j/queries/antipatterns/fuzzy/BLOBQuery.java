@@ -28,19 +28,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static paprika.neo4j.queries.QueryPropertiesReader.PROPERTIES;
+
 /**
  * Created by Geoffrey Hecht on 14/08/15.
  */
 public class BLOBQuery extends FuzzyQuery {
 
     public static final String KEY = "BLOB";
-
-    public static double high_lcom;
-    public static double veryHigh_lcom;
-    public static double high_noa;
-    public static double veryHigh_noa;
-    public static double high_nom;
-    public static double veryHigh_nom;
 
     public BLOBQuery(QueryEngine queryEngine) {
         super(KEY, queryEngine, "Blob.fcl");
@@ -59,7 +54,8 @@ public class BLOBQuery extends FuzzyQuery {
 
     @Override
     public String getQuery(boolean details) {
-        String query = getBLOBNodes(veryHigh_lcom, veryHigh_nom, veryHigh_noa);
+        String query = getBLOBNodes(PROPERTIES.get("Blob_veryHigh_lcom"), PROPERTIES.get("Blob_veryHigh_nom"),
+                PROPERTIES.get("Blob_veryHigh_noa"));
         query += "RETURN cl.app_key as app_key,";
         if (details) {
             query += "cl.name as full_name";
@@ -82,7 +78,8 @@ public class BLOBQuery extends FuzzyQuery {
 
     @Override
     public String getFuzzyQuery(boolean details) {
-        String query = getBLOBNodes(high_lcom, high_nom, high_noa);
+        String query = getBLOBNodes(PROPERTIES.get("Blob_high_lcom"), PROPERTIES.get("Blob_high_nom"),
+                PROPERTIES.get("Blob_high_noa"));
         query += "RETURN cl.app_key as app_key, cl.lack_of_cohesion_in_methods as lack_of_cohesion_in_methods,\n" +
                 " cl.number_of_methods as number_of_methods, cl.number_of_attributes as number_of_attributes";
         if (details) {
@@ -108,7 +105,8 @@ public class BLOBQuery extends FuzzyQuery {
             lcom = (int) res.get("lack_of_cohesion_in_methods");
             noa = (int) res.get("number_of_attributes");
             nom = (int) res.get("number_of_methods");
-            if (lcom >= veryHigh_lcom && noa >= veryHigh_noa && nom >= veryHigh_nom) {
+            if (lcom >= PROPERTIES.get("Blob_veryHigh_lcom") && noa >= PROPERTIES.get("Blob_veryHigh_noa")
+                    && nom >= PROPERTIES.get("Blob_veryHigh_nom")) {
                 res.put("fuzzy_value", 1);
             } else {
                 fb.setVariable("lack_of_cohesion_in_methods", lcom);

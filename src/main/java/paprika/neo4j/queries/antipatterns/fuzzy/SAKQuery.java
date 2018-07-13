@@ -28,15 +28,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static paprika.neo4j.queries.QueryPropertiesReader.PROPERTIES;
+
 /**
  * Created by Geoffrey Hecht on 14/08/15.
  */
 public class SAKQuery extends FuzzyQuery {
 
     public static final String KEY = "SAK";
-
-    public static double high;
-    public static double veryHigh;
 
     public SAKQuery(QueryEngine queryEngine) {
         super(KEY, queryEngine, "SwissArmyKnife.fcl");
@@ -54,7 +53,7 @@ public class SAKQuery extends FuzzyQuery {
 
     @Override
     public String getQuery(boolean details) {
-        String query = getSAKNodes(veryHigh);
+        String query = getSAKNodes(PROPERTIES.get("SAK_methods_veryHigh"));
         query += "RETURN cl.app_key as app_key,";
         if (details) {
             query +="cl.name as full_name";
@@ -75,7 +74,7 @@ public class SAKQuery extends FuzzyQuery {
 
     @Override
     public String getFuzzyQuery(boolean details) {
-        String query = getSAKNodes(high);
+        String query = getSAKNodes(PROPERTIES.get("SAK_methods_high"));
         query += "RETURN cl.app_key as app_key,cl.number_of_methods as number_of_methods";
         if (details) {
             query +=",cl.name as full_name";
@@ -97,7 +96,7 @@ public class SAKQuery extends FuzzyQuery {
         while (result.hasNext()) {
             HashMap<String, Object> res = new HashMap<>(result.next());
             cc = (int) res.get("number_of_methods");
-            if (cc >= veryHigh) {
+            if (cc >= PROPERTIES.get("SAK_methods_veryHigh")) {
                 res.put("fuzzy_value", 1);
             } else {
                 fb.setVariable("number_of_methods", cc);

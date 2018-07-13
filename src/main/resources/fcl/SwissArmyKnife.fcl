@@ -9,7 +9,7 @@ VAR_OUTPUT
 END_VAR
 
 FUZZIFY number_of_methods
-    TERM high := (8.5, 0) (13, 1);
+    TERM high := (SAK_methods_high, 0) (SAK_methods_veryHigh, 1);
 END_FUZZIFY
 
 DEFUZZIFY res

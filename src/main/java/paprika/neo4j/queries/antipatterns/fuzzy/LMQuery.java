@@ -28,15 +28,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static paprika.neo4j.queries.QueryPropertiesReader.PROPERTIES;
+
 /**
  * Created by Geoffrey Hecht on 14/08/15.
  */
 public class LMQuery extends FuzzyQuery {
 
     public static final String KEY = "LM";
-
-    public static double high;
-    public static double veryHigh;
 
     public LMQuery(QueryEngine queryEngine) {
         super(KEY, queryEngine, "LongMethod.fcl");
@@ -52,7 +51,7 @@ public class LMQuery extends FuzzyQuery {
 
     @Override
     public String getQuery(boolean details) {
-        String query = getLMNodes(veryHigh);
+        String query = getLMNodes(PROPERTIES.get("Long_method_noi_veryHigh"));
         query += "RETURN m.app_key as app_key,";
         if (details) {
             query += "m.full_name as full_name";
@@ -71,7 +70,7 @@ public class LMQuery extends FuzzyQuery {
 
     @Override
     public String getFuzzyQuery(boolean details) {
-        String query = getLMNodes(high);
+        String query = getLMNodes(PROPERTIES.get("Long_method_noi_high"));
         query += "RETURN m.app_key as app_key,m.number_of_instructions as number_of_instructions";
         if (details) {
             query += ",m.full_name as full_name";
@@ -91,7 +90,7 @@ public class LMQuery extends FuzzyQuery {
         while (result.hasNext()) {
             HashMap<String, Object> res = new HashMap<>(result.next());
             cc = (int) res.get("number_of_instructions");
-            if (cc >= veryHigh) {
+            if (cc >= PROPERTIES.get("Long_method_noi_veryHigh")) {
                 res.put("fuzzy_value", 1);
             } else {
                 fb.setVariable("number_of_instructions", cc);

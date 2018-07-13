@@ -9,7 +9,7 @@ VAR_OUTPUT
 END_VAR
 
 FUZZIFY number_of_instructions
-	TERM high := (17, 0) (26, 1);
+	TERM high := (Long_method_noi_high, 0) (Long_method_noi_veryHigh, 1);
 END_FUZZIFY
 
 DEFUZZIFY res

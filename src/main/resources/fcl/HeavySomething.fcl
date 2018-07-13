@@ -10,11 +10,11 @@ VAR_OUTPUT
 END_VAR
 
 FUZZIFY number_of_instructions
-	TERM high := (17, 0) (26, 1);
+	TERM high := (Heavy_class_high_noi, 0) (Heavy_class_veryHigh_noi, 1);
 END_FUZZIFY
 
 FUZZIFY cyclomatic_complexity
-	TERM high := (3.5, 0) (5, 1);
+	TERM high := (Heavy_class_high_cc, 0) (Heavy_class_veryHigh_cc, 1);
 END_FUZZIFY
 
 DEFUZZIFY res
