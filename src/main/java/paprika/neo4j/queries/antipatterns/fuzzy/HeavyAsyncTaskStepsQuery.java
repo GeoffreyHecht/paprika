@@ -18,18 +18,7 @@
 
 package paprika.neo4j.queries.antipatterns.fuzzy;
 
-import org.neo4j.cypherdsl.Identifier;
-import org.neo4j.cypherdsl.expression.BooleanExpression;
-import org.neo4j.cypherdsl.grammar.Where;
-import paprika.metrics.methods.stat.CyclomaticComplexity;
-import paprika.metrics.methods.stat.NumberOfInstructions;
 import paprika.neo4j.QueryEngine;
-
-import static org.neo4j.cypherdsl.CypherQuery.*;
-import static paprika.metrics.classes.condition.subclass.IsAsyncTask.ASYNC_ANDROID;
-import static paprika.neo4j.ModelToGraph.METHOD_TYPE;
-import static paprika.neo4j.RelationTypes.CLASS_OWNS_METHOD;
-import static paprika.neo4j.queries.QueryBuilderUtils.*;
 
 /**
  * Created by Geoffrey Hecht on 14/08/15.
@@ -55,12 +44,14 @@ public class HeavyAsyncTaskStepsQuery extends HeavySomethingQuery {
 
     @Override
     public String getQuery(boolean details) {
-        Identifier aClass = identifier("c");
-        Identifier method = identifier("m");
-
-        return getAsyncStepNodes(aClass, method, veryHigh_noi, veryHigh_cc)
-                .returns(getMethodResults(method, details, KEY))
-                .toString();
+        String query = getAsyncStepNodes(veryHigh_noi, veryHigh_cc);
+        query += "RETURN m.app_key as app_key,";
+        if (details) {
+            query += "m.full_name as full_name";
+        } else {
+            query += "else -> count(m) as HAS";
+        }
+        return query;
     }
 
     /*
@@ -76,27 +67,20 @@ public class HeavyAsyncTaskStepsQuery extends HeavySomethingQuery {
 
     @Override
     public String getFuzzyQuery(boolean details) {
-        Identifier aClass = identifier("c");
-        Identifier method = identifier("m");
-
-        return getAsyncStepNodes(aClass, method, high_noi, high_cc)
-                .returns(super.getFuzzyQueryResults(method, details))
-                .toString();
+        String query = getAsyncStepNodes(high_noi, high_cc);
+        query += "RETURN m.app_key as app_key, m.cyclomatic_complexity as cyclomatic_complexity,\n" +
+                "m.number_of_instructions as number_of_instructions";
+        if (details) {
+            query += ",m.full_name as full_name";
+        }
+        return query;
     }
 
-    private Where getAsyncStepNodes(Identifier aClass, Identifier method, double noiThreshold, double ccThreshold) {
-        return match(getSubClassNodes(aClass, ASYNC_ANDROID)
-                .out(CLASS_OWNS_METHOD)
-                .node(method).label(METHOD_TYPE))
-                .where(and(
-                        isAsyncStep(method),
-                        method.property(NumberOfInstructions.NAME).gt(noiThreshold),
-                        method.property(CyclomaticComplexity.NAME).gt(ccThreshold)));
-    }
-
-    private BooleanExpression isAsyncStep(Identifier method) {
-        return or(methodHasName(method, "onPreExecute"), methodHasName(method, "onProgressUpdate"),
-                methodHasName(method, "onPostExecute"));
+    private String getAsyncStepNodes(double noiThreshold, double ccThreshold) {
+        return " MATCH (c:Class{parent_name:'android.os.AsyncTask'})-[:CLASS_OWNS_METHOD]->(m:Method)\n" +
+                "WHERE (m.name='onPreExecute' OR m.name='onProgressUpdate' OR m.name='onPostExecute')\n" +
+                "   AND m.number_of_instructions > " + noiThreshold + "\n" +
+                "   AND m.cyclomatic_complexity > " + ccThreshold + "\n";
     }
 
 }

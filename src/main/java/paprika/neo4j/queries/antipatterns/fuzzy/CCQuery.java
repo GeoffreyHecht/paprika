@@ -20,22 +20,13 @@ package paprika.neo4j.queries.antipatterns.fuzzy;
 
 import net.sourceforge.jFuzzyLogic.FIS;
 import net.sourceforge.jFuzzyLogic.FunctionBlock;
-import org.neo4j.cypherdsl.Identifier;
-import org.neo4j.cypherdsl.expression.Expression;
-import org.neo4j.cypherdsl.grammar.Where;
 import org.neo4j.graphdb.Result;
-import paprika.entities.PaprikaClass;
-import paprika.metrics.classes.stat.paprika.ClassComplexity;
 import paprika.neo4j.QueryEngine;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.neo4j.cypherdsl.CypherQuery.*;
-import static paprika.neo4j.ModelToGraph.CLASS_TYPE;
-import static paprika.neo4j.queries.QueryBuilderUtils.getClassResults;
 
 /**
  * Created by Geoffrey Hecht on 14/08/15.
@@ -62,11 +53,14 @@ public class CCQuery extends FuzzyQuery {
 
     @Override
     public String getQuery(boolean details) {
-        Identifier aClass = identifier("cl");
-
-        return getCCNodes(aClass, veryHigh)
-                .returns(getClassResults(aClass, details, KEY))
-                .toString();
+        String query = getCCNodes(veryHigh);
+        query += "RETURN cl.app_key as app_key,";
+        if (details) {
+            query += "cl.name as full_name";
+        } else {
+            query += "count(cl) as CC";
+        }
+        return query;
     }
 
     /*
@@ -78,23 +72,17 @@ public class CCQuery extends FuzzyQuery {
 
     @Override
     public String getFuzzyQuery(boolean details) {
-        Identifier aClass = identifier("cl");
-
-        List<Expression> results = new ArrayList<>();
-        results.add(as(aClass.property(PaprikaClass.APP_KEY), "app_key"));
-        results.add(as(aClass.property(ClassComplexity.NAME), "class_complexity"));
+        String query = getCCNodes(high);
+        query += "RETURN cl.app_key as app_key, cl.class_complexity as class_complexity";
         if (details) {
-            results.add(as(aClass.property(PaprikaClass.NAME), "full_name"));
+            query += ",cl.name as full_name";
         }
-
-        return getCCNodes(aClass, high)
-                .returns(results)
-                .toString();
+        return query;
     }
 
-    private Where getCCNodes(Identifier aClass, double threshold) {
-        return match(node(aClass).label(CLASS_TYPE))
-                .where(aClass.property(ClassComplexity.NAME).gt(threshold));
+    private String getCCNodes(double threshold) {
+        return "MATCH (cl:Class)\n" +
+                "WHERE cl.class_complexity > " + threshold + "\n";
     }
 
     @Override

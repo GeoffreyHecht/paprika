@@ -18,19 +18,8 @@
 
 package paprika.neo4j.queries.antipatterns;
 
-import org.neo4j.cypherdsl.Identifier;
-import paprika.entities.PaprikaClass;
-import paprika.entities.PaprikaMethod;
 import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
-
-import static org.neo4j.cypherdsl.CypherQuery.*;
-import static paprika.metrics.classes.condition.subclass.IsView.ANDROID_VIEW;
-import static paprika.neo4j.ModelToGraph.CLASS_TYPE;
-import static paprika.neo4j.ModelToGraph.METHOD_TYPE;
-import static paprika.neo4j.RelationTypes.CALLS;
-import static paprika.neo4j.RelationTypes.CLASS_OWNS_METHOD;
-import static paprika.neo4j.queries.QueryBuilderUtils.getMethodResults;
 
 /**
  * Created by Geoffrey Hecht on 18/08/15.
@@ -44,26 +33,25 @@ public class InitOnDrawQuery extends PaprikaQuery {
     }
 
     /*
-     * MATCH (:Class{parent_name:'android.view.View'})-[:CLASS_OWNS_METHOD]->
-     *  (n:Method{name:'onDraw'})-[:CALLS]->({name:'<init>'})
-     * RETURN n.app_key as app_key
-     *
-     * details -> n.full_name as full_name
-     *
-     * else -> count(n) as IOD
+     MATCH (:Class{parent_name:'android.view.View'})-[:CLASS_OWNS_METHOD]->
+        (n:Method{name:'onDraw'})-[:CALLS]->({name:'<init>'})
+     RETURN n.app_key as app_key
+
+     details -> n.full_name as full_name
+     else -> count(n) as IOD
      */
 
     @Override
     public String getQuery(boolean details) {
-        Identifier method = identifier("n");
-
-        return match(node().label(CLASS_TYPE).values(value(PaprikaClass.PARENT, ANDROID_VIEW))
-                .out(CLASS_OWNS_METHOD)
-                .node(method).label(METHOD_TYPE).values(value(PaprikaMethod.NAME, "onDraw"))
-                .out(CALLS)
-                .node().values(value("name", "<init>")))
-                .returns(getMethodResults(method, details, KEY))
-                .toString();
+        String query = "MATCH (:Class{parent_name:'android.view.View'})-[:CLASS_OWNS_METHOD]->\n" +
+                "   (n:Method{name:'onDraw'})-[:CALLS]->({name:'<init>'})\n" +
+                "RETURN n.app_key as app_key,";
+        if (details) {
+            query += "n.full_name as full_name";
+        } else {
+            query += "count(n) as IOD";
+        }
+        return query;
     }
 
 }

@@ -18,21 +18,8 @@
 
 package paprika.neo4j.queries.antipatterns;
 
-import org.neo4j.cypherdsl.Identifier;
-import paprika.metrics.classes.condition.subclass.IsActivity;
-import paprika.metrics.classes.condition.subclass.IsApplication;
-import paprika.metrics.classes.condition.subclass.IsContentProvider;
-import paprika.metrics.classes.condition.subclass.IsService;
 import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
-
-import static org.neo4j.cypherdsl.CypherQuery.*;
-import static paprika.neo4j.ModelToGraph.CLASS_TYPE;
-import static paprika.neo4j.ModelToGraph.METHOD_TYPE;
-import static paprika.neo4j.RelationTypes.CLASS_OWNS_METHOD;
-import static paprika.neo4j.RelationTypes.EXTENDS;
-import static paprika.neo4j.queries.QueryBuilderUtils.getClassResults;
-import static paprika.neo4j.queries.QueryBuilderUtils.methodHasName;
 
 /**
  * Created by Geoffrey Hecht on 18/08/15.
@@ -46,11 +33,11 @@ public class NLMRQuery extends PaprikaQuery {
     }
 
     /*
-        OUTDATED ORIGINAL QUERY
-
         MATCH (cl:Class)
-        WHERE exists(cl.is_activity)
-            AND NOT (cl:Class)-[:CLASS_OWNS_METHOD]->(:Method { name: 'onLowMemory' })
+        WHERE ( exists(cl.is_activity) OR exists(cl.is_application) OR exists (cl.is_service)
+            OR exists(cl.is_content_provider))
+            AND NOT (cl:Class)-[:CLASS_OWNS_METHOD]->(:Method {name = 'onLowMemory'})
+            AND NOT (cl:Class)-[:CLASS_OWNS_METHOD]->(:Method {name = 'onTrimMemory'})
             AND NOT (cl)-[:EXTENDS]->(:Class)
         RETURN cl.app_key as app_key
 
@@ -60,25 +47,19 @@ public class NLMRQuery extends PaprikaQuery {
 
     @Override
     public String getQuery(boolean details) {
-        Identifier aClass = identifier("cl");
-        Identifier method = identifier("m");
-
-        return match(node(aClass).label(CLASS_TYPE))
-                .where(and(
-                        or(
-                                exists(aClass.property(IsActivity.NAME)),
-                                exists(aClass.property(IsApplication.NAME)),
-                                exists(aClass.property(IsService.NAME)),
-                                exists(aClass.property(IsContentProvider.NAME))),
-                        not(node(aClass).label(CLASS_TYPE)
-                                .out(CLASS_OWNS_METHOD)
-                                .node(method).label(METHOD_TYPE)),
-                        or(
-                                methodHasName(method, "onLowMemory"),
-                                methodHasName(method, "onTrimMemory")),
-                        not(node(aClass).out(EXTENDS).node().label(CLASS_TYPE))))
-                .returns(getClassResults(aClass, details, KEY))
-                .toString();
+        String query = "MATCH (cl:Class)\n" +
+                "WHERE ( exists(cl.is_activity) OR exists(cl.is_application) OR exists (cl.is_service)\n" +
+                "       OR exists(cl.is_content_provider))\n" +
+                "   AND NOT (cl:Class)-[:CLASS_OWNS_METHOD]->(:Method {name: 'onLowMemory'})\n" +
+                "   AND NOT (cl:Class)-[:CLASS_OWNS_METHOD]->(:Method {name: 'onTrimMemory'})\n" +
+                "   AND NOT (cl)-[:EXTENDS]->(:Class)\n" +
+                "RETURN cl.app_key as app_key,";
+        if (details) {
+            query += "cl.name as full_name";
+        } else {
+            query += "count(cl) as NLMR";
+        }
+        return query;
     }
 
 }

@@ -120,8 +120,14 @@ def compare_csv(reference, test, filename):
 
     if len(ref_map) < len(test_map):
         offset = len(test_map) - len(ref_map)
-        print("--------- FOUND " + str(offset) + " MORE " + get_entry_label(offset)
+        print("--------- " + filename + ": FOUND " + str(offset) + " MORE " + get_entry_label(offset)
               + " THAN EXPECTED -----------")
+        extras = []
+        for key in test_map:
+            if key not in ref_map:
+                extras.append(key)
+        for item in extras:
+            print(item)
 
     if len(not_found) != 0:
         print("--------- FAILURE: " + filename + " - " + str(len(not_found)) + " MISSING " +

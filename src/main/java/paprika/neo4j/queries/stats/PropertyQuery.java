@@ -18,14 +18,8 @@
 
 package paprika.neo4j.queries.stats;
 
-import org.neo4j.cypherdsl.Identifier;
-import paprika.entities.PaprikaApp;
 import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
-
-import java.util.Arrays;
-
-import static org.neo4j.cypherdsl.CypherQuery.*;
 
 public class PropertyQuery extends PaprikaQuery {
 
@@ -50,14 +44,8 @@ public class PropertyQuery extends PaprikaQuery {
 
     @Override
     public String getQuery(boolean details) {
-        Identifier identifier = identifier("n");
-
-        return match(identifier.label(nodeType))
-                .returns(Arrays.asList(
-                        as(identifier.property(PaprikaApp.APP_KEY), "app_key"),
-                        as(identifier.property(PaprikaApp.NAME), "name"),
-                        as(identifier.property(property), property)
-                )).toString();
+        return "MATCH (n:" + nodeType + ")\n" +
+                "RETURN n.app_key as app_key, n.name as name, n." + property + " as " + property;
     }
 
 }

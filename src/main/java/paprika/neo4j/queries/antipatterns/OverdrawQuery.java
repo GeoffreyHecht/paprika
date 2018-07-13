@@ -18,20 +18,8 @@
 
 package paprika.neo4j.queries.antipatterns;
 
-import org.neo4j.cypherdsl.Identifier;
-import paprika.entities.PaprikaArgument;
-import paprika.entities.PaprikaClass;
-import paprika.entities.PaprikaMethod;
 import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
-
-import static org.neo4j.cypherdsl.CypherQuery.*;
-import static paprika.metrics.classes.condition.subclass.IsView.ANDROID_VIEW;
-import static paprika.neo4j.ModelToGraph.ARGUMENT_TYPE;
-import static paprika.neo4j.ModelToGraph.CLASS_TYPE;
-import static paprika.neo4j.RelationTypes.CLASS_OWNS_METHOD;
-import static paprika.neo4j.RelationTypes.METHOD_OWNS_ARGUMENT;
-import static paprika.neo4j.queries.QueryBuilderUtils.*;
 
 /**
  * Created by Geoffrey Hecht on 18/08/15.
@@ -45,12 +33,11 @@ public class OverdrawQuery extends PaprikaQuery {
     }
 
     /*
-        OUTDATED ORIGINAL QUERY
-
         MATCH (:Class{parent_name:"android.view.View"})-[:CLASS_OWNS_METHOD]->(n:Method{name:"onDraw"})
             -[:METHOD_OWNS_ARGUMENT]->(:Argument{position:1,name:"android.graphics.Canvas"})
         WHERE NOT (n)-[:CALLS]->(:ExternalMethod{full_name:"clipRect#android.graphics.Canvas"})
             AND NOT (n)-[:CALLS]->(:ExternalMethod{full_name:"quickReject#android.graphics.Canvas"})
+            AND NOT (n)-[:CALLS]->(:ExternalMethod{full_name:"clipOutRect#android.graphics.Canvas"})
         RETURN n.app_key as app_key
 
         details -> n.full_name as full_name
@@ -59,21 +46,19 @@ public class OverdrawQuery extends PaprikaQuery {
 
     @Override
     public String getQuery(boolean details) {
-        Identifier method = identifier("n");
+        String query = "MATCH (:Class{parent_name:\"android.view.View\"})-[:CLASS_OWNS_METHOD]->(n:Method{name:\"onDraw\"})\n" +
+                "            -[:METHOD_OWNS_ARGUMENT]->(:Argument{position:1,name:\"android.graphics.Canvas\"})\n" +
+                "WHERE NOT (n)-[:CALLS]->(:ExternalMethod{full_name:\"clipRect#android.graphics.Canvas\"})\n" +
+                "   AND NOT (n)-[:CALLS]->(:ExternalMethod{full_name:\"quickReject#android.graphics.Canvas\"})\n" +
+                "   AND NOT (n)-[:CALLS]->(:ExternalMethod{full_name:\"clipOutRect#android.graphics.Canvas\"})\n" +
+                "RETURN n.app_key as app_key,";
+        if (details) {
+            query += "n.full_name as full_name";
+        } else {
+            query += "count(n) as UIO";
+        }
 
-        return match(node().label(CLASS_TYPE).values(value(PaprikaClass.PARENT, ANDROID_VIEW))
-                .out(CLASS_OWNS_METHOD)
-                .node(method).values(value(PaprikaMethod.NAME, "onDraw"))
-                .out(METHOD_OWNS_ARGUMENT)
-                .node().label(ARGUMENT_TYPE).values(
-                        value(PaprikaArgument.POSITION, 1),
-                        value(PaprikaArgument.NAME, ANDROID_CANVAS)))
-                .where(not(or(
-                        methodCallsExternal(method, "clipRect#" + ANDROID_CANVAS),
-                        methodCallsExternal(method, "quickReject#" + ANDROID_CANVAS),
-                        methodCallsExternal(method, "clipOutRect#" + ANDROID_CANVAS))))
-                .returns(getMethodResults(method, details, KEY))
-                .toString();
+        return query;
     }
 
 }

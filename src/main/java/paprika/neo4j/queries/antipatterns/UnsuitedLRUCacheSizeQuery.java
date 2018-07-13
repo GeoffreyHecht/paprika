@@ -18,13 +18,8 @@
 
 package paprika.neo4j.queries.antipatterns;
 
-import org.neo4j.cypherdsl.Identifier;
 import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
-
-import static org.neo4j.cypherdsl.CypherQuery.*;
-import static paprika.neo4j.queries.QueryBuilderUtils.getMethodResults;
-import static paprika.neo4j.queries.QueryBuilderUtils.methodCallsExternal;
 
 /**
  * Created by Geoffrey Hecht on 18/08/15.
@@ -38,10 +33,10 @@ public class UnsuitedLRUCacheSizeQuery extends PaprikaQuery {
     }
 
     /*
-        OUTDATED ORIGINAL QUERY
-
         MATCH (m:Method)-[:CALLS]->(e:ExternalMethod {full_name:'<init>#android.util.LruCache'})
         WHERE NOT (m)-[:CALLS]->(:ExternalMethod {full_name:'getMemoryClass#android.app.ActivityManager'})
+            AND NOT (m)-[:CALLS]->(:ExternalMethod {full_name:'getMemoryInfo#android.app.ActivityManager'})
+            AND NOT (m)-[:CALLS]->(:ExternalMethod {full_name:'maxMemory#java.lang.Runtime'})
         RETURN m.app_key as app_key
 
         details -> m.full_name as full_name
@@ -50,14 +45,17 @@ public class UnsuitedLRUCacheSizeQuery extends PaprikaQuery {
 
     @Override
     public String getQuery(boolean details) {
-        Identifier method = identifier("m");
-        return match(methodCallsExternal(method, "<init>#android.util.LruCache"))
-                .where(not(or(
-                        methodCallsExternal(method, "getMemoryClass#android.app.ActivityManager"),
-                        methodCallsExternal(method, "getMemoryInfo#android.app.ActivityManager"),
-                        methodCallsExternal(method, "maxMemory#java.lang.Runtime"))))
-                .returns(getMethodResults(method, details, KEY))
-                .toString();
+        String query = "MATCH (m:Method)-[:CALLS]->(e:ExternalMethod {full_name:'<init>#android.util.LruCache'})\n" +
+                "WHERE NOT (m)-[:CALLS]->(:ExternalMethod {full_name:'getMemoryClass#android.app.ActivityManager'})\n" +
+                "   AND NOT (m)-[:CALLS]->(:ExternalMethod {full_name:'getMemoryInfo#android.app.ActivityManager'})\n" +
+                "   AND NOT (m)-[:CALLS]->(:ExternalMethod {full_name:'maxMemory#java.lang.Runtime'})\n" +
+                "RETURN m.app_key as app_key,";
+        if(details) {
+            query += " m.full_name as full_name";
+        } else {
+            query += "count(m) as UCS";
+        }
+        return query;
     }
 
 }

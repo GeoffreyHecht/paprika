@@ -18,15 +18,8 @@
 
 package paprika.neo4j.queries.antipatterns;
 
-import org.neo4j.cypherdsl.Identifier;
-import paprika.metrics.classes.condition.IsInnerClassStatic;
-import paprika.metrics.common.IsStatic;
 import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
-
-import static org.neo4j.cypherdsl.CypherQuery.*;
-import static paprika.neo4j.ModelToGraph.CLASS_TYPE;
-import static paprika.neo4j.queries.QueryBuilderUtils.getClassResults;
 
 /**
  * Created by Geoffrey Hecht on 18/08/15.
@@ -50,14 +43,15 @@ public class LICQuery extends PaprikaQuery {
 
     @Override
     public String getQuery(boolean details) {
-        Identifier aClass = identifier("cl");
-
-        return match(node(aClass).label(CLASS_TYPE))
-                .where(and(exists(aClass.property(IsInnerClassStatic.NAME)),
-                        not(exists(aClass.property(IsStatic.NAME)))))
-                .returns(getClassResults(aClass, details, "LIC"))
-                .toString();
-
+        String query = "MATCH (cl:Class) WHERE exists(cl.is_inner_class)\n" +
+                "   AND NOT exists(cl.is_static)\n" +
+                "RETURN cl.app_key as app_key,";
+        if (details) {
+            query += "cl.name as full_name";
+        } else {
+            query += "count(cl) as LIC";
+        }
+        return query;
     }
 
 }

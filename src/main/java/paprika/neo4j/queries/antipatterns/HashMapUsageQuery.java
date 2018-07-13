@@ -18,13 +18,8 @@
 
 package paprika.neo4j.queries.antipatterns;
 
-import org.neo4j.cypherdsl.Identifier;
 import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
-
-import static org.neo4j.cypherdsl.CypherQuery.identifier;
-import static paprika.neo4j.queries.QueryBuilderUtils.getAlternativeMethodResults;
-import static paprika.neo4j.queries.QueryBuilderUtils.getMethodCallingExternal;
 
 /**
  * Created by Geoffrey Hecht on 18/08/15.
@@ -38,20 +33,20 @@ public class HashMapUsageQuery extends PaprikaQuery {
     }
 
     /*
-     * MATCH (m:Method)-[:CALLS]->(e:ExternalMethod{full_name:'<init>#java.util.HashMap'})
-     * RETURN m.app_key, m.full_name AS full_name
-     *
-     * details -> count(m) as "HMU"
+      MATCH (m:Method)-[:CALLS]->(e:ExternalMethod{full_name:'<init>#java.util.HashMap'})
+      RETURN m.app_key, m.full_name AS full_name
+
+      details -> count(m) as HMU
      */
 
     @Override
     public String getQuery(boolean details) {
-        Identifier method = identifier("m");
-        Identifier externalMethod = identifier( "e");
-
-        return getMethodCallingExternal(method, externalMethod, "<init>#java.util.HashMap")
-                .returns(getAlternativeMethodResults(method, details, KEY))
-                .toString();
+        String query = "MATCH (m:Method)-[:CALLS]->(e:ExternalMethod{full_name:'<init>#java.util.HashMap'})\n" +
+                "RETURN m.app_key, m.full_name AS full_name";
+        if (details) {
+            query += ",count(m) as HMU";
+        }
+        return query;
     }
 
 

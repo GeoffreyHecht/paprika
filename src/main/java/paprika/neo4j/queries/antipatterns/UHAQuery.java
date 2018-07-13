@@ -18,22 +18,12 @@
 
 package paprika.neo4j.queries.antipatterns;
 
-import org.neo4j.cypherdsl.Identifier;
-import org.neo4j.cypherdsl.expression.BooleanExpression;
-import paprika.entities.PaprikaApp;
-import paprika.entities.PaprikaExternalMethod;
 import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import static org.neo4j.cypherdsl.CypherQuery.*;
-import static paprika.neo4j.ModelToGraph.*;
-import static paprika.neo4j.RelationTypes.*;
-import static paprika.neo4j.queries.QueryBuilderUtils.ANDROID_CANVAS;
-import static paprika.neo4j.queries.QueryBuilderUtils.getAlternativeMethodResults;
 
 /**
  * Created by Geoffrey Hecht on 18/08/15.
@@ -42,8 +32,10 @@ public class UHAQuery extends PaprikaQuery {
 
     public static final String KEY = "UHA";
 
+    private static final String ANDROID_CANVAS = "android.graphics.Canvas";
     private static final String ANDROID_PAINT = "android.graphics.Paint";
     private static final int UNSUPPORTED = -1;
+
     private static final Map<String, Integer> UHA_OPS = new HashMap<>();
 
     static {
@@ -74,9 +66,8 @@ public class UHAQuery extends PaprikaQuery {
     }
 
     /*
-        OUTDATED ORIGINAL QUERY
-
-        MATCH (m:Method)-[:CALLS]->(e:ExternalMethod)
+        MATCH (a:App)-[:APP_OWNS_CLASS]->(:Class)-[:CLASS_OWNS_METHOD]->
+            (m:Method)-[:CALLS]->(e:ExternalMethod)
         WHERE e.full_name parmi UHAs
         RETURN m.app_key
 
@@ -86,43 +77,39 @@ public class UHAQuery extends PaprikaQuery {
 
     @Override
     public String getQuery(boolean details) {
-        Identifier app = identifier("app");
-        Identifier method = identifier("m");
-        Identifier externalMethod = identifier("e");
-
-        return match(node(app).label(APP_TYPE)
-                .out(APP_OWNS_CLASS)
-                .node().label(CLASS_TYPE)
-                .out(CLASS_OWNS_METHOD)
-                .node(method).label(METHOD_TYPE)
-                .out(CALLS)
-                .node(externalMethod).label(EXTERNAL_METHOD_TYPE))
-                .where(isUHAMethod(app, externalMethod))
-                .returns(getAlternativeMethodResults(method, details, KEY))
-                .toString();
+        String query = "MATCH (a:App)-[:APP_OWNS_CLASS]->(:Class)-[:CLASS_OWNS_METHOD]->\n" +
+                "   (m:Method)-[:CALLS]->(e:ExternalMethod)\n" +
+                "WHERE " + isUHAMethod() + "\n" +
+                "RETURN m.app_key,";
+        if (details) {
+            query += "m.full_name as full_name";
+        } else {
+            query += "count(m) as UHA";
+        }
+        return query;
     }
 
-    private BooleanExpression isUHAMethod(Identifier app, Identifier externalMethod) {
+    private String isUHAMethod() {
         Iterator<Map.Entry<String, Integer>> it = UHA_OPS.entrySet().iterator();
         Map.Entry<String, Integer> first = it.next();
-        BooleanExpression base = getMethodApiCondition(externalMethod, app, first.getKey(), first.getValue());
+        StringBuilder base = new StringBuilder("((" + getMethodApiCondition(first.getKey(), first.getValue()) + ")");
         while (it.hasNext()) {
             Map.Entry<String, Integer> element = it.next();
-            base = base.or(getMethodApiCondition(externalMethod, app, element.getKey(), element.getValue()));
+            base.append("OR(").append(getMethodApiCondition(element.getKey(), element.getValue())).append(")");
         }
-        return base;
+        return base.toString() + ")";
     }
 
-    private BooleanExpression getMethodApiCondition(Identifier externalMethod, Identifier app, String call, int api) {
-        BooleanExpression result = nameMatches(externalMethod, call);
+    private String getMethodApiCondition(String call, int api) {
+        String result = nameMatches(call);
         if (api != UNSUPPORTED) {
-            result = result.and(app.property(PaprikaApp.TARGET_SDK).lt(api));
+            result += " AND (a.target_sdk < " + api + ")";
         }
-        return result;
+        return result + "\n";
     }
 
-    private BooleanExpression nameMatches(Identifier externalMethod, String call) {
-        return externalMethod.property(PaprikaExternalMethod.FULL_NAME).eq(call);
+    private String nameMatches(String call) {
+        return "(e.full_name ='" + call + "')";
     }
 
 }

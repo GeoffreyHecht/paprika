@@ -20,20 +20,13 @@ package paprika.neo4j.queries.antipatterns.fuzzy;
 
 import net.sourceforge.jFuzzyLogic.FIS;
 import net.sourceforge.jFuzzyLogic.FunctionBlock;
-import org.neo4j.cypherdsl.Identifier;
-import org.neo4j.cypherdsl.expression.Expression;
 import org.neo4j.graphdb.Result;
-import paprika.entities.PaprikaMethod;
-import paprika.metrics.methods.stat.CyclomaticComplexity;
-import paprika.metrics.methods.stat.NumberOfInstructions;
 import paprika.neo4j.QueryEngine;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.neo4j.cypherdsl.CypherQuery.as;
 
 public abstract class HeavySomethingQuery extends FuzzyQuery {
 
@@ -45,17 +38,6 @@ public abstract class HeavySomethingQuery extends FuzzyQuery {
 
     public HeavySomethingQuery(String queryName, QueryEngine queryEngine) {
         super(queryName, queryEngine, "HeavySomething.fcl");
-    }
-
-    protected List<Expression> getFuzzyQueryResults(Identifier method, boolean details) {
-        List<Expression> results = new ArrayList<>();
-        results.add(as(method.property(PaprikaMethod.APP_KEY), "app_key"));
-        results.add(as(method.property(CyclomaticComplexity.NAME), "cyclomatic_complexity"));
-        results.add(as(method.property(NumberOfInstructions.NAME), "number_of_instructions"));
-        if (details) {
-            results.add(as(method.property(PaprikaMethod.FULL_NAME), "full_name"));
-        }
-        return results;
     }
 
     @Override
