@@ -22,8 +22,10 @@ import paprika.entities.PaprikaApp;
 
 public class IsApplication extends IsSubClass {
 
+    public static final String NAME = "is_application";
+
     public IsApplication() {
-        super("is_application", "NO-OP", "android.app.Application");
+        super(NAME, "NO-OP", "android.app.Application");
     }
 
     @Override

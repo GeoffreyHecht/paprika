@@ -46,12 +46,12 @@ public class BLOBQuery extends FuzzyQuery {
 
     public static final String KEY = "BLOB";
 
-    protected static double high_lcom = 25;
-    protected static double veryHigh_lcom = 40;
-    protected static double high_noa = 8.5;
-    protected static double veryHigh_noa = 13;
-    protected static double high_nom = 14.5;
-    protected static double veryHigh_nom = 22;
+    public static double high_lcom;
+    public static double veryHigh_lcom;
+    public static double high_noa;
+    public static double veryHigh_noa;
+    public static double high_nom;
+    public static double veryHigh_nom;
 
     public BLOBQuery(QueryEngine queryEngine) {
         super(KEY, queryEngine, "Blob.fcl");
@@ -90,7 +90,7 @@ public class BLOBQuery extends FuzzyQuery {
 
     @Override
     public String getFuzzyQuery(boolean details) {
-        Identifier aClass= identifier("cl");
+        Identifier aClass = identifier("cl");
 
         List<Expression> results = new ArrayList<>();
         results.add(as(aClass.property(PaprikaClass.APP_KEY), "app_key"));

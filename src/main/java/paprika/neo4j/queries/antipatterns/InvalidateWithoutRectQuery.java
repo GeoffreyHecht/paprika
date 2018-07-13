@@ -19,6 +19,7 @@
 package paprika.neo4j.queries.antipatterns;
 
 import org.neo4j.cypherdsl.Identifier;
+import paprika.entities.PaprikaApp;
 import paprika.entities.PaprikaClass;
 import paprika.entities.PaprikaExternalMethod;
 import paprika.entities.PaprikaMethod;
@@ -38,12 +39,15 @@ public class InvalidateWithoutRectQuery extends PaprikaQuery {
 
     public static final String KEY = "IWR";
 
+    private static final int INVALID_AFTER = 14;
+
     public InvalidateWithoutRectQuery(QueryEngine queryEngine) {
         super(KEY, queryEngine);
     }
 
-
     /*
+        OUTDATED ORIGINAL QUERY
+
         MATCH (:Class{parent_name:'android.view.View'})-[:CLASS_OWNS_METHOD]->
               (n:Method{name:'onDraw'})-[:CALLS]->(e:ExternalMethod{name:'invalidate'})
         WHERE NOT (e)-[:METHOD_OWNS_ARGUMENT]->(:ExternalArgument)
@@ -56,15 +60,20 @@ public class InvalidateWithoutRectQuery extends PaprikaQuery {
 
     @Override
     public String getQuery(boolean details) {
+        Identifier app = identifier("app");
         Identifier method = identifier("n");
         Identifier externalMethod = identifier("e");
 
-        return match(node().label(CLASS_TYPE).values(value(PaprikaClass.PARENT, ANDROID_VIEW))
+        return match(node(app).label(APP_TYPE)
+                .out(APP_OWNS_CLASS)
+                .node().label(CLASS_TYPE).values(value(PaprikaClass.PARENT, ANDROID_VIEW))
                 .out(CLASS_OWNS_METHOD)
                 .node(method).label(METHOD_TYPE).values(value(PaprikaMethod.NAME, "onDraw"))
                 .out(CALLS)
                 .node(externalMethod).label(EXTERNAL_METHOD_TYPE).values(value(PaprikaExternalMethod.NAME, "invalidate")))
-                .where(not(node(externalMethod).out(METHOD_OWNS_ARGUMENT).node().label(EXTERNAL_ARGUMENT_TYPE)))
+                .where(and(
+                        not(node(externalMethod).out(METHOD_OWNS_ARGUMENT).node().label(EXTERNAL_ARGUMENT_TYPE)),
+                        app.property(PaprikaApp.TARGET_SDK).lt(INVALID_AFTER)))
                 .returns(getMethodResults(method, details, KEY))
                 .toString();
     }

@@ -26,9 +26,12 @@ import paprika.commands.CustomCommand;
 import paprika.commands.PaprikaRequest;
 import paprika.neo4j.ModelToGraph;
 import paprika.neo4j.QueryEngine;
+import paprika.neo4j.queries.QueryPropertiesReader;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+
+import static paprika.PaprikaArgParser.*;
 
 public class PaprikaLauncher {
 
@@ -51,17 +54,17 @@ public class PaprikaLauncher {
     private void runAnalysis(PaprikaArgParser parser) throws Exception {
         System.out.println("Collecting metrics");
         Namespace arg = parser.getArguments();
-        Analyzer analyzer = new SootAnalyzer(arg.getString("apk"), arg.getString("androidJars"),
-                arg.getString("name"), parser.getSha(),
-                arg.getString("package"), arg.getString("date"), arg.getInt("size"),
-                arg.getString("developer"), arg.getString("category"), arg.getString("price"),
-                arg.getDouble("rating"), arg.getString("nbDownload"), arg.getString("versionCode"), arg.getString("versionName"),
-                arg.getInt("sdkVersion"), arg.getInt("targetSdkVersion"),
-                arg.getBoolean("onlyMainPackage") != null);
+        Analyzer analyzer = new SootAnalyzer(arg.getString(APK_ARG), arg.getString(ANDROID_JARS_ARG),
+                arg.getString(NAME_ARG), parser.getSha(),
+                arg.getString(PACKAGE_ARG), arg.getString(DATE_ARG), arg.getInt(SIZE_ARG),
+                arg.getString(DEVELOPER_ARG), arg.getString(CATEGORY_ARG), arg.getString(PRICE_ARG),
+                arg.getDouble(RATING_ARG), arg.getString(NB_DOWNLOAD_ARG), arg.getString(VERSION_CODE_ARG),
+                arg.getString(VERSION_NAME_ARG), arg.getInt(SDK_VERSION_ARG), arg.getInt(TARGET_SDK_VERSION_ARG),
+                arg.getBoolean(ONLY_MAIN_PACKAGE_ARG) != null);
         analyzer.prepareSoot();
         analyzer.runAnalysis();
-        System.out.println("Saving into database " + arg.getString("database"));
-        ModelToGraph modelToGraph = new ModelToGraph(arg.getString("database"));
+        System.out.println("Saving into database " + arg.getString(DATABASE_ARG));
+        ModelToGraph modelToGraph = new ModelToGraph(arg.getString(DATABASE_ARG));
         modelToGraph.insertApp(analyzer.getPaprikaApp());
         System.out.println("Done");
     }
@@ -69,10 +72,11 @@ public class PaprikaLauncher {
     private void queryMode(PaprikaArgParser parser) throws Exception {
         System.out.println("Executing Queries");
         Namespace arg = parser.getArguments();
-        QueryEngine queryEngine = new QueryEngine(arg.getString("database"), arg);
-        String request = arg.get("request");
-        Boolean details = arg.get("details");
-        String csvPrefix = getCSVPrefix(arg.getString("csv"));
+        QueryEngine queryEngine = new QueryEngine(arg.getString(DATABASE_ARG), arg);
+        new QueryPropertiesReader(arg.getString(THRESHOLDS_ARG)).loadThresholds();
+        String request = arg.get(REQUEST_ARG);
+        Boolean details = arg.get(DETAILS_ARG);
+        String csvPrefix = getCSVPrefix(arg.getString(CSV_ARG));
         System.out.println("Resulting csv file name will start with prefix " + csvPrefix);
         queryEngine.setCsvPrefix(csvPrefix);
         PaprikaRequest paprikaRequest = PaprikaRequest.getRequest(request);

@@ -25,13 +25,6 @@ import paprika.neo4j.queries.stats.*;
 
 public enum PaprikaRequest {
 
-    ARGB8888(ARGB8888Query.KEY) {
-        @Override
-        public PaprikaCommand getCommand(QueryEngine engine) {
-            return new ARGB8888Query(engine);
-        }
-    },
-
     HMU(HashMapUsageQuery.KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
@@ -85,13 +78,6 @@ public enum PaprikaRequest {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
             return new OverdrawQuery(engine);
-        }
-    },
-
-    THI(TrackingHardwareIdQuery.KEY) {
-        @Override
-        public PaprikaCommand getCommand(QueryEngine engine) {
-            return new TrackingHardwareIdQuery(engine);
         }
     },
 

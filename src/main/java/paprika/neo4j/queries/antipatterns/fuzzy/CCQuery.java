@@ -44,8 +44,8 @@ public class CCQuery extends FuzzyQuery {
 
     public static final String KEY = "CC";
 
-    protected static double high = 28;
-    protected static double veryHigh = 43;
+    public static double high;
+    public static double veryHigh;
 
     public CCQuery(QueryEngine queryEngine) {
         super(KEY, queryEngine, "ComplexClass.fcl");

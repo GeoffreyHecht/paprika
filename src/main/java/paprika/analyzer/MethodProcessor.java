@@ -19,8 +19,6 @@
 package paprika.analyzer;
 
 import paprika.entities.*;
-import paprika.metrics.app.NumberOfArgb8888;
-import paprika.metrics.arg.IsARGB8888;
 import paprika.metrics.common.*;
 import paprika.metrics.methods.NumberOfCallers;
 import paprika.metrics.methods.NumberOfDirectCalls;
@@ -29,9 +27,6 @@ import paprika.metrics.methods.stat.NumberOfParameters;
 import soot.Scene;
 import soot.SootMethod;
 import soot.Type;
-import soot.Unit;
-import soot.grimp.internal.GAssignStmt;
-import soot.jimple.StaticFieldRef;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
 
@@ -45,7 +40,6 @@ public class MethodProcessor {
     private PaprikaContainer container;
     private Map<SootMethod, PaprikaMethod> methodMap;
     private Map<SootMethod, PaprikaExternalMethod> externalMethodMap;
-    private int argb8888Count = 0;
     private BodyProcessor bodyProcessor;
 
     private List<CommonCondition> commonConditions = Arrays.asList(
@@ -72,7 +66,6 @@ public class MethodProcessor {
             collectCallGraphMetrics(callGraph, entry.getKey(), entry.getValue());
         }
         NumberOfMethods.createNumberOfMethods(container.getPaprikaApp(), methodMap.size());
-        NumberOfArgb8888.createNumberOfArgb8888(container.getPaprikaApp(), argb8888Count);
     }
 
     private void collectStandardMetrics(SootMethod sootMethod, PaprikaMethod paprikaMethod) {
@@ -129,7 +122,6 @@ public class MethodProcessor {
                 i++;
                 PaprikaExternalArgument paprikaExternalArgument = PaprikaExternalArgument
                         .createPaprikaExternalArgument(type.toString(), i, externalTgtMethod);
-                checkForARGB(edgeOut, paprikaExternalArgument);
 
             }
             externalMethodMap.put(target, externalTgtMethod);
@@ -137,21 +129,6 @@ public class MethodProcessor {
         paprikaMethod.callMethod(externalTgtMethod);
     }
 
-    private void checkForARGB(Edge edgeOut, PaprikaExternalArgument paprikaExternalArgument) {
-        if (paprikaExternalArgument.getName().equals("android.graphics.Bitmap$Config")) {
-            for (Unit unitChain : ((SootMethod) edgeOut.getSrc()).getActiveBody().getUnits()) {
-                try {
-                    String nameOfStaticFieldRef = ((StaticFieldRef) ((GAssignStmt) unitChain).getRightOpBox().getValue()).getFieldRef().name();
-                    if (nameOfStaticFieldRef.equals("ARGB_8888")) {
-                        argb8888Count++;
-                        IsARGB8888.createIsARGB8888(paprikaExternalArgument);
-                    }
-                } catch (Exception new_exception) {
-                    // Do nothing
-                }
-            }
-        }
-    }
 
 
 }

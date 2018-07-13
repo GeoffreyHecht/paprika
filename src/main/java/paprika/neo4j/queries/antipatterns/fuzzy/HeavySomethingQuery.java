@@ -37,11 +37,11 @@ import static org.neo4j.cypherdsl.CypherQuery.as;
 
 public abstract class HeavySomethingQuery extends FuzzyQuery {
 
-    protected static double high_cc = 3.5;
-    protected static double veryHigh_cc = 5;
+    public static double high_cc;
+    public static double veryHigh_cc;
 
-    protected static double high_noi = 17;
-    protected static double veryHigh_noi = 26;
+    public static double high_noi;
+    public static double veryHigh_noi;
 
     public HeavySomethingQuery(String queryName, QueryEngine queryEngine) {
         super(queryName, queryEngine, "HeavySomething.fcl");

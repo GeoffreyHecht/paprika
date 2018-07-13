@@ -45,6 +45,8 @@ public class OverdrawQuery extends PaprikaQuery {
     }
 
     /*
+        OUTDATED ORIGINAL QUERY
+
         MATCH (:Class{parent_name:"android.view.View"})-[:CLASS_OWNS_METHOD]->(n:Method{name:"onDraw"})
             -[:METHOD_OWNS_ARGUMENT]->(:Argument{position:1,name:"android.graphics.Canvas"})
         WHERE NOT (n)-[:CALLS]->(:ExternalMethod{full_name:"clipRect#android.graphics.Canvas"})
@@ -66,9 +68,10 @@ public class OverdrawQuery extends PaprikaQuery {
                 .node().label(ARGUMENT_TYPE).values(
                         value(PaprikaArgument.POSITION, 1),
                         value(PaprikaArgument.NAME, ANDROID_CANVAS)))
-                .where(and(
-                        not(methodCallsExternal(method, "clipRect#" + ANDROID_CANVAS)),
-                        not(methodCallsExternal(method, "quickReject#" + ANDROID_CANVAS))))
+                .where(not(or(
+                        methodCallsExternal(method, "clipRect#" + ANDROID_CANVAS),
+                        methodCallsExternal(method, "quickReject#" + ANDROID_CANVAS),
+                        methodCallsExternal(method, "clipOutRect#" + ANDROID_CANVAS))))
                 .returns(getMethodResults(method, details, KEY))
                 .toString();
     }

@@ -19,7 +19,6 @@
 package paprika.commands;
 
 import paprika.neo4j.QueryEngine;
-import paprika.neo4j.queries.antipatterns.TrackingHardwareIdQuery;
 
 import java.io.IOException;
 
@@ -37,7 +36,6 @@ public class ALLAPCommand implements PaprikaCommand {
     public void run(boolean details) throws IOException {
         new NonFuzzyCommand(engine).run(details);
         new FuzzyCommand(engine).run(details);
-        new TrackingHardwareIdQuery(engine).execute(details);
     }
 
 }

@@ -20,17 +20,18 @@ package paprika.neo4j.queries.antipatterns;
 
 import org.neo4j.cypherdsl.Identifier;
 import org.neo4j.cypherdsl.expression.BooleanExpression;
+import paprika.entities.PaprikaApp;
 import paprika.entities.PaprikaExternalMethod;
 import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import static org.neo4j.cypherdsl.CypherQuery.*;
-import static paprika.neo4j.ModelToGraph.EXTERNAL_METHOD_TYPE;
-import static paprika.neo4j.ModelToGraph.METHOD_TYPE;
-import static paprika.neo4j.RelationTypes.CALLS;
+import static paprika.neo4j.ModelToGraph.*;
+import static paprika.neo4j.RelationTypes.*;
 import static paprika.neo4j.queries.QueryBuilderUtils.ANDROID_CANVAS;
 import static paprika.neo4j.queries.QueryBuilderUtils.getAlternativeMethodResults;
 
@@ -42,23 +43,30 @@ public class UHAQuery extends PaprikaQuery {
     public static final String KEY = "UHA";
 
     private static final String ANDROID_PAINT = "android.graphics.Paint";
+    private static final int UNSUPPORTED = -1;
+    private static final Map<String, Integer> UHA_OPS = new HashMap<>();
 
-    private static final List<String> UNSUPPORTED_OPS = Arrays.asList(
-            formatMethod("drawPicture", ANDROID_CANVAS),
-            formatMethod("drawVertices", ANDROID_CANVAS),
-            formatMethod("drawPosText", ANDROID_CANVAS),
-            formatMethod("drawTextOnPath", ANDROID_CANVAS),
-            formatMethod("drawPath", ANDROID_CANVAS),
+    static {
+        addUHAMethod("drawPicture", ANDROID_CANVAS, 23);
+        addUHAMethod("drawVertices", ANDROID_CANVAS, UNSUPPORTED);
+        addUHAMethod("drawPosText", ANDROID_CANVAS, 16);
+        addUHAMethod("drawTextOnPath", ANDROID_CANVAS, 16);
+        addUHAMethod("drawPath", ANDROID_CANVAS, 11);
+        addUHAMethod("drawBitmapMesh", ANDROID_CANVAS, 18);
+        addUHAMethod("setDrawFilter", ANDROID_CANVAS, 16);
 
-            formatMethod("setLinearText", ANDROID_PAINT),
-            formatMethod("setMaskFilter", ANDROID_PAINT),
-            formatMethod("setPathEffect", ANDROID_PAINT),
-            formatMethod("setRasterizer", ANDROID_PAINT),
-            formatMethod("setSubpixelText", ANDROID_PAINT)
-    );
+        addUHAMethod("setLinearText", ANDROID_PAINT, UNSUPPORTED);
+        addUHAMethod("setMaskFilter", ANDROID_PAINT, UNSUPPORTED);
+        addUHAMethod("setPathEffect", ANDROID_PAINT, UNSUPPORTED);
+        addUHAMethod("setRasterizer", ANDROID_PAINT, UNSUPPORTED);
+        addUHAMethod("setSubpixelText", ANDROID_PAINT, UNSUPPORTED);
+        addUHAMethod("setAntiAlias", ANDROID_PAINT, 16);
+        addUHAMethod("setFilterBitmap", ANDROID_PAINT, 17);
+        addUHAMethod("setStrokeCap", ANDROID_PAINT, 18);
+    }
 
-    private static String formatMethod(String method, String aClass) {
-        return method + "#" + aClass;
+    private static void addUHAMethod(String method, String aClass, int apiSupported) {
+        UHA_OPS.put(method + "#" + aClass, apiSupported);
     }
 
     public UHAQuery(QueryEngine queryEngine) {
@@ -66,6 +74,8 @@ public class UHAQuery extends PaprikaQuery {
     }
 
     /*
+        OUTDATED ORIGINAL QUERY
+
         MATCH (m:Method)-[:CALLS]->(e:ExternalMethod)
         WHERE e.full_name parmi UHAs
         RETURN m.app_key
@@ -76,23 +86,39 @@ public class UHAQuery extends PaprikaQuery {
 
     @Override
     public String getQuery(boolean details) {
+        Identifier app = identifier("app");
         Identifier method = identifier("m");
         Identifier externalMethod = identifier("e");
 
-        return match(node(method).label(METHOD_TYPE)
+        return match(node(app).label(APP_TYPE)
+                .out(APP_OWNS_CLASS)
+                .node().label(CLASS_TYPE)
+                .out(CLASS_OWNS_METHOD)
+                .node(method).label(METHOD_TYPE)
                 .out(CALLS)
                 .node(externalMethod).label(EXTERNAL_METHOD_TYPE))
-                .where(isUHAMethod(externalMethod))
+                .where(isUHAMethod(app, externalMethod))
                 .returns(getAlternativeMethodResults(method, details, KEY))
                 .toString();
     }
 
-    private BooleanExpression isUHAMethod(Identifier externalMethod) {
-        BooleanExpression base = nameMatches(externalMethod, UNSUPPORTED_OPS.get(0));
-        for (int i = 1; i < UNSUPPORTED_OPS.size(); i++) {
-            base = base.or(nameMatches(externalMethod, UNSUPPORTED_OPS.get(i)));
+    private BooleanExpression isUHAMethod(Identifier app, Identifier externalMethod) {
+        Iterator<Map.Entry<String, Integer>> it = UHA_OPS.entrySet().iterator();
+        Map.Entry<String, Integer> first = it.next();
+        BooleanExpression base = getMethodApiCondition(externalMethod, app, first.getKey(), first.getValue());
+        while (it.hasNext()) {
+            Map.Entry<String, Integer> element = it.next();
+            base = base.or(getMethodApiCondition(externalMethod, app, element.getKey(), element.getValue()));
         }
         return base;
+    }
+
+    private BooleanExpression getMethodApiCondition(Identifier externalMethod, Identifier app, String call, int api) {
+        BooleanExpression result = nameMatches(externalMethod, call);
+        if (api != UNSUPPORTED) {
+            result = result.and(app.property(PaprikaApp.TARGET_SDK).lt(api));
+        }
+        return result;
     }
 
     private BooleanExpression nameMatches(Identifier externalMethod, String call) {

@@ -35,7 +35,6 @@ public class NonFuzzyCommand implements PaprikaCommand {
 
     @Override
     public void run(boolean details) throws IOException {
-        new ARGB8888Query(engine).execute(details);
         new IGSQuery(engine).execute(details);
         new MIMQuery(engine).execute(details);
         new LICQuery(engine).execute(details);

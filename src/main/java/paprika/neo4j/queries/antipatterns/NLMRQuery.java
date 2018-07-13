@@ -19,8 +19,10 @@
 package paprika.neo4j.queries.antipatterns;
 
 import org.neo4j.cypherdsl.Identifier;
-import paprika.entities.PaprikaMethod;
 import paprika.metrics.classes.condition.subclass.IsActivity;
+import paprika.metrics.classes.condition.subclass.IsApplication;
+import paprika.metrics.classes.condition.subclass.IsContentProvider;
+import paprika.metrics.classes.condition.subclass.IsService;
 import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
 
@@ -30,6 +32,7 @@ import static paprika.neo4j.ModelToGraph.METHOD_TYPE;
 import static paprika.neo4j.RelationTypes.CLASS_OWNS_METHOD;
 import static paprika.neo4j.RelationTypes.EXTENDS;
 import static paprika.neo4j.queries.QueryBuilderUtils.getClassResults;
+import static paprika.neo4j.queries.QueryBuilderUtils.methodHasName;
 
 /**
  * Created by Geoffrey Hecht on 18/08/15.
@@ -43,6 +46,8 @@ public class NLMRQuery extends PaprikaQuery {
     }
 
     /*
+        OUTDATED ORIGINAL QUERY
+
         MATCH (cl:Class)
         WHERE exists(cl.is_activity)
             AND NOT (cl:Class)-[:CLASS_OWNS_METHOD]->(:Method { name: 'onLowMemory' })
@@ -56,14 +61,21 @@ public class NLMRQuery extends PaprikaQuery {
     @Override
     public String getQuery(boolean details) {
         Identifier aClass = identifier("cl");
+        Identifier method = identifier("m");
 
         return match(node(aClass).label(CLASS_TYPE))
                 .where(and(
-                        exists(aClass.property(IsActivity.NAME)),
+                        or(
+                                exists(aClass.property(IsActivity.NAME)),
+                                exists(aClass.property(IsApplication.NAME)),
+                                exists(aClass.property(IsService.NAME)),
+                                exists(aClass.property(IsContentProvider.NAME))),
                         not(node(aClass).label(CLASS_TYPE)
                                 .out(CLASS_OWNS_METHOD)
-                                .node().label(METHOD_TYPE)
-                                .values(value(PaprikaMethod.NAME, "onLowMemory"))),
+                                .node(method).label(METHOD_TYPE)),
+                        or(
+                                methodHasName(method, "onLowMemory"),
+                                methodHasName(method, "onTrimMemory")),
                         not(node(aClass).out(EXTENDS).node().label(CLASS_TYPE))))
                 .returns(getClassResults(aClass, details, KEY))
                 .toString();

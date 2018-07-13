@@ -45,8 +45,8 @@ public class SAKQuery extends FuzzyQuery {
 
     public static final String KEY = "SAK";
 
-    protected static double high = 8.5;
-    protected static double veryHigh = 13;
+    public static double high;
+    public static double veryHigh;
 
     public SAKQuery(QueryEngine queryEngine) {
         super(KEY, queryEngine, "SwissArmyKnife.fcl");

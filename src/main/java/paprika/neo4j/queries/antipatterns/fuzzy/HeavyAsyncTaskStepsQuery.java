@@ -21,7 +21,6 @@ package paprika.neo4j.queries.antipatterns.fuzzy;
 import org.neo4j.cypherdsl.Identifier;
 import org.neo4j.cypherdsl.expression.BooleanExpression;
 import org.neo4j.cypherdsl.grammar.Where;
-import paprika.entities.PaprikaMethod;
 import paprika.metrics.methods.stat.CyclomaticComplexity;
 import paprika.metrics.methods.stat.NumberOfInstructions;
 import paprika.neo4j.QueryEngine;
@@ -30,8 +29,7 @@ import static org.neo4j.cypherdsl.CypherQuery.*;
 import static paprika.metrics.classes.condition.subclass.IsAsyncTask.ASYNC_ANDROID;
 import static paprika.neo4j.ModelToGraph.METHOD_TYPE;
 import static paprika.neo4j.RelationTypes.CLASS_OWNS_METHOD;
-import static paprika.neo4j.queries.QueryBuilderUtils.getMethodResults;
-import static paprika.neo4j.queries.QueryBuilderUtils.getSubClassNodes;
+import static paprika.neo4j.queries.QueryBuilderUtils.*;
 
 /**
  * Created by Geoffrey Hecht on 14/08/15.
@@ -100,10 +98,5 @@ public class HeavyAsyncTaskStepsQuery extends HeavySomethingQuery {
         return or(methodHasName(method, "onPreExecute"), methodHasName(method, "onProgressUpdate"),
                 methodHasName(method, "onPostExecute"));
     }
-
-    private BooleanExpression methodHasName(Identifier method, String name) {
-        return method.property(PaprikaMethod.NAME).eq(name);
-    }
-
 
 }

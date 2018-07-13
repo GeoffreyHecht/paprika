@@ -20,6 +20,7 @@ package paprika.neo4j.queries;
 
 import org.neo4j.cypherdsl.Identifier;
 import org.neo4j.cypherdsl.Path;
+import org.neo4j.cypherdsl.expression.BooleanExpression;
 import org.neo4j.cypherdsl.expression.Expression;
 import org.neo4j.cypherdsl.grammar.StartNext;
 import paprika.entities.PaprikaClass;
@@ -93,6 +94,10 @@ public class QueryBuilderUtils {
 
     public static Path getSubClassNodes(Identifier aClass, String parent) {
         return node(aClass).label(CLASS_TYPE).values(value(PaprikaClass.PARENT, parent));
+    }
+
+    public static BooleanExpression methodHasName(Identifier method, String name) {
+        return method.property(PaprikaMethod.NAME).eq(name);
     }
 
 }

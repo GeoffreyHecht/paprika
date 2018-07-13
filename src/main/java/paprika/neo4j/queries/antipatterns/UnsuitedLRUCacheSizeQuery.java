@@ -38,6 +38,8 @@ public class UnsuitedLRUCacheSizeQuery extends PaprikaQuery {
     }
 
     /*
+        OUTDATED ORIGINAL QUERY
+
         MATCH (m:Method)-[:CALLS]->(e:ExternalMethod {full_name:'<init>#android.util.LruCache'})
         WHERE NOT (m)-[:CALLS]->(:ExternalMethod {full_name:'getMemoryClass#android.app.ActivityManager'})
         RETURN m.app_key as app_key
@@ -49,9 +51,11 @@ public class UnsuitedLRUCacheSizeQuery extends PaprikaQuery {
     @Override
     public String getQuery(boolean details) {
         Identifier method = identifier("m");
-
         return match(methodCallsExternal(method, "<init>#android.util.LruCache"))
-                .where(not(methodCallsExternal(method, "getMemoryClass#android.app.ActivityManager")))
+                .where(not(or(
+                        methodCallsExternal(method, "getMemoryClass#android.app.ActivityManager"),
+                        methodCallsExternal(method, "getMemoryInfo#android.app.ActivityManager"),
+                        methodCallsExternal(method, "maxMemory#java.lang.Runtime"))))
                 .returns(getMethodResults(method, details, KEY))
                 .toString();
     }

@@ -44,8 +44,8 @@ public class LMQuery extends FuzzyQuery {
 
     public static final String KEY = "LM";
 
-    protected static double high = 17;
-    protected static double veryHigh = 26;
+    public static double high;
+    public static double veryHigh;
 
     public LMQuery(QueryEngine queryEngine) {
         super(KEY, queryEngine, "LongMethod.fcl");
