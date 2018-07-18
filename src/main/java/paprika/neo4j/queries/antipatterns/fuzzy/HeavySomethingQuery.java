@@ -21,7 +21,6 @@ package paprika.neo4j.queries.antipatterns.fuzzy;
 import net.sourceforge.jFuzzyLogic.FIS;
 import net.sourceforge.jFuzzyLogic.FunctionBlock;
 import org.neo4j.graphdb.Result;
-import paprika.neo4j.QueryEngine;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,8 +31,8 @@ import static paprika.neo4j.queries.QueryPropertiesReader.PROPERTIES;
 
 public abstract class HeavySomethingQuery extends FuzzyQuery {
 
-    public HeavySomethingQuery(String queryName, QueryEngine queryEngine) {
-        super(queryName, queryEngine, "HeavySomething.fcl");
+    public HeavySomethingQuery(String queryName) {
+        super(queryName, "HeavySomething.fcl");
     }
 
     @Override

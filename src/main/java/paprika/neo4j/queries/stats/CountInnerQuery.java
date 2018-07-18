@@ -18,15 +18,14 @@
 
 package paprika.neo4j.queries.stats;
 
-import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
 
 public class CountInnerQuery extends PaprikaQuery {
 
     public static final String COMMAND_KEY = "COUNTINNER";
 
-    public CountInnerQuery(QueryEngine queryEngine) {
-        super("COUNT_INNER", queryEngine);
+    public CountInnerQuery() {
+        super("COUNT_INNER");
     }
 
     /*

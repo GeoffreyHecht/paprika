@@ -24,14 +24,12 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import paprika.neo4j.queries.PaprikaQuery;
+import paprika.neo4j.queries.antipatterns.fuzzy.FuzzyQuery;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by Geoffrey Hecht on 12/01/15.
@@ -64,78 +62,33 @@ public class QueryEngine {
         csvPrefix = "";
     }
 
+    public void execute(PaprikaQuery query, boolean details) throws IOException {
+        executeRequest(query.getQuery(details), query.getCSVSuffix());
+    }
+
+    public void executeRequest(String request, String suffix) throws IOException {
+        try (Transaction ignored = graphDatabaseService.beginTx()) {
+            Result result = graphDatabaseService.execute(request);
+            new CSVWriter(csvPrefix).resultToCSV(result, suffix);
+        }
+    }
+
+    public void executeFuzzy(FuzzyQuery query, boolean details) throws IOException {
+        try (Transaction ignored = graphDatabaseService.beginTx()) {
+            Result result = graphDatabaseService.execute(query.getFuzzyQuery(details));
+            List<String> columns = new ArrayList<>(result.columns());
+            columns.add("fuzzy_value");
+            new CSVWriter(csvPrefix).fuzzyResultToCSV(query.getFuzzyResult(result, query.getFcl()),
+                    columns, query.getFuzzySuffix());
+        }
+    }
+
     public Namespace getArg() {
         return arg;
     }
 
     public void shutDown() {
         databaseManager.shutDown();
-    }
-
-    public void resultToCSV(Result result, String csvSuffix) throws IOException {
-        String name = csvPrefix + csvSuffix;
-        BufferedWriter writer = new BufferedWriter(new FileWriter(name));
-        List<String> columns = result.columns();
-        writeColumnLabels(columns, writer);
-        while (result.hasNext()) {
-            writeRowValues(result.next(), columns, writer);
-        }
-        writer.close();
-    }
-
-    private void writeColumnLabels(List<String> columns, BufferedWriter writer) throws IOException {
-        for (int i = 0; i < columns.size() - 1; i++) {
-            writer.write(columns.get(i));
-            writer.write(',');
-        }
-        writer.write(columns.get(columns.size() - 1));
-        writer.newLine();
-    }
-
-    private void writeRowValues(Map<String, Object> row, List<String> columns, BufferedWriter writer)
-            throws IOException {
-        Object val;
-        for (int i = 0; i < columns.size() - 1; i++) {
-            val = row.get(columns.get(i));
-            if (val != null) {
-                writer.write(val.toString());
-                writer.write(',');
-            }
-        }
-        val = row.get(columns.get(columns.size() - 1));
-        if (val != null) {
-            writer.write(val.toString());
-        }
-        writer.newLine();
-    }
-
-    public void fuzzyResultToCSV(List<Map<String, Object>> rows, List<String> columns, String csvSuffix)
-            throws IOException {
-        String name = csvPrefix + csvSuffix;
-        BufferedWriter writer = new BufferedWriter(new FileWriter(name));
-        writeColumnLabels(columns, writer);
-        for (Map<String, Object> row : rows) {
-            writeRowValues(row, columns, writer);
-        }
-        writer.close();
-    }
-
-    public void statsToCSV(Map<String, Double> stats, String csvSuffix) throws IOException {
-        String name = csvPrefix + csvSuffix;
-        FileWriter fw = new FileWriter(name);
-        BufferedWriter writer = new BufferedWriter(fw);
-        Set<String> keys = stats.keySet();
-        for (String key : keys) {
-            writer.write(key);
-            writer.write(',');
-        }
-        writer.newLine();
-        for (String key : keys) {
-            writer.write(String.valueOf(stats.get(key)));
-            writer.write(',');
-        }
-        writer.close();
-        fw.close();
     }
 
     public void deleteQuery(String appKey) throws CypherException {
@@ -271,12 +224,4 @@ public class QueryEngine {
         }
     }
 
-    public void executeRequest(String request) throws IOException {
-        new PaprikaQuery("CUSTOM", this) {
-            @Override
-            public String getQuery(boolean details) {
-                return request;
-            }
-        }.execute(false);
-    }
 }

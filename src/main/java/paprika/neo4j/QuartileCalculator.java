@@ -48,7 +48,7 @@ public class QuartileCalculator {
             result = graphDatabaseService.execute(query);
             res = calculateThresholds(result);
         }
-        queryEngine.statsToCSV(res, "_STAT_CLASS_COMPLEXITY.csv");
+        new CSVWriter(queryEngine.getCsvPrefix()).statsToCSV(res, "_STAT_CLASS_COMPLEXITY.csv");
     }
 
     public void calculateCyclomaticComplexityQuartile() throws IOException {
@@ -61,7 +61,7 @@ public class QuartileCalculator {
             result = graphDatabaseService.execute(query);
             res = calculateThresholds(result);
         }
-        queryEngine.statsToCSV(res, "_STAT_CYCLOMATIC_COMPLEXITY.csv");
+        new CSVWriter(queryEngine.getCsvPrefix()).statsToCSV(res, "_STAT_CYCLOMATIC_COMPLEXITY.csv");
     }
 
     public void calculateNumberofInstructionsQuartile() throws IOException {
@@ -76,7 +76,7 @@ public class QuartileCalculator {
             result = graphDatabaseService.execute(query);
             res = calculateThresholds(result);
         }
-        queryEngine.statsToCSV(res, "_STAT_NB_INSTRUCTIONS.csv");
+        new CSVWriter(queryEngine.getCsvPrefix()).statsToCSV(res, "_STAT_NB_INSTRUCTIONS.csv");
     }
 
     public Map calculateQuartile(String nodeType, String property) {
@@ -124,7 +124,7 @@ public class QuartileCalculator {
             result = graphDatabaseService.execute(query);
             res = calculateThresholds(result);
         }
-        queryEngine.statsToCSV(res, "_STAT_NB_INTERFACES.csv");
+        new CSVWriter(queryEngine.getCsvPrefix()).statsToCSV(res, "_STAT_NB_INTERFACES.csv");
     }
 
     public void calculateNumberOfMethodsForInterfacesQuartile() throws IOException {
@@ -138,7 +138,7 @@ public class QuartileCalculator {
             result = graphDatabaseService.execute(query);
             res = calculateThresholds(result);
         }
-        queryEngine.statsToCSV(res, "_STAT_NB_METHODS_INTERFACE.csv");
+        new CSVWriter(queryEngine.getCsvPrefix()).statsToCSV(res, "_STAT_NB_METHODS_INTERFACE.csv");
     }
 
     public void calculateLackOfCohesionInMethodsQuartile() throws IOException {
@@ -152,7 +152,7 @@ public class QuartileCalculator {
             result = graphDatabaseService.execute(query);
             res = calculateThresholds(result);
         }
-        queryEngine.statsToCSV(res, "_STAT_LCOM.csv");
+        new CSVWriter(queryEngine.getCsvPrefix()).statsToCSV(res, "_STAT_LCOM.csv");
     }
 
     public void calculateNumberOfMethodsQuartile() throws IOException {
@@ -166,7 +166,7 @@ public class QuartileCalculator {
             result = graphDatabaseService.execute(query);
             res = calculateThresholds(result);
         }
-        queryEngine.statsToCSV(res, "_STAT_NB_METHODS.csv");
+        new CSVWriter(queryEngine.getCsvPrefix()).statsToCSV(res, "_STAT_NB_METHODS.csv");
     }
 
     public void calculateNumberOfAttributesQuartile() throws IOException {
@@ -180,6 +180,6 @@ public class QuartileCalculator {
             result = graphDatabaseService.execute(query);
             res = calculateThresholds(result);
         }
-        queryEngine.statsToCSV(res, "_STAT_NB_ATTRIBUTES.csv");
+        new CSVWriter(queryEngine.getCsvPrefix()).statsToCSV(res, "_STAT_NB_ATTRIBUTES.csv");
     }
 }

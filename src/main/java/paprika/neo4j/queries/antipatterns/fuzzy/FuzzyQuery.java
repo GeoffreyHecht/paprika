@@ -20,13 +20,10 @@ package paprika.neo4j.queries.antipatterns.fuzzy;
 
 import net.sourceforge.jFuzzyLogic.FIS;
 import org.neo4j.graphdb.Result;
-import org.neo4j.graphdb.Transaction;
-import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
 import paprika.neo4j.queries.QueryPropertiesReader;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -39,22 +36,12 @@ public abstract class FuzzyQuery extends PaprikaQuery {
     private static final String fclFolder = "/fcl/";
     private String fclFile;
 
-    public FuzzyQuery(String name, QueryEngine queryEngine, String fclFile) {
-        super(name, queryEngine);
+    public FuzzyQuery(String name, String fclFile) {
+        super(name);
         this.fclFile = fclFile;
     }
 
-    public void executeFuzzy(boolean details) throws IOException {
-        try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = getFuzzyQuery(details);
-            Result result = graphDatabaseService.execute(query);
-            List<String> columns = new ArrayList<>(result.columns());
-            columns.add("fuzzy_value");
-            queryEngine.fuzzyResultToCSV(getFuzzyResult(result, getFcl()), columns, super.getCSVSuffix());
-        }
-    }
-
-    private FIS getFcl() throws FileNotFoundException {
+    public FIS getFcl() throws FileNotFoundException {
         File fcf = new File(fclFile);
         // We look if the file is in a directory otherwise we look inside the jar
         if (fcf.exists() && !fcf.isDirectory()) {
@@ -75,14 +62,13 @@ public abstract class FuzzyQuery extends PaprikaQuery {
 
     public abstract List<Map<String, Object>> getFuzzyResult(Result result, FIS fis);
 
-    @Override
-    protected String getCSVSuffix() {
-        return "_" + queryName + "_NO_FUZZY.csv";
+    public String getFuzzySuffix() {
+        return super.getCSVSuffix();
     }
 
     @Override
-    public void run(boolean details) throws IOException {
-        executeFuzzy(details);
+    public String getCSVSuffix() {
+        return "_" + queryName + "_NO_FUZZY.csv";
     }
 
 }

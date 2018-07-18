@@ -18,7 +18,6 @@
 
 package paprika.neo4j.queries.stats;
 
-import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
 
 public class PropertyQuery extends PaprikaQuery {
@@ -31,8 +30,8 @@ public class PropertyQuery extends PaprikaQuery {
     private String property;
     private String nodeType;
 
-    public PropertyQuery(String queryName, QueryEngine queryEngine, String nodeType, String property) {
-        super(queryName, queryEngine);
+    public PropertyQuery(String queryName, String nodeType, String property) {
+        super(queryName);
         this.property = property;
         this.nodeType = nodeType;
     }

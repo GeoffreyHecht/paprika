@@ -21,7 +21,6 @@ package paprika.neo4j.queries.antipatterns.fuzzy;
 import net.sourceforge.jFuzzyLogic.FIS;
 import net.sourceforge.jFuzzyLogic.FunctionBlock;
 import org.neo4j.graphdb.Result;
-import paprika.neo4j.QueryEngine;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,8 +36,8 @@ public class CCQuery extends FuzzyQuery {
 
     public static final String KEY = "CC";
 
-    public CCQuery(QueryEngine queryEngine) {
-        super(KEY, queryEngine, "ComplexClass.fcl");
+    public CCQuery() {
+        super(KEY, "ComplexClass.fcl");
     }
 
     /*

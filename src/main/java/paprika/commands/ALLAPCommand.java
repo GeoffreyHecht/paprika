@@ -21,21 +21,26 @@ package paprika.commands;
 import paprika.neo4j.QueryEngine;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ALLAPCommand implements PaprikaCommand {
 
     public static final String KEY = "ALLAP";
 
-    private QueryEngine engine;
+    private List<PaprikaCommand> commands;
 
-    public ALLAPCommand(QueryEngine engine) {
-        this.engine = engine;
+    public ALLAPCommand(QueryEngine engine, PaprikaRequest fuzzy, PaprikaRequest nonFuzzy) {
+        commands = new ArrayList<>();
+        commands.add(fuzzy.getCommand(engine));
+        commands.add(nonFuzzy.getCommand(engine));
     }
 
     @Override
     public void run(boolean details) throws IOException {
-        new NonFuzzyCommand(engine).run(details);
-        new FuzzyCommand(engine).run(details);
+        for (PaprikaCommand command : commands) {
+            command.run(details);
+        }
     }
 
 }

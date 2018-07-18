@@ -18,7 +18,6 @@
 
 package paprika.neo4j.queries.antipatterns;
 
-import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
 
 import java.util.HashMap;
@@ -39,30 +38,34 @@ public class UHAQuery extends PaprikaQuery {
     private static final Map<String, Integer> UHA_OPS = new HashMap<>();
 
     static {
-        addUHAMethod("drawPicture", ANDROID_CANVAS, 23);
         addUHAMethod("drawVertices", ANDROID_CANVAS, UNSUPPORTED);
-        addUHAMethod("drawPosText", ANDROID_CANVAS, 16);
-        addUHAMethod("drawTextOnPath", ANDROID_CANVAS, 16);
-        addUHAMethod("drawPath", ANDROID_CANVAS, 11);
-        addUHAMethod("drawBitmapMesh", ANDROID_CANVAS, 18);
-        addUHAMethod("setDrawFilter", ANDROID_CANVAS, 16);
-
         addUHAMethod("setLinearText", ANDROID_PAINT, UNSUPPORTED);
         addUHAMethod("setMaskFilter", ANDROID_PAINT, UNSUPPORTED);
         addUHAMethod("setPathEffect", ANDROID_PAINT, UNSUPPORTED);
         addUHAMethod("setRasterizer", ANDROID_PAINT, UNSUPPORTED);
         addUHAMethod("setSubpixelText", ANDROID_PAINT, UNSUPPORTED);
+
+        addUHAMethod("drawPath", ANDROID_CANVAS, 11);
+
+        addUHAMethod("drawPosText", ANDROID_CANVAS, 16);
+        addUHAMethod("drawTextOnPath", ANDROID_CANVAS, 16);
+        addUHAMethod("setDrawFilter", ANDROID_CANVAS, 16);
         addUHAMethod("setAntiAlias", ANDROID_PAINT, 16);
+
         addUHAMethod("setFilterBitmap", ANDROID_PAINT, 17);
+
+        addUHAMethod("drawBitmapMesh", ANDROID_CANVAS, 18);
         addUHAMethod("setStrokeCap", ANDROID_PAINT, 18);
+
+        addUHAMethod("drawPicture", ANDROID_CANVAS, 23);
     }
 
     private static void addUHAMethod(String method, String aClass, int apiSupported) {
         UHA_OPS.put(method + "#" + aClass, apiSupported);
     }
 
-    public UHAQuery(QueryEngine queryEngine) {
-        super(KEY, queryEngine);
+    public UHAQuery() {
+        super(KEY);
     }
 
     /*

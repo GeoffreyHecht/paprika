@@ -34,6 +34,21 @@ shadowJar {
     }
 }
 
+test {
+    useJUnitPlatform()
+    setClasspath(sourceSets.test.runtimeClasspath)
+}
+
+sourceSets.test {
+    resources.srcDirs = ["src/test/resources"]
+}
+
+task copyTestResources(type: Copy) {
+    from "${projectDir}/src/test/resources"
+    into "${buildDir}/classes/test"
+}
+processTestResources.dependsOn copyTestResources
+
 dependencies {
     compile 'ca.mcgill.sable:soot:3.1.0-SNAPSHOT'
     compile 'org.neo4j:neo4j-kernel:3.4.1'
@@ -43,5 +58,8 @@ dependencies {
 
     // Not on maven central
     compile 'net.sourceforge.jFuzzyLogic:JFuzzyLogic'
-}
 
+    testCompile("org.junit.jupiter:junit-jupiter-api:5.2.0")
+    testCompile("org.hamcrest:hamcrest-all:1.3")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.2.0")
+}

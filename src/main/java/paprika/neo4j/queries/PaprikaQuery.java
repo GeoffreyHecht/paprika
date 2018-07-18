@@ -18,46 +18,21 @@
 
 package paprika.neo4j.queries;
 
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Result;
-import org.neo4j.graphdb.Transaction;
-import paprika.commands.PaprikaCommand;
-import paprika.neo4j.QueryEngine;
-
-import java.io.IOException;
-
 /**
  * Created by Geoffrey Hecht on 17/08/15.
  */
-public abstract class PaprikaQuery implements PaprikaCommand {
+public abstract class PaprikaQuery {
 
     protected String queryName;
-    protected QueryEngine queryEngine;
-    protected GraphDatabaseService graphDatabaseService;
 
-    public PaprikaQuery(String queryName, QueryEngine queryEngine) {
+    public PaprikaQuery(String queryName) {
         this.queryName = queryName;
-        this.queryEngine = queryEngine;
-        graphDatabaseService = queryEngine.getGraphDatabaseService();
     }
 
     public abstract String getQuery(boolean details);
 
-    public void execute(boolean details) throws IOException {
-        try (Transaction ignored = graphDatabaseService.beginTx()) {
-            String query = getQuery(details);
-            Result result = graphDatabaseService.execute(query);
-            queryEngine.resultToCSV(result, getCSVSuffix());
-        }
-    }
-
-    protected String getCSVSuffix() {
+    public String getCSVSuffix() {
         return "_" + queryName + ".csv";
-    }
-
-    @Override
-    public void run(boolean details) throws IOException {
-        execute(details);
     }
 
 }

@@ -18,15 +18,14 @@
 
 package paprika.neo4j.queries.stats;
 
-import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
 
 public class CountViewsQuery extends PaprikaQuery {
 
     public static final String COMMAND_KEY = "COUNTVIEWS";
 
-    public CountViewsQuery(QueryEngine queryEngine) {
-        super("COUNT_VIEWS", queryEngine);
+    public CountViewsQuery() {
+        super("COUNT_VIEWS");
     }
 
     /*

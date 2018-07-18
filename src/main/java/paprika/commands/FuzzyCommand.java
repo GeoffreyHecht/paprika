@@ -19,29 +19,26 @@
 package paprika.commands;
 
 import paprika.neo4j.QueryEngine;
-import paprika.neo4j.queries.antipatterns.fuzzy.*;
+import paprika.neo4j.queries.antipatterns.fuzzy.FuzzyQuery;
 
 import java.io.IOException;
+import java.util.List;
 
 public class FuzzyCommand implements PaprikaCommand {
 
-    public static final String KEY = "FUZZY";
-
     private QueryEngine engine;
+    private List<FuzzyQuery> queries;
 
-    public FuzzyCommand(QueryEngine engine) {
+    public FuzzyCommand(QueryEngine engine, List<FuzzyQuery> queries) {
         this.engine = engine;
+        this.queries = queries;
     }
 
     @Override
     public void run(boolean details) throws IOException {
-        new CCQuery(engine).executeFuzzy(details);
-        new LMQuery(engine).executeFuzzy(details);
-        new SAKQuery(engine).executeFuzzy(details);
-        new BLOBQuery(engine).executeFuzzy(details);
-        new HeavyServiceStartQuery(engine).executeFuzzy(details);
-        new HeavyBroadcastReceiverQuery(engine).executeFuzzy(details);
-        new HeavyAsyncTaskStepsQuery(engine).executeFuzzy(details);
+        for (FuzzyQuery query : queries) {
+            engine.executeFuzzy(query, details);
+        }
     }
 
 }

@@ -40,7 +40,8 @@ You can find many Android platforms with the correct folder structure [this Gith
 To compile Paprika into a jar with its dependencies, run `gradle shadowjar`.
 You can find the java application in ```build/libs/Paprika.jar```.
 
-Please note that Paprika is not working correctly with Java 9, we recommend to launch it with Java 7.
+Note that Paprika might not work properly on apk files using a minimum sdk version superior or equal to 26.
+
 You can choose between two modes: **analyse** and **query**.
 The **analyse** mode will allows you to scan with [Soot](https://sable.github.io/soot/) your Application application, to detect contained code smells.
 You can use after the **query** mode on your Neo4J graph to request how much code smells your application contains.
@@ -80,7 +81,7 @@ optional arguments:
   -pr PRICE, --price PRICE
                          Price of the application, defaults to Free
   -s SIZE, --size SIZE   Size of the application, defaults to 1
-  -u UNSAFE, --unsafe UNSAFE
+  -u UNSAFE, --unsafe
                          Unsafe mode (no args checking)
   -vc VERSIONCODE, --versionCode VERSIONCODE
                          Version Code of the application (extract from manifest), empty by default
@@ -113,7 +114,7 @@ optional arguments:
                          Package of the applications to delete
   -d, --details
                          Show the concerned entity in the results
-  -thr, --thresholds     Read fuzzy patterns thresholds from properties file
+  -thr, --thresholds     Read fuzzy patterns thresholds from given properties file
 ```
 
 #### Example of usage

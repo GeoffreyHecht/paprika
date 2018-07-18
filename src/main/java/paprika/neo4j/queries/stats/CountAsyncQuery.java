@@ -18,15 +18,14 @@
 
 package paprika.neo4j.queries.stats;
 
-import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
 
 public class CountAsyncQuery extends PaprikaQuery {
 
     public static final String COMMAND_KEY = "COUNTASYNC";
 
-    public CountAsyncQuery(QueryEngine queryEngine) {
-        super("COUNT_ASYNC", queryEngine);
+    public CountAsyncQuery() {
+        super("COUNT_ASYNC");
     }
 
     /*

@@ -18,15 +18,14 @@
 
 package paprika.neo4j.queries.stats;
 
-import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
 
 public class AnalyzedAppQuery extends PaprikaQuery {
 
     public static final String COMMAND_KEY = "ANALYZED";
 
-    public AnalyzedAppQuery(QueryEngine engine) {
-        super(COMMAND_KEY, engine);
+    public AnalyzedAppQuery() {
+        super(COMMAND_KEY);
     }
 
     /*

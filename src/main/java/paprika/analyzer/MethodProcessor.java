@@ -30,9 +30,7 @@ import soot.Type;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
 
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 public class MethodProcessor {
@@ -42,11 +40,11 @@ public class MethodProcessor {
     private Map<SootMethod, PaprikaExternalMethod> externalMethodMap;
     private BodyProcessor bodyProcessor;
 
-    private List<CommonCondition> commonConditions = Arrays.asList(
+    private CommonCondition[] commonConditions = {
             new IsStatic(),
             new IsFinal(),
             new IsAbstract()
-    );
+    };
 
     private IsSynchronized isSynchronized = new IsSynchronized();
     private NumberOfParameters parameters = new NumberOfParameters();
@@ -69,7 +67,9 @@ public class MethodProcessor {
     }
 
     private void collectStandardMetrics(SootMethod sootMethod, PaprikaMethod paprikaMethod) {
-        commonConditions.forEach(condition -> condition.createIfMatching(sootMethod, paprikaMethod));
+        for (CommonCondition condition : commonConditions) {
+            condition.createIfMatching(sootMethod, paprikaMethod);
+        }
         isSynchronized.createIfMatching(sootMethod, paprikaMethod);
         parameters.collectMetric(sootMethod, paprikaMethod);
         if (sootMethod.hasActiveBody()) {

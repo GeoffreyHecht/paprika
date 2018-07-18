@@ -40,19 +40,17 @@ import soot.SootClass;
 import soot.SootField;
 import soot.util.Chain;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 public class ClassProcessor {
 
-    private List<CountedClassCondition> classConditions = Arrays.asList(
+    private CountedClassCondition[] classConditions = {
             new IsAbstractClass(),
             new IsInterface(),
             new IsInnerClassStatic()
-    );
+    };
 
-    private List<IsSubClass> subClassConditions = Arrays.asList(
+    private IsSubClass[] subClassConditions = {
             new IsActivity(),
             new IsApplication(),
             new IsAsyncTask(),
@@ -60,19 +58,19 @@ public class ClassProcessor {
             new IsContentProvider(),
             new IsService(),
             new IsView()
-    );
+    };
 
-    private List<CommonCondition> conditions = Arrays.asList(
+    private CommonCondition[] conditions = {
             new IsFinal(), // This must stay at index 0
             new IsStatic()
-    );
+    };
 
-    private List<SootClassStatistic> statistics = Arrays.asList(
+    private SootClassStatistic[] statistics = {
             new DepthOfInheritance(),
             new NumberOfAttributes(),
             new NumberOfImplementedInterfaces(),
             new NumberOfMethods()
-    );
+    };
 
     private PaprikaContainer container;
     private Map<SootClass, PaprikaClass> classMap;
@@ -115,24 +113,30 @@ public class ClassProcessor {
     private void collectClassMetrics(SootClass sootClass) {
         PaprikaClass paprikaClass = container.addClass(sootClass);
         // Checking if the class is final
-        conditions.get(0).createIfMatching(sootClass, paprikaClass);
+        conditions[0].createIfMatching(sootClass, paprikaClass);
         // Checking if the class is a child of a relevant subclass
         for (IsSubClass subClass : subClassConditions) {
             if (subClass.createIfMatching(sootClass, paprikaClass)) {
                 break;
             }
         }
-        classConditions.forEach(condition -> condition.createIfMatching(sootClass, paprikaClass));
+        for (CountedClassCondition condition : classConditions) {
+            condition.createIfMatching(sootClass, paprikaClass);
+        }
         // Field analysis
         sootClass.getFields().forEach(field -> registerField(paprikaClass, field));
         // Numerical stats
-        statistics.forEach(stat -> stat.collectMetric(sootClass, paprikaClass));
+        for (SootClassStatistic stat : statistics) {
+            stat.collectMetric(sootClass, paprikaClass);
+        }
     }
 
     private void registerField(PaprikaClass paprikaClass, SootField sootField) {
         PaprikaVariable paprikaVariable = container.addField(paprikaClass, sootField);
         varCount++;
-        conditions.forEach(condition -> condition.createIfMatching(sootField, paprikaVariable));
+        for (CommonCondition condition : conditions) {
+            condition.createIfMatching(sootField, paprikaVariable);
+        }
     }
 
     /**
@@ -141,8 +145,12 @@ public class ClassProcessor {
     private void collectAppMetrics() {
         NumberOfClasses.createNumberOfClasses(container.getPaprikaApp(), classMap.size());
         NumberOfVariables.createNumberOfVariables(container.getPaprikaApp(), varCount);
-        classConditions.forEach(condition -> condition.createNumberMetric(container.getPaprikaApp()));
-        subClassConditions.forEach(condition -> condition.createNumberMetric(container.getPaprikaApp()));
+        for (CountedClassCondition condition : classConditions) {
+            condition.createNumberMetric(container.getPaprikaApp());
+        }
+        for (IsSubClass condition : subClassConditions) {
+            condition.createNumberMetric(container.getPaprikaApp());
+        }
     }
 
 }

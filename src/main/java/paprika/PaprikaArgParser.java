@@ -32,9 +32,6 @@ import static paprika.entities.PaprikaApp.NO_SDK;
 
 public class PaprikaArgParser {
 
-    private static final String DATE_REGEX =
-            "^([0-9]{4})-([0-1][0-9])-([0-3][0-9])\\s([0-1][0-9]|[2][0-3]):([0-5][0-9]):([0-5][0-9]).([0-9]*)$";
-
     public static final String ANALYSE_MODE_ARG = "analyse";
     public static final String APK_ARG = "apk";
     public static final String ANDROID_JARS_ARG = "androidJars";
@@ -62,7 +59,10 @@ public class PaprikaArgParser {
     public static final String DEL_PACKAGE_ARG = "delPackage";
     public static final String DETAILS_ARG = "details";
     public static final String THRESHOLDS_ARG = "thresholds";
+
     private static final String SUB_PARSER = "sub_command";
+    private static final String DATE_REGEX =
+            "^([0-9]{4})-([0-1][0-9])-([0-3][0-9])\\s([0-1][0-9]|[2][0-3]):([0-5][0-9]):([0-5][0-9]).([0-9]*)$";
 
     private ArgumentParser parser;
     private Subparsers subparsers;
@@ -130,16 +130,21 @@ public class PaprikaArgParser {
         analyseParser.addArgument("-s", prefixArg(SIZE_ARG)).type(Integer.class)
                 .setDefault(1)
                 .help("Size of the application");
-        analyseParser.addArgument("-u", prefixArg(UNSAFE_ARG)).help("Unsafe mode (no args checking)");
-        analyseParser.addArgument("-vc", prefixArg(VERSION_CODE_ARG)).setDefault("")
+        analyseParser.addArgument("-u", prefixArg(UNSAFE_ARG))
+                .action(Arguments.storeTrue())
+                .help("Unsafe mode (no args checking)");
+        analyseParser.addArgument("-vc", prefixArg(VERSION_CODE_ARG))
+                .setDefault("")
                 .help("Version Code of the application (extract from manifest)");
         analyseParser.addArgument("-vn", prefixArg(VERSION_NAME_ARG)).setDefault("")
                 .help("Version Name of the application (extract from manifest)");
         analyseParser.addArgument("-tsdk", prefixArg(TARGET_SDK_VERSION_ARG))
                 .setDefault(NO_SDK)
+                .type(Integer.class)
                 .help("Target SDK Version (extract from manifest)");
         analyseParser.addArgument("-sdk", prefixArg(SDK_VERSION_ARG))
                 .setDefault(NO_SDK)
+                .type(Integer.class)
                 .help("sdk version (extract from manifest)");
         analyseParser.addArgument("-omp", prefixArg(ONLY_MAIN_PACKAGE_ARG))
                 .action(Arguments.storeTrue())
@@ -159,7 +164,7 @@ public class PaprikaArgParser {
                 .help("Show the concerned entity in the results");
         queryParser.addArgument("-thr", prefixArg(THRESHOLDS_ARG))
                 .setDefault((String) null)
-                .help("Path to .properties file containing antipatterns thresholds");
+                .help("Path to .properties file containing android thresholds");
     }
     
     private String prefixArg(String arg) {

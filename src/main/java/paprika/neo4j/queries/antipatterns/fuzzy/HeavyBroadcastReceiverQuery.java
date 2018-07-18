@@ -18,8 +18,6 @@
 
 package paprika.neo4j.queries.antipatterns.fuzzy;
 
-import paprika.neo4j.QueryEngine;
-
 import static paprika.neo4j.queries.QueryPropertiesReader.PROPERTIES;
 
 /**
@@ -29,8 +27,8 @@ public class HeavyBroadcastReceiverQuery extends HeavySomethingQuery {
 
     public static final String KEY = "HBR";
 
-    public HeavyBroadcastReceiverQuery(QueryEngine queryEngine) {
-        super(KEY, queryEngine);
+    public HeavyBroadcastReceiverQuery() {
+        super(KEY);
     }
 
     /*

@@ -18,15 +18,14 @@
 
 package paprika.neo4j.queries.stats;
 
-import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
 
 public class CountVariablesQuery extends PaprikaQuery {
 
     public static final String COMMAND_KEY = "COUNTVAR";
 
-    public CountVariablesQuery(QueryEngine queryEngine) {
-        super("COUNT_VARIABLE", queryEngine);
+    public CountVariablesQuery() {
+        super("COUNT_VARIABLE");
     }
 
     /*

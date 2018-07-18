@@ -18,7 +18,6 @@
 
 package paprika.neo4j.queries.antipatterns;
 
-import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
 
 /**
@@ -28,8 +27,8 @@ public class IGSQuery extends PaprikaQuery {
 
     public static final String KEY = "IGS";
 
-    public IGSQuery(QueryEngine queryEngine) {
-        super(KEY, queryEngine);
+    public IGSQuery() {
+        super(KEY);
     }
 
     /*

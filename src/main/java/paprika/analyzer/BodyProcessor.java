@@ -33,18 +33,17 @@ import soot.*;
 import soot.grimp.GrimpBody;
 import soot.jimple.FieldRef;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class BodyProcessor {
 
     private CyclomaticComplexity complexity = new CyclomaticComplexity();
 
-    private List<MethodStatistic> statistics = Arrays.asList(
+    private MethodStatistic[] statistics = {
             new NumberOfDeclaredLocals(),
             new NumberOfInstructions(),
             complexity
-    );
+    };
 
     private MethodCondition isInit = new IsInit();
     private MethodCondition isOverride = new IsOverride();
@@ -53,7 +52,9 @@ public class BodyProcessor {
     public void processMethodBody(SootMethod sootMethod, PaprikaMethod paprikaMethod) {
         registerArgs(sootMethod, paprikaMethod);
         GrimpBody activeBody = (GrimpBody) sootMethod.getActiveBody();
-        statistics.forEach(stat -> stat.collectMetric(sootMethod, paprikaMethod));
+        for (MethodStatistic stat : statistics) {
+            stat.collectMetric(sootMethod, paprikaMethod);
+        }
         computeLackOfCohesion(sootMethod, paprikaMethod);
 
         if (!isInit.createIfMatching(sootMethod, paprikaMethod)) {

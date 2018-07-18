@@ -18,7 +18,6 @@
 
 package paprika.neo4j.queries.antipatterns;
 
-import paprika.neo4j.QueryEngine;
 import paprika.neo4j.queries.PaprikaQuery;
 
 /**
@@ -28,8 +27,8 @@ public class InvalidateWithoutRectQuery extends PaprikaQuery {
 
     public static final String KEY = "IWR";
 
-    public InvalidateWithoutRectQuery(QueryEngine queryEngine) {
-        super(KEY, queryEngine);
+    public InvalidateWithoutRectQuery() {
+        super(KEY);
     }
 
     /*

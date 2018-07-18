@@ -34,7 +34,7 @@ public class CustomCommand implements PaprikaCommand {
 
     @Override
     public void run(boolean details) throws IOException {
-        engine.executeRequest(request);
+        engine.executeRequest(request, "_CUSTOM.csv");
     }
 
 }
