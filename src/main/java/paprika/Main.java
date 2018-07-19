@@ -24,8 +24,8 @@ package paprika;
 
 public class Main {
 
-    public static void main(String[] args) {
-        new PaprikaLauncher().startPaprika(args);
+    public static void main(String[] args) throws Exception {
+        new PaprikaLauncher(args, System.out).startPaprika();
     }
 
 }

@@ -50,9 +50,9 @@ You can use after the **query** mode on your Neo4J graph to request how much cod
 
 ```
 usage: paprika analyse [-h] -a ANDROIDJARS -db DATABASE -n NAME -p PACKAGE -k KEY -dev DEVELOPER
-               -cat CATEGORY -nd NBDOWNLOAD -d DATE -r RATING [-pr PRICE] -s SIZE [-u UNSAFE]
+               -cat CATEGORY -nd NBDOWNLOAD -d DATE -r RATING [-pr PRICE] -s SIZE [-u]
                [-vc VERSIONCODE] [-vn VERSIONNAME] [-tsdk TARGETSDKVERSION] [-sdk SDKVERSION]
-               [-omp ONLYMAINPACKAGE] apk
+               [-omp] apk
 
 positional arguments:
   apk                    Path of the APK to analyze
@@ -62,12 +62,12 @@ required arguments:
                          Path to android platforms jars
   -db DATABASE, --database DATABASE
                          Path to neo4J Database folder
-  -p PACKAGE, --package PACKAGE
-                         Application main package
-  -n NAME, --name NAME   Name of the application
 
 optional arguments:
   -h, --help             show this help message and exit
+  -n NAME, --name NAME   Name of the application, defaults to apk filename
+  -p PACKAGE, --package PACKAGE
+                           Application main package (extracted from manifest)
   -k KEY, --key KEY      sha256 of the apk used as identifier
   -dev DEVELOPER, --developer DEVELOPER
                          Application developer, defaults to "default-dev"
@@ -84,13 +84,13 @@ optional arguments:
   -u UNSAFE, --unsafe
                          Unsafe mode (no args checking)
   -vc VERSIONCODE, --versionCode VERSIONCODE
-                         Version Code of the application (extract from manifest), empty by default
+                         Version Code of the application, empty by default
   -vn VERSIONNAME, --versionName VERSIONNAME
-                         Version Name of the application (extract from manifest), empty by default
+                         Version Name of the application, empty by default
   -tsdk TARGETSDKVERSION, --targetSdkVersion TARGETSDKVERSION
-                         Target SDK Version (extract from manifest), empty by default
+                         Target SDK Version (extracted from manifest)
   -sdk SDKVERSION, --sdkVersion SDKVERSION
-                         SDK version (extract from manifest), empty by default
+                         SDK version, empty by default
   -omp, --onlyMainPackage
                          Analyze only the main package of the application
 ```
@@ -98,7 +98,7 @@ optional arguments:
 #### Query mode usage
 
 ```
-usage: paprika query [-h] -db DATABASE [-r REQUEST] [-c CSV] [-k KEY] [-p PACKAGE] [-d DETAILS]
+usage: paprika query [-h] -db DATABASE [-r REQUEST] [-c CSV] [-k KEY] [-p PACKAGE] [-d] [-thr PATH]
 
 required arguments:
   -db DATABASE, --database DATABASE
@@ -114,7 +114,8 @@ optional arguments:
                          Package of the applications to delete
   -d, --details
                          Show the concerned entity in the results
-  -thr, --thresholds     Read fuzzy patterns thresholds from given properties file
+  -thr PATH, --thresholds PATH
+                         Read fuzzy patterns thresholds from properties file
 ```
 
 #### Example of usage
@@ -122,7 +123,7 @@ First we launch the analysis of an app (it can be done multiple times with diffe
 
 ```
 java -Xmx2G -XX:+UseConcMarkSweepGC -jar  Paprika.jar analyse -a "/path/to/android-platforms" -db "/path/to/database"
--n "myapp" -p "mypackage.app" -omp /path/to/apk.apk
+ -omp /path/to/apk.apk
 ```
 
 Then you can launch queries on this database using query mode, for example :

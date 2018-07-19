@@ -53,7 +53,7 @@ public class PaprikaApp extends Entity {
     private String category;
     private String price;
     private String key;
-    private String nbDownload;
+    private int nbDownload;
     private String versionCode;
     private String versionName;
     private int sdkVersion;
@@ -62,7 +62,7 @@ public class PaprikaApp extends Entity {
     private List<PaprikaExternalClass> paprikaExternalClasses;
 
     private PaprikaApp(String name, String key, String pack, String date, int size, String developer,
-                       String category, String price, double rating, String nbDownload, String versionCode,
+                       String category, String price, double rating, int nbDownload, String versionCode,
                        String versionName, int sdkVersion, int targetSdkVersion) {
         this.name = name;
         this.key = key;
@@ -89,7 +89,7 @@ public class PaprikaApp extends Entity {
 
     public static PaprikaApp createPaprikaApp(String name, String key, String pack, String date,
                                               int size, String dev, String cat, String price,
-                                              double rating, String nbDownload, String versionCode,
+                                              double rating, int nbDownload, String versionCode,
                                               String versionName, int sdkVersion, int targetSdkVersion) {
         return new PaprikaApp(name, key, pack, date, size, dev, cat, price, rating, nbDownload,
                 versionCode, versionName, sdkVersion, targetSdkVersion);
@@ -115,7 +115,7 @@ public class PaprikaApp extends Entity {
         return date;
     }
 
-    public String getPack() {
+    public String getPackage() {
         return pack;
     }
 
@@ -139,7 +139,7 @@ public class PaprikaApp extends Entity {
         return key;
     }
 
-    public String getNbDownload() {
+    public int getNbDownload() {
         return nbDownload;
     }
 
@@ -163,7 +163,19 @@ public class PaprikaApp extends Entity {
         this.targetSdkVersion = targetSdkVersion;
     }
 
+    public void setPackage(String pack) {
+        this.pack = pack;
+    }
+
     public boolean hasTargetSDK() {
         return targetSdkVersion != NO_SDK;
+    }
+
+    public boolean hasPackage() {
+        return !"".equals(pack);
+    }
+
+    public boolean hasName() {
+        return !"".equals(name);
     }
 }

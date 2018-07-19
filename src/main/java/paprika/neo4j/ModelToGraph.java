@@ -79,7 +79,7 @@ public class ModelToGraph {
             appNode.setProperty(PaprikaApp.APP_KEY, key);
             appNode.setProperty(PaprikaApp.NAME, paprikaApp.getName());
             appNode.setProperty(PaprikaApp.CATEGORY, paprikaApp.getCategory());
-            appNode.setProperty(PaprikaApp.PACKAGE, paprikaApp.getPack());
+            appNode.setProperty(PaprikaApp.PACKAGE, paprikaApp.getPackage());
             appNode.setProperty(PaprikaApp.DEVELOPER, paprikaApp.getDeveloper());
             appNode.setProperty(PaprikaApp.RATING, paprikaApp.getRating());
             appNode.setProperty(PaprikaApp.NB_DOWN, paprikaApp.getNbDownload());

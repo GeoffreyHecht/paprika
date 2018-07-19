@@ -74,19 +74,18 @@ public class ClassProcessor {
 
     private PaprikaContainer container;
     private Map<SootClass, PaprikaClass> classMap;
-    private String pack;
     private boolean mainPackageOnly;
     private int varCount = 0;
 
-    public ClassProcessor(PaprikaContainer container, String pack, boolean mainPackageOnly) {
+    public ClassProcessor(PaprikaContainer container, boolean mainPackageOnly) {
         this.container = container;
         this.classMap = container.getClassMap();
-        this.pack = pack;
         this.mainPackageOnly = mainPackageOnly;
     }
 
     public void processClasses() {
         Chain<SootClass> sootClasses = Scene.v().getApplicationClasses();
+        String pack = container.getPaprikaApp().getPackage();
         String rsubClassStart = pack + ".R$";
         String packs = pack.concat(".");
         String buildConfigClass = pack.concat(".BuildConfig");

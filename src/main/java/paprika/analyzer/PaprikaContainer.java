@@ -18,12 +18,16 @@
 
 package paprika.analyzer;
 
+import net.dongliu.apk.parser.ApkFile;
+import net.dongliu.apk.parser.bean.ApkMeta;
 import paprika.entities.*;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,9 +48,22 @@ public class PaprikaContainer {
         this.externalMethodMap = new HashMap<>();
     }
 
-    public void loadSDKVersion() {
+    public void readMissingAppInfo(String apkPath) throws IOException {
         if (!paprikaApp.hasTargetSDK()) {
             paprikaApp.setTargetSdkVersion(Scene.v().getAndroidAPIVersion());
+        }
+        if (!paprikaApp.hasPackage()) {
+            try (ApkFile apkFile = new ApkFile(new File(apkPath))) {
+                ApkMeta apkMeta = apkFile.getApkMeta();
+                paprikaApp.setPackage(apkMeta.getPackageName());
+            }
+        }
+        if (!paprikaApp.hasName()) {
+            String filename = new File(apkPath).getName();
+            if (filename.endsWith(".apk")) {
+                filename = filename.substring(0, filename.length() - 4);
+            }
+            paprikaApp.setName(filename);
         }
     }
 

@@ -24,6 +24,7 @@ import soot.*;
 import soot.options.Options;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
@@ -48,13 +49,13 @@ public class SootAnalyzer extends Analyzer {
     );
 
     public SootAnalyzer(String apk, String androidJAR, String name, String key, String pack, String date, int size,
-                        String dev, String cat, String price, double rating, String nbDownload, String versionCode,
+                        String dev, String cat, String price, double rating, int nbDownload, String versionCode,
                         String versionName, int sdkVersion, int targetSdkVersion, boolean mainPackageOnly) {
         this.apk = apk;
         this.androidJAR = androidJAR;
         this.container = new PaprikaContainer(PaprikaApp.createPaprikaApp(name, key, pack, date, size, dev, cat, price, rating,
                 nbDownload, versionCode, versionName, sdkVersion, targetSdkVersion));
-        this.classProcessor = new ClassProcessor(container, pack, mainPackageOnly);
+        this.classProcessor = new ClassProcessor(container, mainPackageOnly);
         this.methodProcessor = new MethodProcessor(container);
     }
 
@@ -93,8 +94,8 @@ public class SootAnalyzer extends Analyzer {
     }
 
     @Override
-    public void runAnalysis() {
-        container.loadSDKVersion();
+    public void runAnalysis() throws IOException {
+        container.readMissingAppInfo(apk);
         classProcessor.processClasses();
         PackManager.v().getPack("gop").add(new Transform("gop.myInstrumenter", new BodyTransformer() {
             @Override

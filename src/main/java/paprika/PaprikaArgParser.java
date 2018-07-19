@@ -108,9 +108,11 @@ public class PaprikaArgParser {
                 .help("Path to android platforms jars");
         analyseParser.addArgument("-db", prefixArg(DATABASE_ARG)).required(true)
                 .help("Path to neo4J Database folder (will be created if none is found on the given path)");
-        analyseParser.addArgument("-n", prefixArg(NAME_ARG)).required(true)
+        analyseParser.addArgument("-n", prefixArg(NAME_ARG))
+                .setDefault("")
                 .help("Name of the application (or the apk filename will be used as name)");
-        analyseParser.addArgument("-p", prefixArg(PACKAGE_ARG)).required(true)
+        analyseParser.addArgument("-p", prefixArg(PACKAGE_ARG))
+                .setDefault("")
                 .help("Application main package");
         analyseParser.addArgument("-k", prefixArg(KEY_ARG))
                 .help("sha256 of the apk used as identifier");
@@ -119,6 +121,7 @@ public class PaprikaArgParser {
         analyseParser.addArgument("-cat", prefixArg(CATEGORY_ARG)).setDefault("default-category")
                 .help("Application category");
         analyseParser.addArgument("-nd", prefixArg(NB_DOWNLOAD_ARG)).setDefault(0)
+                .type(Integer.class)
                 .help("Numbers of downloads for the app");
         analyseParser.addArgument("-d", prefixArg(DATE_ARG)).setDefault("2017-01-01 10:23:39.050315")
                 .help("Date of download");

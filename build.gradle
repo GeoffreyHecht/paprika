@@ -7,6 +7,10 @@ compileJava {
     options.compilerArgs += '-proc:none'
 }
 
+compileTestJava {
+    options.compilerArgs += '-proc:none'
+}
+
 repositories {
     mavenLocal()
     mavenCentral()
@@ -39,6 +43,13 @@ test {
     setClasspath(sourceSets.test.runtimeClasspath)
 }
 
+task pythonTest(type: Exec) {
+    workingDir 'src/test/python'
+    commandLine 'python', '-u', 'testDataset.py'
+}
+
+test.dependsOn pythonTest
+
 sourceSets.test {
     resources.srcDirs = ["src/test/resources"]
 }
@@ -55,6 +66,7 @@ dependencies {
     compile 'org.neo4j:neo4j-cypher:3.4.1'
     compile 'net.sourceforge.argparse4j:argparse4j:0.8.1'
     compile 'org.slf4j:slf4j-nop:1.7.25'
+    compile 'net.dongliu:apk-parser:2.6.1'
 
     // Not on maven central
     compile 'net.sourceforge.jFuzzyLogic:JFuzzyLogic'

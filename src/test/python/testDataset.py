@@ -6,18 +6,6 @@ import sys
 import time
 from subprocess import call
 
-
-class TestApk:
-
-    def __init__(self, name, package, apk):
-        self.name = name
-        self.package = package
-        self.apk = apk
-
-    def get_paprika_params(self):
-        return ["-n", self.name, "-p", self.package, self.apk]
-
-
 test_resources = "../resources"
 apk_folder = test_resources + "/apk"
 platform_folder = test_resources + "/android-platforms"
@@ -27,37 +15,10 @@ expected_folder = "expected"
 jar_location = "../../../build/libs/Paprika.jar"
 
 
-def format_apk(app):
-    return apk_folder + "/" + app + ".apk"
-
-
 test_data = [
-    TestApk("witness", "com.antipatterns.app",
-            format_apk("com.antipatterns.app")),
-
-    TestApk("openmanager", "org.brandroid.openmanager",
-            format_apk("org.brandroid.openmanager_212")),
-
-    TestApk("dosbox", "org.hystudio.android.dosbox",
-            format_apk("org.hystudio.android.dosbox_20500")),
-
-    TestApk("passandroid", "org.ligi.passandroid",
-            format_apk("org.ligi.passandroid_255")),
-
-    TestApk("opengpx", "org.opengpx",
-            format_apk("org.opengpx_192")),
-
-    TestApk("tint", "org.tint",
-            format_apk("org.tint_10")),
-
-    TestApk("tof", "org.tof",
-            format_apk("org.tof_17")),
-
-    TestApk("wikipedia", "org.wikipedia",
-            format_apk("org.wikipedia_109")),
-
-    TestApk("wordpress", "org.wordpress.android",
-            format_apk("org.wordpress.android_103"))
+    "dosbox", "opengpx", "openmanager",
+    "passandroid", "tint", "tof", "wikipedia",
+    "witness", "wordpress"
 ]
 
 java_cmd = ["java", "-Xmx2G", "-XX:+UseConcMarkSweepGC", "-jar", jar_location]
@@ -65,8 +26,12 @@ analyse_args = ["analyse", "-a", platform_folder, "-db", db_folder, "-omp"]
 query_args = ["query", "-db", db_folder, "-d", "-r", "ALLAP"]
 
 
+def format_apk(app):
+    return apk_folder + "/" + app + ".apk"
+
+
 def analyse_paprika(apk):
-    call(java_cmd + analyse_args + apk.get_paprika_params())
+    call(java_cmd + analyse_args + [format_apk(apk)])
 
 
 def remove_csv_prefix(folder_name):
@@ -179,7 +144,7 @@ def run_test():
 
     for data in test_data:
         start = time.time()
-        print("Analyzing " + data.name)
+        print("Analyzing " + data)
         analyse_paprika(data)
         exec_time = time.time() - start
         total_time += exec_time
