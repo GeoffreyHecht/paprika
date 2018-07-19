@@ -34,7 +34,7 @@ import java.io.PrintStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.NoSuchElementException;
+import java.util.List;
 
 import static paprika.PaprikaArgParser.*;
 
@@ -42,11 +42,13 @@ public class PaprikaLauncher {
 
     private PaprikaArgParser parser;
     private Namespace arg;
-    private PrintStream print;
+    private PrintStream out;
+    private List<String> appsPaths;
+    private boolean folderMode = false;
 
-    public PaprikaLauncher(String[] args, PrintStream print) throws NoSuchAlgorithmException,
+    public PaprikaLauncher(String[] args, PrintStream out) throws NoSuchAlgorithmException,
             IOException, PaprikaArgException {
-        this.print = print;
+        this.out = out;
         this.parser = new PaprikaArgParser();
         try {
             parser.parseArgs(args);
@@ -58,63 +60,89 @@ public class PaprikaLauncher {
 
     public void startPaprika() throws IOException, NoSuchAlgorithmException {
         if (parser.isAnalyseMode()) {
-            PaprikaApp app;
-            try {
-                app = analyzeApp();
-            } catch (NoSuchElementException e) {
-                // Soot, please stop crashing randomly. We'll try this again.
-                print.println("Encountered soot issue on app " + arg.getString(APK_ARG));
-                print.println("Restarting soot analysis...");
-                app = analyzeApp();
-            }
-            saveIntoDatabase(app);
+            analyseMode();
         } else if (parser.isQueryMode()) {
             queryMode();
         }
     }
 
-    public PaprikaApp analyzeApp() throws IOException, NoSuchAlgorithmException {
-        print.println("Collecting metrics");
+    private void analyseMode() throws IOException, NoSuchAlgorithmException {
+        boolean folderMode = parser.isFolderMode();
+        if (folderMode) {
+            out.println("Analyzing all apps in folder " + arg.get(APK_ARG));
+        }
+        ModelToGraph modelToGraph = new ModelToGraph(arg.getString(DATABASE_ARG));
+        for (String apk : parser.getAppsPaths()) {
+            out.println("Analyzing " + apk);
+            PaprikaApp app = analyzeApp(apk, folderMode, 0);
+            saveIntoDatabase(app, modelToGraph);
+        }
+        out.println("Done");
+    }
+
+    public PaprikaApp analyzeApp(String apkPath, boolean folderMode, int retries) throws IOException, NoSuchAlgorithmException {
+        out.println("Collecting metrics");
         Namespace arg = parser.getArguments();
-        Analyzer analyzer = new SootAnalyzer(arg.getString(APK_ARG), arg.getString(ANDROID_JARS_ARG),
-                arg.getString(NAME_ARG), parser.getSha(),
-                arg.getString(PACKAGE_ARG), arg.getString(DATE_ARG), arg.getInt(SIZE_ARG),
-                arg.getString(DEVELOPER_ARG), arg.getString(CATEGORY_ARG), arg.getString(PRICE_ARG),
-                arg.getDouble(RATING_ARG), arg.getInt(NB_DOWNLOAD_ARG), arg.getString(VERSION_CODE_ARG),
-                arg.getString(VERSION_NAME_ARG), arg.getInt(SDK_VERSION_ARG), arg.getInt(TARGET_SDK_VERSION_ARG),
-                arg.getBoolean(ONLY_MAIN_PACKAGE_ARG) != null);
+        Analyzer analyzer;
+        if (!folderMode) {
+            analyzer = new SootAnalyzer(apkPath, arg.getString(ANDROID_JARS_ARG),
+                    arg.getString(NAME_ARG), parser.getSha(),
+                    arg.getString(PACKAGE_ARG), arg.getString(DATE_ARG), arg.getInt(SIZE_ARG),
+                    arg.getString(DEVELOPER_ARG), arg.getString(CATEGORY_ARG), arg.getString(PRICE_ARG),
+                    arg.getDouble(RATING_ARG), arg.getInt(NB_DOWNLOAD_ARG), arg.getString(VERSION_CODE_ARG),
+                    arg.getString(VERSION_NAME_ARG), arg.getInt(SDK_VERSION_ARG), arg.getInt(TARGET_SDK_VERSION_ARG),
+                    arg.getBoolean(ONLY_MAIN_PACKAGE_ARG) != null);
+        } else {
+            analyzer = new SootAnalyzer(apkPath, arg.getString(ANDROID_JARS_ARG),
+                    "", parser.computeSha256(apkPath),
+                    "", arg.getString(DATE_ARG), arg.getInt(SIZE_ARG),
+                    arg.getString(DEVELOPER_ARG), arg.getString(CATEGORY_ARG), arg.getString(PRICE_ARG),
+                    arg.getDouble(RATING_ARG), arg.getInt(NB_DOWNLOAD_ARG), arg.getString(VERSION_CODE_ARG),
+                    arg.getString(VERSION_NAME_ARG), arg.getInt(SDK_VERSION_ARG), arg.getInt(TARGET_SDK_VERSION_ARG),
+                    arg.getBoolean(ONLY_MAIN_PACKAGE_ARG) != null);
+        }
         analyzer.prepareSoot();
-        analyzer.runAnalysis();
+        try {
+            analyzer.runAnalysis();
+        } catch (RuntimeException e) {
+            if (retries < 3) {
+                // Soot, please stop crashing randomly. We'll try this again.
+                out.println("Encountered soot issue on app " + apkPath);
+                out.println("Restarting soot analysis...");
+                return analyzeApp(apkPath, folderMode, retries + 1);
+            } else {
+                e.printStackTrace(out);
+                return null;
+            }
+        }
         return analyzer.getPaprikaApp();
     }
 
-    public void saveIntoDatabase(PaprikaApp app) {
-        print.println("Saving into database " + arg.getString(DATABASE_ARG));
-        ModelToGraph modelToGraph = new ModelToGraph(arg.getString(DATABASE_ARG));
+    public void saveIntoDatabase(PaprikaApp app, ModelToGraph modelToGraph) {
+        out.println("Saving into database " + arg.getString(DATABASE_ARG));
         modelToGraph.insertApp(app);
-        print.println("Done");
     }
 
 
     public void queryMode() throws IOException {
-        print.println("Executing Queries");
+        out.println("Executing Queries");
         Namespace arg = parser.getArguments();
         QueryEngine queryEngine = new QueryEngine(arg.getString(DATABASE_ARG), arg);
         QueryPropertiesReader.loadProperties(arg.getString(THRESHOLDS_ARG));
         String request = arg.get(REQUEST_ARG);
         Boolean details = arg.get(DETAILS_ARG);
         String csvPrefix = getCSVPrefix(arg.getString(CSV_ARG));
-        print.println("Resulting csv file name will start with prefix " + csvPrefix);
+        out.println("Resulting csv file name will start with prefix " + csvPrefix);
         queryEngine.setCsvPrefix(csvPrefix);
         PaprikaRequest paprikaRequest = PaprikaRequest.getRequest(request);
         if (paprikaRequest != null) {
             paprikaRequest.getCommand(queryEngine).run(details);
         } else {
-            print.println("Executing custom request");
+            out.println("Executing custom request");
             new CustomCommand(queryEngine, request).run(false);
         }
         queryEngine.shutDown();
-        print.println("Done");
+        out.println("Done");
     }
 
     private String getCSVPrefix(String csvPath) {

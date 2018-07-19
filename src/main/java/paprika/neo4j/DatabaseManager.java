@@ -33,7 +33,6 @@ public class DatabaseManager {
 
     public DatabaseManager(String DB_PATH) {
         this.DB_PATH = DB_PATH;
-
     }
 
     private static void registerShutdownHook(final GraphDatabaseService graphDb) {

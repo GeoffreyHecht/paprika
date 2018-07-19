@@ -43,7 +43,12 @@ You can find the java application in ```build/libs/Paprika.jar```.
 Note that Paprika might not work properly on apk files using a minimum sdk version superior or equal to 26.
 
 You can choose between two modes: **analyse** and **query**.
+
 The **analyse** mode will allows you to scan with [Soot](https://sable.github.io/soot/) your Application application, to detect contained code smells.
+If analyzing multiple apks, it is recommended to put them in a folder and pass the folder path to Paprika rather than executing it multiple times.
+This allows significant performance gains (up to 2x times faster).
+While in "folder mode", the arguments used to set a specific name (-n), key (-k) or package (-p) will be ignored.
+
 You can use after the **query** mode on your Neo4J graph to request how much code smells your application contains.
 
 #### Analyse mode usage

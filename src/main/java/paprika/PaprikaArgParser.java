@@ -22,11 +22,15 @@ import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.*;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static paprika.entities.PaprikaApp.NO_SDK;
 
@@ -76,7 +80,7 @@ public class PaprikaArgParser {
         setupQuery();
     }
 
-    private static String computeSha256(String path) throws IOException, NoSuchAlgorithmException {
+    public String computeSha256(String path) throws IOException, NoSuchAlgorithmException {
         byte[] buffer = new byte[2048];
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
 
@@ -212,6 +216,29 @@ public class PaprikaArgParser {
         if (!res.getString(DATE_ARG).matches(DATE_REGEX)) {
             throw new PaprikaArgException("Date should be formatted : yyyy-mm-dd hh:mm:ss.S");
         }
+    }
+
+    public List<String> getAppsPaths() {
+        List<String> apps = new ArrayList<>();
+        File apkFolder = new File(res.getString(APK_ARG));
+        if (!apkFolder.isDirectory()) {
+            return Collections.singletonList("");
+        } else {
+            File[] files = apkFolder.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.getName().endsWith(".apk")) {
+                        apps.add(res.getString(APK_ARG) + File.separator + file.getName());
+                    }
+                }
+            }
+        }
+        return apps;
+    }
+
+    public boolean isFolderMode() {
+        File apkFolder = new File(res.getString(APK_ARG));
+        return apkFolder.isDirectory();
     }
 
 

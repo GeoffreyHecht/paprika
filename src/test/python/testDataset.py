@@ -14,13 +14,6 @@ csv_test_folder = "got"
 expected_folder = "expected"
 jar_location = "../../../build/libs/Paprika.jar"
 
-
-test_data = [
-    "dosbox", "opengpx", "openmanager",
-    "passandroid", "tint", "tof", "wikipedia",
-    "witness", "wordpress"
-]
-
 java_cmd = ["java", "-Xmx2G", "-XX:+UseConcMarkSweepGC", "-jar", jar_location]
 analyse_args = ["analyse", "-a", platform_folder, "-db", db_folder, "-omp"]
 query_args = ["query", "-db", db_folder, "-d", "-r", "ALLAP"]
@@ -30,8 +23,8 @@ def format_apk(app):
     return apk_folder + "/" + app + ".apk"
 
 
-def analyse_paprika(apk):
-    call(java_cmd + analyse_args + [format_apk(apk)])
+def analyse_paprika():
+    call(java_cmd + analyse_args + [apk_folder])
 
 
 def remove_csv_prefix(folder_name):
@@ -131,7 +124,6 @@ def compare_files():
 
 
 def run_test():
-    total_time = 0
     override = False
     if len(sys.argv) > 1 and sys.argv[1] == "--replace":
         override = True
@@ -142,15 +134,11 @@ def run_test():
     else:
         print("Starting test...")
 
-    for data in test_data:
-        start = time.time()
-        print("Analyzing " + data)
-        analyse_paprika(data)
-        exec_time = time.time() - start
-        total_time += exec_time
-        print("Completed in " + "{0:.2f}".format(exec_time) + " seconds.")
+    start = time.time()
+    analyse_paprika()
+    exec_time = time.time() - start
 
-    print("Total analysis time: " + "{0:.2f}".format(total_time) + " seconds")
+    print("Total analysis time: " + "{0:.2f}".format(exec_time) + " seconds")
     print("Querying results...")
     if override:
         clean_folder(expected_folder)

@@ -47,7 +47,7 @@ public class PaprikaLauncherTest {
                 getClass().getResource(APK).getFile()
         };
         PaprikaLauncher launcher = new PaprikaLauncher(args, silent);
-        PaprikaApp app = launcher.analyzeApp();
+        PaprikaApp app = launcher.analyzeApp(getClass().getResource(APK).getFile(), false, 0);
         assertThat(app.getName(), is(equalTo("paprika-witness")));
         assertThat(app.getPackage(), is(equalTo("com.antipatterns.app")));
         assertThat(app.getTargetSdkVersion(), is(equalTo(AnalyzedApkTest.DEFAULT_VERSION)));
@@ -64,7 +64,7 @@ public class PaprikaLauncherTest {
                 getClass().getResource(APK).getFile()
         };
         PaprikaLauncher launcher = new PaprikaLauncher(args, silent);
-        PaprikaApp app = launcher.analyzeApp();
+        PaprikaApp app = launcher.analyzeApp(getClass().getResource(APK).getFile(), false, 0);
         assertThat(app.getName(), is(equalTo("myApp")));
         assertThat(app.getPackage(), is(equalTo("my.custom.package")));
         assertThat(app.getKey(), is(equalTo("645")));
