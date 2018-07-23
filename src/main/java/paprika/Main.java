@@ -18,6 +18,8 @@
 
 package paprika;
 
+import paprika.launcher.PaprikaLauncher;
+
 /**
  * Created by Geoffrey Hecht on 19/05/14.
  */

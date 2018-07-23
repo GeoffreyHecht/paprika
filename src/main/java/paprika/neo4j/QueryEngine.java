@@ -18,11 +18,11 @@
 
 package paprika.neo4j;
 
-import net.sourceforge.argparse4j.inf.Namespace;
 import org.neo4j.cypher.CypherException;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
+import paprika.launcher.PaprikaArgParser;
 import paprika.neo4j.queries.PaprikaQuery;
 import paprika.neo4j.queries.antipatterns.fuzzy.FuzzyQuery;
 
@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static paprika.launcher.Argument.DATABASE_ARG;
+
 /**
  * Created by Geoffrey Hecht on 12/01/15.
  */
@@ -38,7 +40,7 @@ public class QueryEngine {
 
     protected GraphDatabaseService graphDatabaseService;
     protected DatabaseManager databaseManager;
-    protected Namespace arg;
+    protected PaprikaArgParser arg;
 
     protected String csvPrefix;
 
@@ -54,8 +56,8 @@ public class QueryEngine {
         return graphDatabaseService;
     }
 
-    public QueryEngine(String DatabasePath, Namespace arg) {
-        this.databaseManager = new DatabaseManager(DatabasePath);
+    public QueryEngine(PaprikaArgParser arg) {
+        this.databaseManager = new DatabaseManager(arg.getArg(DATABASE_ARG));
         this.arg = arg;
         databaseManager.start();
         graphDatabaseService = databaseManager.getGraphDatabaseService();
@@ -83,7 +85,7 @@ public class QueryEngine {
         }
     }
 
-    public Namespace getArg() {
+    public PaprikaArgParser getArgParser() {
         return arg;
     }
 

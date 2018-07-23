@@ -1,0 +1,23 @@
+{
+  "package": [
+    {
+      "value": "random.package",
+      "apps": [
+        "paprika-witness"
+      ]
+    }
+  ],
+  "key": [
+    {
+      "value": "customKey",
+      "apps": [
+        "paprika-witness"
+      ]
+    }
+  ],
+  "paprika-witness": {
+    "name": "myCustomName",
+    "key": "overrideKey",
+    "targetSdkVersion": "89"
+  }
+}

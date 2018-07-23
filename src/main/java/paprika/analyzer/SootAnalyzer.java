@@ -23,8 +23,6 @@ import paprika.metrics.classes.stat.paprika.*;
 import soot.*;
 import soot.options.Options;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
@@ -37,9 +35,6 @@ public class SootAnalyzer extends Analyzer {
     private String androidJAR;
     private PaprikaContainer container;
 
-    private MethodProcessor methodProcessor;
-    private ClassProcessor classProcessor;
-
     private List<PaprikaClassStatistic> finalMetrics = Arrays.asList(
             new ClassComplexity(),
             new CouplingBetweenObjects(),
@@ -48,15 +43,9 @@ public class SootAnalyzer extends Analyzer {
             new NumberOfChildren()
     );
 
-    public SootAnalyzer(String apk, String androidJAR, String name, String key, String pack, String date, int size,
-                        String dev, String cat, String price, double rating, int nbDownload, String versionCode,
-                        String versionName, int sdkVersion, int targetSdkVersion, boolean mainPackageOnly) {
+    public SootAnalyzer(String apk, String androidJAR) {
         this.apk = apk;
         this.androidJAR = androidJAR;
-        this.container = new PaprikaContainer(PaprikaApp.createPaprikaApp(name, key, pack, date, size, dev, cat, price, rating,
-                nbDownload, versionCode, versionName, sdkVersion, targetSdkVersion));
-        this.classProcessor = new ClassProcessor(container, mainPackageOnly);
-        this.methodProcessor = new MethodProcessor(container);
     }
 
     @Override
@@ -75,7 +64,7 @@ public class SootAnalyzer extends Analyzer {
         Options.v().set_src_prec(Options.src_prec_apk);
         Options.v().set_process_dir(Collections.singletonList(apk));
         Options.v().set_output_format(Options.output_format_grimple);
-        Options.v().set_output_dir(System.getProperty("user.home") + File.separator + "/These/decompiler/out");
+        Options.v().set_output_dir(System.getProperty("user.home") + "/" + "/These/decompiler/out");
         Options.v().set_process_multiple_dex(true);
         Options.v().set_throw_analysis(Options.throw_analysis_dalvik);
         Options.v().set_no_bodies_for_excluded(true);
@@ -94,8 +83,10 @@ public class SootAnalyzer extends Analyzer {
     }
 
     @Override
-    public void runAnalysis() throws IOException {
-        container.readMissingAppInfo(apk);
+    public void runAnalysis(PaprikaApp app, boolean mainPackageOnly) {
+        this.container = new PaprikaContainer(app);
+        ClassProcessor classProcessor = new ClassProcessor(container, mainPackageOnly);
+        MethodProcessor methodProcessor = new MethodProcessor(container);
         classProcessor.processClasses();
         PackManager.v().getPack("gop").add(new Transform("gop.myInstrumenter", new BodyTransformer() {
             @Override

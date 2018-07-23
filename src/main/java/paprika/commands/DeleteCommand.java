@@ -20,7 +20,7 @@ package paprika.commands;
 
 import paprika.neo4j.QueryEngine;
 
-import static paprika.PaprikaArgParser.DEL_KEY_ARG;
+import static paprika.launcher.Argument.DEL_KEY_ARG;
 
 public class DeleteCommand implements PaprikaCommand {
 
@@ -34,7 +34,7 @@ public class DeleteCommand implements PaprikaCommand {
 
     @Override
     public void run(boolean details) {
-        engine.deleteQuery(engine.getArg().getString(DEL_KEY_ARG));
+        engine.deleteQuery(engine.getArgParser().getArg(DEL_KEY_ARG));
     }
 
 }

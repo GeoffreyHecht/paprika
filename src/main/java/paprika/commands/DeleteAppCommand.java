@@ -18,8 +18,11 @@
 
 package paprika.commands;
 
-import net.sourceforge.argparse4j.inf.Namespace;
+import paprika.launcher.PaprikaArgParser;
 import paprika.neo4j.QueryEngine;
+
+import static paprika.launcher.Argument.DEL_KEY_ARG;
+import static paprika.launcher.Argument.DEL_PACKAGE_ARG;
 
 public class DeleteAppCommand implements PaprikaCommand {
 
@@ -33,11 +36,11 @@ public class DeleteAppCommand implements PaprikaCommand {
 
     @Override
     public void run(boolean details) {
-        Namespace arg = engine.getArg();
-        if (arg.get("delKey") != null) {
-            engine.deleteEntireApp(arg.getString("delKey"));
+        PaprikaArgParser arg = engine.getArgParser();
+        if (arg.getArg(DEL_KEY_ARG) != null) {
+            engine.deleteEntireApp(arg.getArg(DEL_KEY_ARG));
         } else {
-            engine.deleteEntireAppFromPackage(arg.getString("delPackage"));
+            engine.deleteEntireAppFromPackage(arg.getArg(DEL_PACKAGE_ARG));
         }
     }
 

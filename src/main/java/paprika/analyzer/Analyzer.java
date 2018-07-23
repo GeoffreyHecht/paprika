@@ -20,8 +20,6 @@ package paprika.analyzer;
 
 import paprika.entities.PaprikaApp;
 
-import java.io.IOException;
-
 /**
  * Created by Geoffrey Hecht on 20/05/14.
  */
@@ -31,7 +29,7 @@ public abstract class Analyzer {
 
     public abstract void prepareSoot();
 
-    public abstract void runAnalysis() throws IOException;
+    public abstract void runAnalysis(PaprikaApp app, boolean mainPackageOnly);
 
     public abstract PaprikaApp getPaprikaApp();
 }

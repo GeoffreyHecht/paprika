@@ -5,7 +5,7 @@ Paprika is a powerfull toolkit to detect some code smells in analysed Android ap
 # Table of contents
 *   [Code smells detection](#code_smells_detection)
 *   [How to use it?](#how_to_use_it)
-*   [Troubleshootings](#troubleshootings)
+*   [Troubleshooting](#troubleshootings)
 *   [Credits](#credits)
 *   [Publications](#publications)
 
@@ -44,14 +44,15 @@ Note that Paprika might not work properly on apk files using a minimum sdk versi
 
 You can choose between two modes: **analyse** and **query**.
 
-The **analyse** mode will allows you to scan with [Soot](https://sable.github.io/soot/) your Application application, to detect contained code smells.
-If analyzing multiple apks, it is recommended to put them in a folder and pass the folder path to Paprika rather than executing it multiple times.
-This allows significant performance gains (up to 2x times faster).
+The **analyse** mode will allows you to scan with [Soot](https://sable.github.io/soot/) your Application application,
+to detect contained code smells.
+If analyzing multiple apks, it is recommended to put them in a folder and pass the folder path to Paprika rather 
+than executing it multiple times. This will be up to 2x times faster
 While in "folder mode", the arguments used to set a specific name (-n), key (-k) or package (-p) will be ignored.
 
-You can use after the **query** mode on your Neo4J graph to request how much code smells your application contains.
+After analyzing, you can use the **query** mode on your Neo4J graph to request how much code smells your application contains.
 
-#### Analyse mode usage
+#### Analyze a single app
 
 ```
 usage: paprika analyse [-h] -a ANDROIDJARS -db DATABASE -n NAME -p PACKAGE -k KEY -dev DEVELOPER
@@ -80,7 +81,7 @@ optional arguments:
                          Application category, defaults to "default-category"
   -nd NBDOWNLOAD, --nbDownload NBDOWNLOAD
                          Numbers of downloads for the app, defaults to 0
-  -d DATE, --date DATE   Date of download, defaults to "2017-01-01 10:23:39.050315"
+  -d DATE, --date DATE   Date of download, defaults to "2017-01-28 00:00:00.000000"
   -r RATING, --rating RATING
                          Application rating, defaults to 1.0
   -pr PRICE, --price PRICE
@@ -99,6 +100,44 @@ optional arguments:
   -omp, --onlyMainPackage
                          Analyze only the main package of the application
 ```
+
+#### Analyzing multiple applications at once
+
+When using a folder in place of the **apk** parameter, Paprika will look into the contents of the folder and analyze every
+.apk file it finds. The Paprika arguments used to set an application property (such as `-dev, --developer` or `-cat, --category`) will be
+applied to every application analyzed (every app will have the same category). Note that the arguments used to set the name, key
+or package of the application will not work (`-n, --name / -k, --key / -p, --package`).
+
+If you want to edit properties to the applications individually, you'll have to include a JSON file in the folder, 
+named `apk-properties.json`. The properties read from this file will override the values read from the standard
+Paprika arguments.
+
+Below is an example of the expected JSON format. The ids of the properties (name, category...) correspond to the Paprika argument names.
+You do not have to include all the properties - if one is missing, the default value will be used.
+
+```
+{ 
+	// Standard syntax
+	apk_filename_without_extension: {
+		name: "myCustomName"
+		category: "myCustomCategory"
+		nbDownload: "58"
+		...
+	}
+	
+	// Alternative syntax to avoid repeating yourself
+	category: [
+		{ value:"myCustomCategory",  apps:[ "anApk", "anotherApk" ] },
+		{ value:"myOtherCategory", apps:[ "anApk" ] },
+	]
+	rating: [
+		{ value:"3.5", apps:[ "anApk", "anotherApk"] }
+	]
+	
+	// If you're using both syntax, the standard one has priority over the alternative.
+}
+```
+
 
 #### Query mode usage
 
@@ -136,7 +175,7 @@ Then you can launch queries on this database using query mode, for example :
 java -Xmx2G -XX:+UseConcMarkSweepGC -jar  Paprika.jar query -db "/path/to/database" -d -r ALLAP
 ```
 
-### <a name="troubleshootings"></a>Troubleshootings
+### <a name="troubleshootings"></a>Troubleshooting
 
 **paprika** is still in development.  
 Found a bug? We'd love to know about it!  

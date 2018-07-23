@@ -67,11 +67,12 @@ dependencies {
     compile 'net.sourceforge.argparse4j:argparse4j:0.8.1'
     compile 'org.slf4j:slf4j-nop:1.7.25'
     compile 'net.dongliu:apk-parser:2.6.1'
-
-    // Not on maven central
-    compile 'net.sourceforge.jFuzzyLogic:JFuzzyLogic'
+    compile 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
 
     testCompile("org.junit.jupiter:junit-jupiter-api:5.2.0")
     testCompile("org.hamcrest:hamcrest-all:1.3")
     testRuntime("org.junit.jupiter:junit-jupiter-engine:5.2.0")
+
+    // Not on maven central
+    compile 'net.sourceforge.jFuzzyLogic:JFuzzyLogic'
 }

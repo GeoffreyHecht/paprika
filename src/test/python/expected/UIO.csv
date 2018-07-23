@@ -1,4 +1,4 @@
 app_key,full_name
-30ef6f312880442ea01d177d744e652cc2b25c1548ba16d33b7d1b2dcfa37c60,onDraw#com.antipatterns.app.NotSoGoodView
-16d11c6c79d678c3a99d58cced02b565ccd9b1267adc1c1dfdf4ad1a29d0dd72,onDraw#org.brandroid.openmanager.views.SpriteAnimatorSurfaceView
-348aeef2fc408738d93bbcae294b068d5b161ddba01dc2edbd052d0fbf3a9303,onDraw#org.wordpress.android.util.LinePageIndicator
+witness,onDraw#com.antipatterns.app.NotSoGoodView
+openmanager,onDraw#org.brandroid.openmanager.views.SpriteAnimatorSurfaceView
+wordpress,onDraw#org.wordpress.android.util.LinePageIndicator

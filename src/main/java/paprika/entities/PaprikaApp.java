@@ -61,9 +61,9 @@ public class PaprikaApp extends Entity {
     private List<PaprikaClass> paprikaClasses;
     private List<PaprikaExternalClass> paprikaExternalClasses;
 
-    private PaprikaApp(String name, String key, String pack, String date, int size, String developer,
-                       String category, String price, double rating, int nbDownload, String versionCode,
-                       String versionName, int sdkVersion, int targetSdkVersion) {
+    protected PaprikaApp(String name, String key, String pack, String date, int size, String developer,
+                         String category, String price, double rating, int nbDownload, String versionCode,
+                         String versionName, int sdkVersion, int targetSdkVersion) {
         this.name = name;
         this.key = key;
         this.pack = pack;
@@ -85,14 +85,6 @@ public class PaprikaApp extends Entity {
 
     public List<PaprikaExternalClass> getPaprikaExternalClasses() {
         return paprikaExternalClasses;
-    }
-
-    public static PaprikaApp createPaprikaApp(String name, String key, String pack, String date,
-                                              int size, String dev, String cat, String price,
-                                              double rating, int nbDownload, String versionCode,
-                                              String versionName, int sdkVersion, int targetSdkVersion) {
-        return new PaprikaApp(name, key, pack, date, size, dev, cat, price, rating, nbDownload,
-                versionCode, versionName, sdkVersion, targetSdkVersion);
     }
 
     public List<PaprikaClass> getPaprikaClasses() {
@@ -159,23 +151,4 @@ public class PaprikaApp extends Entity {
         return targetSdkVersion;
     }
 
-    public void setTargetSdkVersion(int targetSdkVersion) {
-        this.targetSdkVersion = targetSdkVersion;
-    }
-
-    public void setPackage(String pack) {
-        this.pack = pack;
-    }
-
-    public boolean hasTargetSDK() {
-        return targetSdkVersion != NO_SDK;
-    }
-
-    public boolean hasPackage() {
-        return !"".equals(pack);
-    }
-
-    public boolean hasName() {
-        return !"".equals(name);
-    }
 }
