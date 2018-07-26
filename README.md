@@ -47,7 +47,7 @@ Paprika has multiple execution modes depending on the first argument.
 The **analyse** mode will allows you to scan with [Soot](https://sable.github.io/soot/) your Application application,
 to detect contained code smells.
 If analyzing multiple apks, it is recommended to put them in a folder and pass the folder path to Paprika rather 
-than executing it multiple times. This will be up to 2x times faster
+than executing it multiple times, for better performance.
 While in "folder mode", the arguments used to set a specific name (-n), key (-k) or package (-p) will be ignored.
 
 After analyzing, you can use the **query** mode on your Neo4J graph to request how much code smells your application contains.
@@ -59,8 +59,8 @@ You may also use the **delete** mode to remove an application from the database.
 The `-omp` optional argument is recommended to avoid analyzing the libraries used by an application.
 
 ```
-usage: paprika analyse [-h] -a ANDROIDJARS -db DATABASE -n NAME -p PACKAGE -k KEY -dev DEVELOPER
-               -cat CATEGORY -nd NBDOWNLOAD -d DATE -r RATING [-pr PRICE] -s SIZE [-u]
+usage: paprika analyse [-h] -a ANDROIDJARS -db DATABASE [-n NAME] [-p PACKAGE] [-k KEY] [-dev DEVELOPER]
+               [-cat CATEGORY] [-nd NBDOWNLOAD] [-d DATE] [-r RATING] [-pr PRICE] [-s SIZE] [-u]
                [-vc VERSIONCODE] [-vn VERSIONNAME] [-tsdk TARGETSDKVERSION] [-sdk SDKVERSION]
                [-omp] apk
 
@@ -146,7 +146,7 @@ You do not have to include all the properties - if one is missing, the default v
 #### Querying the database
 
 ```
-usage: paprika query [-h] -db DATABASE [-r REQUEST] [-c CSV] [-k KEY] [-p PACKAGE] [-d] [-thr PATH]
+usage: paprika query [-h] -db DATABASE -r REQUEST [-c CSV] [-k KEY] [-p PACKAGE] [-d] [-thr PATH]
 
 required arguments:
   -db DATABASE, --database DATABASE
@@ -156,8 +156,7 @@ required arguments:
 
 optional arguments:
   -h, --help             Show help message and exit
-  -c CSV, --csv CSV      Path to register csv files defaults to working directory
-  -k KEY, --key KEY      Key to delete
+  -c CSV, --csv CSV      Path to register csv files, defaults to working directory
   -p PACKAGE, --package PACKAGE
                          Package of the applications to delete
   -d, --details

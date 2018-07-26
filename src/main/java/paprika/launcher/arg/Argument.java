@@ -278,7 +278,8 @@ public enum Argument {
     REQUEST_ARG("request", QUERY_MODE) {
         @Override
         public void setup(Subparser subparser) {
-            subparser.addArgument("-r", prefixArg(toString())).help("Request to execute");
+            subparser.addArgument("-r", prefixArg(toString())).required(true)
+                    .help("Request to execute");
         }
     },
 
