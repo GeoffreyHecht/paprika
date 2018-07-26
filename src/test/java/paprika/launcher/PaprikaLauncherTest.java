@@ -19,8 +19,10 @@
 package paprika.launcher;
 
 import org.junit.jupiter.api.Test;
-import paprika.entities.PaprikaApp;
-import paprika.neo4j.queries.AnalyzedApkTest;
+import paprika.analyse.AnalyseModeStarter;
+import paprika.analyse.ApkPropertiesParser;
+import paprika.analyse.entities.PaprikaApp;
+import paprika.query.neo4j.queries.AnalyzedApkTest;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -42,14 +44,19 @@ public class PaprikaLauncherTest {
         }
     });
 
+    private PaprikaApp getAnalyzedApp(String[] args) throws Exception {
+        PaprikaLauncher launcher = new PaprikaLauncher(args, silent);
+        AnalyseModeStarter starter = (AnalyseModeStarter) launcher.getArgParser().getSelectedStarter(silent);
+        return starter.analyzeApp(getClass().getResource(APK).getFile(), null);
+    }
+
     @Test
     public void minimalArgsTest() throws Exception {
         String[] args = {"analyse", "-a", getClass().getResource(PLATFORMS_PATH).getFile(),
                 "-db", getClass().getResource(AnalyzedApkTest.DB_PATH).getFile(), "-omp",
                 getClass().getResource(APK).getFile()
         };
-        PaprikaLauncher launcher = new PaprikaLauncher(args, silent);
-        PaprikaApp app = launcher.analyzeApp(getClass().getResource(APK).getFile(), false, 0, null);
+        PaprikaApp app = getAnalyzedApp(args);
         assertThat(app.getName(), is(equalTo("paprika-witness")));
         assertThat(app.getPackage(), is(equalTo("com.antipatterns.app")));
         assertThat(app.getTargetSdkVersion(), is(equalTo(AnalyzedApkTest.DEFAULT_VERSION)));
@@ -65,8 +72,7 @@ public class PaprikaLauncherTest {
                 "-sdk", "15", "-tsdk", "20", "-omp",
                 getClass().getResource(APK).getFile()
         };
-        PaprikaLauncher launcher = new PaprikaLauncher(args, silent);
-        PaprikaApp app = launcher.analyzeApp(getClass().getResource(APK).getFile(), false, 0, null);
+        PaprikaApp app = getAnalyzedApp(args);
         assertThat(app.getName(), is(equalTo("myApp")));
         assertThat(app.getPackage(), is(equalTo("my.custom.package")));
         assertThat(app.getKey(), is(equalTo("645")));
@@ -94,7 +100,8 @@ public class PaprikaLauncherTest {
                 Collections.singletonList("paprika-witness"));
         propsParser.readProperties();
         PaprikaLauncher launcher = new PaprikaLauncher(args, silent);
-        PaprikaApp app = launcher.analyzeApp(getClass().getResource(APK).getFile(), false, 0, propsParser);
+        AnalyseModeStarter starter = (AnalyseModeStarter) launcher.getArgParser().getSelectedStarter(silent);
+        PaprikaApp app = starter.analyzeApp(getClass().getResource(APK).getFile(), propsParser);
         assertThat(app.getPackage(), is(equalTo("random.package")));
         assertThat(app.getKey(), is(equalTo("overrideKey")));
         assertThat(app.getName(), is(equalTo("myCustomName")));

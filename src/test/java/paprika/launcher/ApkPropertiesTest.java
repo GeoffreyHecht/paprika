@@ -19,6 +19,8 @@
 package paprika.launcher;
 
 import org.junit.jupiter.api.Test;
+import paprika.analyse.ApkPropertiesParser;
+import paprika.analyse.PropertiesException;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -28,7 +30,7 @@ import java.util.Arrays;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static paprika.launcher.Argument.*;
+import static paprika.launcher.arg.Argument.*;
 
 public class ApkPropertiesTest {
 

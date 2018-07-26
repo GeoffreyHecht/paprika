@@ -19,7 +19,8 @@
 package paprika.launcher;
 
 import org.junit.jupiter.api.Test;
-import paprika.neo4j.queries.AnalyzedApkTest;
+import paprika.launcher.arg.PaprikaArgParser;
+import paprika.query.neo4j.queries.AnalyzedApkTest;
 
 import java.util.Arrays;
 import java.util.List;

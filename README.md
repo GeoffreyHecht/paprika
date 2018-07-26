@@ -1,6 +1,6 @@
 # paprika
 
-Paprika is a powerfull toolkit to detect some code smells in analysed Android applications.
+Paprika is a powerful toolkit to detect some code smells in analysed Android applications.
 
 # Table of contents
 *   [Code smells detection](#code_smells_detection)
@@ -14,35 +14,35 @@ Paprika is a powerfull toolkit to detect some code smells in analysed Android ap
 Paprika supports currently 16 Object-Oriented (OO) and Android code smells.
 
 **Object-Oriented** code smells:
-* Blob Class,
-* Swiss Army Knife,
-* Long Method,
-* Complex Class.
+* Blob Class (BLOB),
+* Swiss Army Knife (SAK),
+* Long Method (LM),
+* Complex Class (CC).
 
 **Android** code smells:
-* Internal Getter/Setter,
-* Member Ignoring Method,
-* No Low Memory Resolver,
-* Leaking Inner Class,
-* UI Overdraw,
-* Invalidate Without Rect,
-* Heavy AsyncTask,
-* Heavy Service Start,
-* Heavy Broadcast Receiver,
-* Init OnDraw,
-* Hashmap Usage,
-* Unsupported Hardware Acceleration,
+* Internal Getter/Setter (IGS),
+* Member Ignoring Method (MIM),
+* No Low Memory Resolver (NLMR),
+* Leaking Inner Class (LIC),
+* UI Overdraw (UIO),
+* Invalidate Without Rect (IWR),
+* Heavy AsyncTask (HAS),
+* Heavy Service Start (HSS),
+* Heavy Broadcast Receiver (HBR),
+* Init OnDraw (IOD),
+* Hashmap Usage (HMU),
+* Unsupported Hardware Acceleration (UHA),
 
 ### <a name="hoz_to_use_it"></a>How to use it ?
 
 Paprika needs an Android platform to works. It also requires a 64 bits version of Java.
-You can find many Android platforms with the correct folder structure [this Github repository](https://github.com/Sable/android-platforms).
+You can find the correct folder structure for Android platforms in [this Github repository](https://github.com/Sable/android-platforms).
 To compile Paprika into a jar with its dependencies, run `gradle shadowjar`.
-You can find the java application in ```build/libs/Paprika.jar```.
+You can find the built java application in ```build/libs/Paprika.jar```.
 
 Note that Paprika might not work properly on apk files using a minimum sdk version superior or equal to 26.
 
-You can choose between two modes: **analyse** and **query**.
+Paprika has multiple execution modes depending on the first argument.
 
 The **analyse** mode will allows you to scan with [Soot](https://sable.github.io/soot/) your Application application,
 to detect contained code smells.
@@ -52,7 +52,11 @@ While in "folder mode", the arguments used to set a specific name (-n), key (-k)
 
 After analyzing, you can use the **query** mode on your Neo4J graph to request how much code smells your application contains.
 
-#### Analyze a single app
+You may also use the **delete** mode to remove an application from the database.
+
+#### Analyzing a single app
+
+The `-omp` optional argument is recommended to avoid analyzing the libraries used by an application.
 
 ```
 usage: paprika analyse [-h] -a ANDROIDJARS -db DATABASE -n NAME -p PACKAGE -k KEY -dev DEVELOPER
@@ -70,11 +74,11 @@ required arguments:
                          Path to neo4J Database folder
 
 optional arguments:
-  -h, --help             show this help message and exit
+  -h, --help             Show help message and exit
   -n NAME, --name NAME   Name of the application, defaults to apk filename
   -p PACKAGE, --package PACKAGE
                            Application main package (extracted from manifest)
-  -k KEY, --key KEY      sha256 of the apk used as identifier
+  -k KEY, --key KEY      Key of the application
   -dev DEVELOPER, --developer DEVELOPER
                          Application developer, defaults to "default-dev"
   -cat CATEGORY, --category CATEGORY
@@ -108,7 +112,7 @@ When using a folder in place of the **apk** parameter, Paprika will look into th
 applied to every application analyzed (every app will have the same category). Note that the arguments used to set the name, key
 or package of the application will not work (`-n, --name / -k, --key / -p, --package`).
 
-If you want to edit properties to the applications individually, you'll have to include a JSON file in the folder, 
+If you want to edit the properties of the applications individually, you'll have to include a JSON file in the folder, 
 named `apk-properties.json`. The properties read from this file will override the values read from the standard
 Paprika arguments.
 
@@ -125,7 +129,7 @@ You do not have to include all the properties - if one is missing, the default v
 		...
 	}
 	
-	// Alternative syntax to avoid repeating yourself
+	// Alternative syntax to avoid repetition
 	category: [
 		{ value:"myCustomCategory",  apps:[ "anApk", "anotherApk" ] },
 		{ value:"myOtherCategory", apps:[ "anApk" ] },
@@ -134,12 +138,12 @@ You do not have to include all the properties - if one is missing, the default v
 		{ value:"3.5", apps:[ "anApk", "anotherApk"] }
 	]
 	
-	// If you're using both syntax, the standard one has priority over the alternative.
+	// If you're using both syntaxes, the standard one has priority over the alternative.
 }
 ```
 
 
-#### Query mode usage
+#### Querying the database
 
 ```
 usage: paprika query [-h] -db DATABASE [-r REQUEST] [-c CSV] [-k KEY] [-p PACKAGE] [-d] [-thr PATH]
@@ -151,7 +155,7 @@ required arguments:
                          Request to execute
 
 optional arguments:
-  -h, --help             Show this help message and exit
+  -h, --help             Show help message and exit
   -c CSV, --csv CSV      Path to register csv files defaults to working directory
   -k KEY, --key KEY      Key to delete
   -p PACKAGE, --package PACKAGE
@@ -162,15 +166,52 @@ optional arguments:
                          Read fuzzy patterns thresholds from properties file
 ```
 
+There are several requests available:
+* One for each of the antipatterns codes (NLMR, MIM...)
+* All antipatterns at once (ALLAP)
+* All heavy antipatterns at once: HAS, HSS, HBR (ALLHEAVY)
+* Basic information about all apps analyzed (ANALYZED)
+
+* Various statistics about applications (STATS)
+* Lack of cohesion in methods of all classes (ALLLCOM)
+* Class complexity of all classes (ALLCC)
+* Cyclomatic complexity of all methods (ALLCYCLO)
+* Number of methods of all classes (ALLNUMMETHODS)
+
+* Count variables (COUNTVAR)
+* Count inner classes (COUNTINNER)
+* Count AsyncTasks (COUNTASYNC)
+* Count Views (COUNTVIEWS)
+
+* Only non fuzzy antipatterns: excludes OO code smells and HAS, HSS, HBR (NONFUZZY)
+* Only fuzzy antipatterns (FUZZY)
+* Only fuzzy antipatterns without fuzzing (FORCENOFUZZY)
+
+#### Deleting an application from the database
+
+```
+usage: paprika delete [-h] -db DATABASE -dk KEY
+
+required arguments:
+  -db DATABASE, --database DATABASE
+                         Path to neo4J Database folder
+  -dk KEY, --deleteKey KEY
+                         Key of the app to delete
+                         
+optional arguments:
+  -h, --help             Show help message and exit
+```
+
+
 #### Example of usage
-First we launch the analysis of an app (it can be done multiple times with different apps into the same database) :
+First, we analyze an app:
 
 ```
 java -Xmx2G -XX:+UseConcMarkSweepGC -jar  Paprika.jar analyse -a "/path/to/android-platforms" -db "/path/to/database"
  -omp /path/to/apk.apk
 ```
 
-Then you can launch queries on this database using query mode, for example :
+Then we can launch queries on the database using query mode. For example:
 ```
 java -Xmx2G -XX:+UseConcMarkSweepGC -jar  Paprika.jar query -db "/path/to/database" -d -r ALLAP
 ```

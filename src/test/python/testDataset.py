@@ -10,7 +10,7 @@ test_resources = "../resources"
 apk_folder = test_resources + "/apk"
 platform_folder = test_resources + "/android-platforms"
 db_folder = "db"
-csv_test_folder = "got"
+csv_got_folder = "got"
 expected_folder = "expected"
 jar_location = "../../../build/libs/Paprika.jar"
 
@@ -111,7 +111,7 @@ def compare_files():
         path = expected_folder + "/" + filename
         if not filename.endswith(".csv"):
             continue
-        if not compare_csv(path, csv_test_folder + "/" + filename, filename):
+        if not compare_csv(path, csv_got_folder + "/" + filename, filename):
             success = False
         else:
             print("--------- SUCCESS: " + filename + " -----------\n")
@@ -119,15 +119,12 @@ def compare_files():
     if success:
         print('--------- TEST SUCCESS -----------')
     else:
-        print('--------- TEST FAILURE -----------')
-        sys.exit(1)
+        fail_test()
 
 
-def run_test():
-    override = False
-    if len(sys.argv) > 1 and sys.argv[1] == "--replace":
-        override = True
-
+# If this test fails with only minor differences, it might be Soot acting up.
+# In that case, run the test again and see if the same errors are present.
+def run_multiple_apk_test(override):
     clean_folder(db_folder)
     if override:
         print("Overriding expected test data...")
@@ -146,11 +143,58 @@ def run_test():
         remove_csv_prefix(expected_folder)
         print("Done overriding.")
     else:
-        clean_folder(csv_test_folder)
-        call(java_cmd + query_args + ["-c", csv_test_folder + "/"])
-        remove_csv_prefix(csv_test_folder)
+        clean_folder(csv_got_folder)
+        call(java_cmd + query_args + ["-c", csv_got_folder + "/"])
+        remove_csv_prefix(csv_got_folder)
         compare_files()
 
 
+test_apk_key = "testdeleteapk"
+delete_args = ["delete", "-dk", test_apk_key, "-db", db_folder]
+test_apk = apk_folder + "/witness.apk"
+
+
+def verify_apk_presence(present, apk_key):
+    call(java_cmd + ["query", "-r", "MATCH (n:App) RETURN n.app_key", "-db", db_folder, "-c", csv_got_folder + "/"])
+    remove_csv_prefix(csv_got_folder)
+    with (open(csv_got_folder + "/CUSTOM.csv")) as allApps:
+        data = allApps.read()
+        if (present and apk_key not in data) or (not present and apk_key in data):
+            if present:
+                print("--- DID NOT FIND " + apk_key + " IN RESULT ---")
+            else:
+                print("--- FOUND " + apk_key + " IN RESULT ---")
+            fail_test()
+
+
+def apk_delete_test():
+    clean_folder(csv_got_folder)
+    print("Running APK deletion test...")
+    call(java_cmd + analyse_args + ["-k", test_apk_key, test_apk])
+    verify_apk_presence(True, test_apk_key)
+    clean_folder(csv_got_folder)
+    call(java_cmd + delete_args)
+    verify_apk_presence(False, test_apk_key)
+    print('--------- TEST SUCCESS -----------')
+
+
+def fail_test():
+    print('--------- TEST FAILURE -----------')
+    sys.exit(1)
+
+
+def run_all_tests():
+    override = False
+    if len(sys.argv) > 1 and sys.argv[1] == "--replace":
+        override = True
+
+    if override:
+        run_multiple_apk_test(True)
+    else:
+        run_multiple_apk_test(False)
+        apk_delete_test()
+        print('--------- ALL TESTS SUCCESSFUL -----------')
+
+
 if __name__ == '__main__':
-    run_test()
+    run_all_tests()
