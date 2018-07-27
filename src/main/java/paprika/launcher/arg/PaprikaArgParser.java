@@ -120,7 +120,7 @@ public class PaprikaArgParser {
     }
 
     public boolean getFlagArg(Argument arg) {
-        return res.get(arg.toString()) != null;
+        return res.getBoolean(arg.toString());
     }
 
     public String getSha() throws IOException, NoSuchAlgorithmException {
@@ -137,16 +137,23 @@ public class PaprikaArgParser {
         if (!apkFolder.isDirectory()) {
             return Collections.singletonList("");
         } else {
-            File[] files = apkFolder.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    if (file.getName().endsWith(".apk")) {
-                        apps.add(res.getString(APK_ARG.toString()) + "/" + file.getName());
-                    }
+            searchApkInFolder(apkFolder, apps);
+        }
+        return apps;
+    }
+
+    private void searchApkInFolder(File folder, List<String> appsPath) {
+        File[] files = folder.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    searchApkInFolder(file, appsPath);
+                }
+                if (file.getName().endsWith(".apk")) {
+                    appsPath.add(file.getPath());
                 }
             }
         }
-        return apps;
     }
 
     public List<String> getAppsFilenames(List<String> appsPaths) {

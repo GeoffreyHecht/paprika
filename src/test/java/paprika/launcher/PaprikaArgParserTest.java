@@ -33,6 +33,7 @@ import static paprika.launcher.PaprikaLauncherTest.PLATFORMS_PATH;
 public class PaprikaArgParserTest {
 
     public static final String APK_FOLDER = "/apk";
+    public static final String RECURSIVE_SEARCH_TEST_PATH = "/argparser";
 
     private static final List<String> CONTENTS = Arrays.asList(
             "dosbox.apk", "opengpx.apk", "openmanager.apk", "passandroid.apk", "tint.apk",
@@ -59,6 +60,23 @@ public class PaprikaArgParserTest {
             assertThat(got, hasItem(prefix + item));
         }
     }
+
+    @Test
+    public void recursiveFolderSearch() throws Exception {
+        String[] args = {"analyse", "-a", getClass().getResource(PLATFORMS_PATH).getFile(),
+                "-db", getClass().getResource(AnalyzedApkTest.DB_PATH).getFile(), "-omp",
+                getClass().getResource(RECURSIVE_SEARCH_TEST_PATH).getFile()
+        };
+        PaprikaArgParser parser = new PaprikaArgParser();
+        parser.parseArgs(args);
+        List<String> got = parser.getAppsPaths();
+        assertThat(got.size(), is(equalTo(2)));
+        for (String item : got) {
+            assertThat(item, anyOf(containsString("test_apk_1.apk"),
+                    containsString("test_apk_2.apk")));
+        }
+    }
+
 
     @Test
     public void shaTest() throws Exception {

@@ -26,6 +26,7 @@ import paprika.launcher.arg.PaprikaArgParser;
 import paprika.query.neo4j.ModelToGraph;
 
 import javax.annotation.Nullable;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.security.NoSuchAlgorithmException;
@@ -73,7 +74,7 @@ public class AnalyseModeStarter extends PaprikaStarter {
 
     private PaprikaApp analyze(String apkPath, @Nullable ApkPropertiesParser propsParser, int retries)
             throws IOException, NoSuchAlgorithmException {
-        out.println("Analyzing " + apkPath);
+        out.println("Analyzing " + new File(apkPath).getName());
         out.println("Collecting metrics");
         Analyzer analyzer = new SootAnalyzer(apkPath, argParser.getArg(ANDROID_JARS_ARG));
         PaprikaAppCreator creator = new PaprikaAppCreator(argParser, apkPath);
