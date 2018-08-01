@@ -26,7 +26,10 @@ import paprika.query.neo4j.QueryEngine;
 import paprika.query.neo4j.queries.PaprikaQuery;
 import paprika.query.neo4j.queries.QueryPropertiesReader;
 import paprika.query.neo4j.queries.antipatterns.LongParameterList;
-import paprika.query.neo4j.queries.antipatterns.adoctor.*;
+import paprika.query.neo4j.queries.antipatterns.adoctor.DebuggableRelease;
+import paprika.query.neo4j.queries.antipatterns.adoctor.DurableWakelock;
+import paprika.query.neo4j.queries.antipatterns.adoctor.PublicData;
+import paprika.query.neo4j.queries.antipatterns.adoctor.RigidAlarmManager;
 import paprika.query.neo4j.queries.antipatterns.fuzzy.*;
 import paprika.query.neo4j.queries.antipatterns.memory.HashMapUsage;
 import paprika.query.neo4j.queries.antipatterns.memory.LeakingInnerClass;
@@ -195,13 +198,6 @@ public enum PaprikaRequest {
         }
     },
 
-    UC(UnclosedCloseable.KEY) {
-        @Override
-        public PaprikaCommand getCommand(QueryEngine engine) {
-            return getSimpleCommand(engine, new UnclosedCloseable());
-        }
-    },
-
     LPL(LongParameterList.KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
@@ -302,7 +298,7 @@ public enum PaprikaRequest {
                     new NoLowMemoryResolver(), new Overdraw(), new UnsuitedLRUCache(),
                     new InitOnDraw(), new UHA(), new HashMapUsage(),
                     new InvalidateWithoutRect(), new DebuggableRelease(), new DurableWakelock(),
-                    new PublicData(), new RigidAlarmManager(), new UnclosedCloseable(),
+                    new PublicData(), new RigidAlarmManager(),
                     new LongParameterList()
             ));
         }

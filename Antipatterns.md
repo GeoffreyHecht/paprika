@@ -146,6 +146,5 @@ The concerned antipatterns are:
 * Debuggable release,
 * Durable wakelock,
 * Public data,
-* Rigid AlarmManager,
-* UnclosedCloseable.
+* Rigid AlarmManager.
 

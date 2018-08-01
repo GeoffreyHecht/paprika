@@ -36,8 +36,7 @@ Paprika currently supports the following Object-Oriented (OO) and Android code s
 * Debuggable Release (DR),
 * Durable Wakelock (DW),
 * Public Data (PD),
-* Rigid AlarmManager (RAM),
-* Unclosed Closeable (CL).
+* Rigid AlarmManager (RAM).
 
 A more detailed description of most of the antipatterns is available [here](Antipatterns.md).
 
