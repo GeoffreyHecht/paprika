@@ -28,11 +28,11 @@ import java.io.File;
  */
 public class DatabaseManager {
 
-    private final String DB_PATH;
+    private final String dbPath;
     private GraphDatabaseService graphDatabaseService;
 
-    public DatabaseManager(String DB_PATH) {
-        this.DB_PATH = DB_PATH;
+    public DatabaseManager(String dbPath) {
+        this.dbPath = dbPath;
     }
 
     private static void registerShutdownHook(final GraphDatabaseService graphDb) {
@@ -60,7 +60,7 @@ public class DatabaseManager {
     }
 
     public void start() {
-        File dbFile = new File(DB_PATH);
+        File dbFile = new File(dbPath);
         graphDatabaseService = new GraphDatabaseFactory()
                 .newEmbeddedDatabaseBuilder(dbFile)
                 .newGraphDatabase();
@@ -69,7 +69,7 @@ public class DatabaseManager {
 
     public void deleteDB() {
         shutDown();
-        deleteFileOrDirectory(new File(DB_PATH));
+        deleteFileOrDirectory(new File(dbPath));
     }
 
     public void shutDown() {

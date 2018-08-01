@@ -19,7 +19,6 @@
 package paprika.query.neo4j.queries.antipatterns.fuzzy;
 
 import net.sourceforge.jFuzzyLogic.FIS;
-import org.neo4j.graphdb.Result;
 import paprika.query.neo4j.queries.PaprikaQuery;
 import paprika.query.neo4j.queries.QueryPropertiesReader;
 
@@ -64,7 +63,7 @@ public abstract class FuzzyQuery extends PaprikaQuery {
 
     public abstract String getFuzzyQuery(boolean details);
 
-    public abstract List<Map<String, Object>> getFuzzyResult(Result result, FIS fis);
+    public abstract List<Map<String, Object>> getFuzzyResult(List<Map<String, Object>> result, FIS fis);
 
     public String getFuzzySuffix() {
         return super.getCSVSuffix();

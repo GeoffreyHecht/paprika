@@ -25,6 +25,7 @@ import paprika.query.commands.PaprikaRequest;
 import paprika.query.neo4j.QueryEngine;
 import paprika.query.neo4j.queries.QueryPropertiesException;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Calendar;
@@ -41,6 +42,9 @@ public class QueryModeStarter extends PaprikaStarter {
     @Override
     public void start() {
         try {
+            if (!new File(argParser.getArg(DATABASE_ARG)).exists()) {
+                out.println("No database was found on the given path.");
+            }
             out.println("Executing Queries");
             QueryEngine queryEngine = createQueryEngine();
             String request = argParser.getArg(REQUEST_ARG);

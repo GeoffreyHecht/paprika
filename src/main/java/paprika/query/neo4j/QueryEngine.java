@@ -29,7 +29,10 @@ import paprika.query.neo4j.queries.antipatterns.fuzzy.FuzzyQuery;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static paprika.launcher.arg.Argument.DATABASE_ARG;
 
@@ -37,6 +40,11 @@ import static paprika.launcher.arg.Argument.DATABASE_ARG;
  * Created by Geoffrey Hecht on 12/01/15.
  */
 public class QueryEngine {
+
+    private static final String APP_NAMES_QUERY =
+            "MATCH (n:App) RETURN n.app_key AS app_key, n.name AS app_name";
+
+    private Map<String, String> keysToNames;
 
     private GraphDatabaseService graphDatabaseService;
     private DatabaseManager databaseManager;
@@ -70,31 +78,62 @@ public class QueryEngine {
     }
 
     public void execute(PaprikaQuery query, boolean details) throws IOException {
-        executeAndWriteToCSV(query.getQuery(details), query.getCSVSuffix());
+        executeAndWriteToCSV(query.getQuery(details), query.getCSVSuffix(), details);
     }
 
-    public void executeAndWriteToCSV(String request, String suffix) throws IOException {
+    public void executeAndWriteToCSV(String request, String suffix, boolean details) throws IOException {
         try (Transaction ignored = graphDatabaseService.beginTx()) {
             Result result = graphDatabaseService.execute(request);
-            new CSVWriter(csvPrefix).resultToCSV(result, suffix);
-        }
-    }
-
-    public int executeAndCountAll(String request, String countLabel) {
-        try (Transaction transaction = graphDatabaseService.beginTx()) {
-            Result result = graphDatabaseService.execute(request);
-            transaction.success();
-            return Integer.valueOf(result.next().get(countLabel).toString());
+            List<Map<String, Object>> rows = result.stream().map(HashMap::new).collect(Collectors.toList());
+            List<String> columns = new ArrayList<>(result.columns());
+            if (details) {
+                addAppNamesToResult(rows, columns);
+            }
+            new CSVWriter(csvPrefix).resultToCSV(rows, columns, suffix);
         }
     }
 
     public void executeFuzzy(FuzzyQuery query, boolean details) throws IOException {
         try (Transaction ignored = graphDatabaseService.beginTx()) {
             Result result = graphDatabaseService.execute(query.getFuzzyQuery(details));
+            List<Map<String, Object>> rows = result.stream().map(HashMap::new).collect(Collectors.toList());
             List<String> columns = new ArrayList<>(result.columns());
+            if (details) {
+                addAppNamesToResult(rows, columns);
+            }
             columns.add("fuzzy_value");
-            new CSVWriter(csvPrefix).fuzzyResultToCSV(query.getFuzzyResult(result, query.getFcl()),
+            new CSVWriter(csvPrefix).resultToCSV(query.getFuzzyResult(rows, query.getFcl()),
                     columns, query.getFuzzySuffix());
+        }
+    }
+
+    private void addAppNamesToResult(List<Map<String, Object>> rows, List<String> columns) {
+        columns.add("app_name");
+        if (keysToNames == null) {
+            fillKeysToNames();
+        }
+        rows.forEach(row -> row.put("app_name", keysToNames.get(row.get("app_key").toString())));
+    }
+
+    private void fillKeysToNames() {
+        try (Transaction ignored = graphDatabaseService.beginTx()) {
+            Result namesResult = graphDatabaseService.execute(APP_NAMES_QUERY);
+            keysToNames = namesResultToMap(namesResult.stream()
+                    .collect(Collectors.toList()));
+        }
+    }
+
+    private Map<String, String> namesResultToMap(List<Map<String, Object>> rows) {
+        Map<String, String> result = new HashMap<>();
+        rows.forEach(row -> result.put(row.get("app_key").toString(), row.get("app_name").toString()));
+        return result;
+    }
+
+    public int executeAndCount(String request, String countLabel) {
+        try (Transaction transaction = graphDatabaseService.beginTx()) {
+            Result result = graphDatabaseService.execute(request);
+            transaction.success();
+            return Integer.valueOf(result.next().get(countLabel).toString());
         }
     }
 

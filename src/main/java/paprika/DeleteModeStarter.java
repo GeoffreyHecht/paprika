@@ -47,7 +47,7 @@ public class DeleteModeStarter extends PaprikaStarter {
             out.println("Deleting nodes...");
             int count = 1;
             while (count != 0) {
-                count = engine.executeAndCountAll(deleteQuery, "count(n)");
+                count = engine.executeAndCount(deleteQuery, "count(n)");
                 printProgress();
             }
             out.println();

@@ -18,8 +18,6 @@
 
 package paprika.query.neo4j;
 
-import org.neo4j.graphdb.Result;
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -35,13 +33,13 @@ public class CSVWriter {
         this.csvPrefix = csvPrefix;
     }
 
-    public void resultToCSV(Result result, String csvSuffix) throws IOException {
+    public void resultToCSV(List<Map<String, Object>> rows, List<String> columns, String csvSuffix)
+            throws IOException {
         String name = csvPrefix + csvSuffix;
         BufferedWriter writer = new BufferedWriter(new FileWriter(name));
-        List<String> columns = result.columns();
         writeColumnLabels(columns, writer);
-        while (result.hasNext()) {
-            writeRowValues(result.next(), columns, writer);
+        for (Map<String, Object> row : rows) {
+            writeRowValues(row, columns, writer);
         }
         writer.close();
     }
@@ -70,17 +68,6 @@ public class CSVWriter {
             writer.write(val.toString());
         }
         writer.newLine();
-    }
-
-    public void fuzzyResultToCSV(List<Map<String, Object>> rows, List<String> columns, String csvSuffix)
-            throws IOException {
-        String name = csvPrefix + csvSuffix;
-        BufferedWriter writer = new BufferedWriter(new FileWriter(name));
-        writeColumnLabels(columns, writer);
-        for (Map<String, Object> row : rows) {
-            writeRowValues(row, columns, writer);
-        }
-        writer.close();
     }
 
     public void statsToCSV(Map<String, Double> stats, String csvSuffix) throws IOException {

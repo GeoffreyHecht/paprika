@@ -20,11 +20,9 @@ package paprika.query.neo4j.queries.antipatterns.fuzzy;
 
 import net.sourceforge.jFuzzyLogic.FIS;
 import net.sourceforge.jFuzzyLogic.FunctionBlock;
-import org.neo4j.graphdb.Result;
 import paprika.query.neo4j.queries.QueryPropertiesReader;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -87,12 +85,11 @@ public class SwissArmyKnife extends FuzzyQuery {
     }
 
     @Override
-    public List<Map<String, Object>> getFuzzyResult(Result result, FIS fis) {
+    public List<Map<String, Object>> getFuzzyResult(List<Map<String, Object>> result, FIS fis) {
         int cc;
         List<Map<String, Object>> fuzzyResult = new ArrayList<>();
         FunctionBlock fb = fis.getFunctionBlock(null);
-        while (result.hasNext()) {
-            HashMap<String, Object> res = new HashMap<>(result.next());
+        for (Map<String, Object> res : result) {
             cc = (int) res.get("number_of_methods");
             if (cc >= reader.get("SAK_methods_veryHigh")) {
                 res.put("fuzzy_value", 1);

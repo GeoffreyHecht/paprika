@@ -20,11 +20,9 @@ package paprika.query.neo4j.queries.antipatterns.fuzzy;
 
 import net.sourceforge.jFuzzyLogic.FIS;
 import net.sourceforge.jFuzzyLogic.FunctionBlock;
-import org.neo4j.graphdb.Result;
 import paprika.query.neo4j.queries.QueryPropertiesReader;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,12 +33,11 @@ public abstract class HeavySomethingQuery extends FuzzyQuery {
     }
 
     @Override
-    public List<Map<String, Object>> getFuzzyResult(Result result, FIS fis) {
+    public List<Map<String, Object>> getFuzzyResult(List<Map<String, Object>> result, FIS fis) {
         int noi, cc;
         List<Map<String, Object>> fuzzyResult = new ArrayList<>();
         FunctionBlock fb = fis.getFunctionBlock(null);
-        while (result.hasNext()) {
-            HashMap<String, Object> res = new HashMap<>(result.next());
+        for (Map<String, Object> res : result) {
             cc = (int) res.get("cyclomatic_complexity");
             noi = (int) res.get("number_of_instructions");
             if (cc >= reader.get("Heavy_class_veryHigh_cc")
