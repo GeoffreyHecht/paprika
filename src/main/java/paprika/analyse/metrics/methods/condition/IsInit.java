@@ -32,8 +32,8 @@ public class IsInit extends MethodCondition {
     }
 
     @Override
-    public boolean matches(SootMethod sootItem) {
-        String name = sootItem.getName();
+    public boolean matches(SootMethod item) {
+        String name = item.getName();
         return name.equals("<prepareSoot>") || name.equals("<clinit>");
     }
 }

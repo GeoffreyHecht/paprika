@@ -10,10 +10,10 @@ public abstract class Condition<T, E extends Entity> {
         this.metricName = metricName;
     }
 
-    public abstract boolean matches(T sootItem);
+    public abstract boolean matches(T item);
 
-    public boolean createIfMatching(T sootItem, E entity) {
-        if (matches(sootItem)) {
+    public boolean createIfMatching(T item, E entity) {
+        if (matches(item)) {
             UnaryMetric<Boolean> metric = new UnaryMetric<>(metricName, entity, true);
             metric.updateEntity();
             return true;

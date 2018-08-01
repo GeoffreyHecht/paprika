@@ -19,6 +19,7 @@
 package paprika.launcher;
 
 import org.junit.jupiter.api.Test;
+import paprika.TestUtil;
 import paprika.analyse.AnalyseModeStarter;
 import paprika.analyse.ApkPropertiesParser;
 import paprika.analyse.entities.PaprikaApp;
@@ -43,17 +44,18 @@ public class PaprikaLauncherTest {
             // NO-OP
         }
     });
+    private TestUtil util = new TestUtil();
 
     private PaprikaApp getAnalyzedApp(String[] args) throws Exception {
         PaprikaLauncher launcher = new PaprikaLauncher(args, silent);
         AnalyseModeStarter starter = (AnalyseModeStarter) launcher.getArgParser().getSelectedStarter(silent);
-        return starter.analyzeApp(getClass().getResource(APK).getFile(), null);
+        return starter.analyzeApp(util.getPath(APK), null);
     }
 
     @Test
     public void minimalArgsTest() throws Exception {
-        String[] args = {"analyse", "-a", getClass().getResource(PLATFORMS_PATH).getFile(),
-                "-db", getClass().getResource(AnalyzedApkTest.DB_PATH).getFile(), "-omp",
+        String[] args = {"analyse", "-a", util.getPath(PLATFORMS_PATH),
+                "-db", util.getPath(AnalyzedApkTest.DB_PATH), "-omp",
                 getClass().getResource(APK).getFile()
         };
         PaprikaApp app = getAnalyzedApp(args);
@@ -64,8 +66,8 @@ public class PaprikaLauncherTest {
 
     @Test
     public void allArgsTest() throws Exception {
-        String[] args = {"analyse", "-a", getClass().getResource(PLATFORMS_PATH).getFile(),
-                "-db", getClass().getResource(AnalyzedApkTest.DB_PATH).getFile(),
+        String[] args = {"analyse", "-a", util.getPath(PLATFORMS_PATH),
+                "-db", util.getPath(AnalyzedApkTest.DB_PATH),
                 "-n", "myApp", "-p", "my.custom.package", "-k", "645", "-dev", "myDev",
                 "-cat", "myCat", "-nd", "50", "-d", "2018-02-03 11:24:56.658974",
                 "-r", "3.2", "-pr", "20", "-s", "56", "-vc", "3.6", "-vn", "myVn",
@@ -91,9 +93,9 @@ public class PaprikaLauncherTest {
 
     @Test
     public void apkPropertiesTest() throws Exception {
-        String[] args = {"analyse", "-a", getClass().getResource(PLATFORMS_PATH).getFile(),
-                "-db", getClass().getResource(AnalyzedApkTest.DB_PATH).getFile(), "-omp",
-                getClass().getResource(WITNESS_PROPS).getFile()
+        String[] args = {"analyse", "-a", util.getPath(PLATFORMS_PATH),
+                "-db", util.getPath(AnalyzedApkTest.DB_PATH), "-omp",
+                util.getPath(WITNESS_PROPS)
         };
         ApkPropertiesParser propsParser = new ApkPropertiesParser(silent,
                 getClass().getResource(WITNESS_PROPS).getFile(),

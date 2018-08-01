@@ -19,6 +19,8 @@
 package paprika.launcher;
 
 import org.junit.jupiter.api.Test;
+import paprika.TestUtil;
+import paprika.launcher.arg.Argument;
 import paprika.launcher.arg.PaprikaArgParser;
 import paprika.query.neo4j.queries.AnalyzedApkTest;
 
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static paprika.launcher.PaprikaLauncherTest.PLATFORMS_PATH;
 
 public class PaprikaArgParserTest {
@@ -35,39 +38,68 @@ public class PaprikaArgParserTest {
     public static final String APK_FOLDER = "/apk";
     public static final String RECURSIVE_SEARCH_TEST_PATH = "/argparser";
 
+    private TestUtil util = new TestUtil();
+
+    private String[] getDefaultTestArgs() {
+        return new String[]{"analyse", "-a", util.getPath(PLATFORMS_PATH),
+                "-db", util.getPath(AnalyzedApkTest.DB_PATH), "-omp",
+                util.getPath(APK_FOLDER)
+        };
+    }
+
+    private PaprikaArgParser loadStandardArgs() throws Exception {
+        PaprikaArgParser parser = new PaprikaArgParser();
+        parser.parseArgs(getDefaultTestArgs());
+        return parser;
+    }
+
+
+    @Test
+    public void readArgsTest() throws Exception {
+        PaprikaArgParser parser = new PaprikaArgParser();
+        parser.parseArgs(getDefaultTestArgs());
+        assertThat(parser.getArg(Argument.DATABASE_ARG), is(util.getPath(AnalyzedApkTest.DB_PATH)));
+        assertThat(parser.getFlagArg(Argument.ONLY_MAIN_PACKAGE_ARG), is(true));
+        String[] otherArgs = {
+                "analyse", "-a", util.getPath(PLATFORMS_PATH), "-r", "6.5", "-tsdk", "96",
+                "-db", util.getPath(AnalyzedApkTest.DB_PATH), util.getPath(APK_FOLDER)
+        };
+        parser = new PaprikaArgParser();
+        parser.parseArgs(otherArgs);
+        assertThat(parser.getFlagArg(Argument.ONLY_MAIN_PACKAGE_ARG), is(false));
+        assertThat(parser.getDoubleArg(Argument.RATING_ARG), is(closeTo(6.5, 0.1)));
+        assertThat(parser.getIntArg(Argument.TARGET_SDK_VERSION_ARG), is(96));
+    }
+
     private static final List<String> CONTENTS = Arrays.asList(
             "dosbox.apk", "opengpx.apk", "openmanager.apk", "passandroid.apk", "tint.apk",
             "tof.apk", "wikipedia.apk", "witness.apk", "wordpress.apk"
     );
 
-    private PaprikaArgParser loadStandardArgs() throws Exception {
-        String[] args = {"analyse", "-a", getClass().getResource(PLATFORMS_PATH).getFile(),
-                "-db", getClass().getResource(AnalyzedApkTest.DB_PATH).getFile(), "-omp",
-                getClass().getResource(APK_FOLDER).getFile()
-        };
-        PaprikaArgParser parser = new PaprikaArgParser();
-        parser.parseArgs(args);
-        return parser;
-    }
-
-    @Test
-    public void getAPKsInFolderTest() throws Exception {
-        PaprikaArgParser parser = loadStandardArgs();
-        List<String> got = parser.getAppsPaths();
-        assertThat(got.size(), is(greaterThanOrEqualTo(9)));
-        String prefix = getClass().getResource(APK_FOLDER).getFile() + "/";
-        for (String item : CONTENTS) {
-            assertThat(got, hasItem(prefix + item));
+    private boolean contentsAreAPKs(List<String> got) {
+        assertThat(got.size(), is(CONTENTS.size()));
+        for (String apk : CONTENTS) {
+            boolean found = false;
+            for (String item : got) {
+                if (item.contains(apk)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return false;
+            }
         }
+        return true;
     }
 
     @Test
     public void recursiveFolderSearch() throws Exception {
-        String[] args = {"analyse", "-a", getClass().getResource(PLATFORMS_PATH).getFile(),
-                "-db", getClass().getResource(AnalyzedApkTest.DB_PATH).getFile(), "-omp",
-                getClass().getResource(RECURSIVE_SEARCH_TEST_PATH).getFile()
-        };
         PaprikaArgParser parser = new PaprikaArgParser();
+        String[] args = {"analyse", "-a", util.getPath(PLATFORMS_PATH),
+                "-db", util.getPath(AnalyzedApkTest.DB_PATH), "-omp",
+                util.getPath(RECURSIVE_SEARCH_TEST_PATH)
+        };
         parser.parseArgs(args);
         List<String> got = parser.getAppsPaths();
         assertThat(got.size(), is(equalTo(2)));
@@ -89,13 +121,7 @@ public class PaprikaArgParserTest {
     public void getAppsPathTest() throws Exception {
         PaprikaArgParser parser = loadStandardArgs();
         List<String> got = parser.getAppsPaths();
-        List<String> expected = CONTENTS.stream()
-                .map(item -> getClass().getResource(APK_FOLDER).getFile() + "/" + item)
-                .collect(Collectors.toList());
-        assertThat(got.size(), is(equalTo(expected.size())));
-        for (String element : expected) {
-            assertThat(got, hasItem(element));
-        }
+        assertTrue(contentsAreAPKs(got));
     }
 
     @Test

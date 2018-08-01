@@ -1,9 +1,9 @@
 app_key,full_name
+openmanager,onDraw#org.brandroid.openmanager.views.SpriteAnimatorSurfaceView
+openmanager,onDraw#org.brandroid.openmanager.views.SpriteAnimatorSurfaceView
 witness,onDraw#com.antipatterns.app.MyQuiteGoodView
 witness,onDraw#com.antipatterns.app.NotSoGoodView
 witness,onDraw#com.antipatterns.app.NotSoGoodView
 witness,onDraw#com.antipatterns.app.NotSoGoodView
 witness,onDraw#com.antipatterns.app.AQuiteGoodView
 witness,onDraw#com.antipatterns.app.AQuiteGoodView
-openmanager,onDraw#org.brandroid.openmanager.views.SpriteAnimatorSurfaceView
-openmanager,onDraw#org.brandroid.openmanager.views.SpriteAnimatorSurfaceView

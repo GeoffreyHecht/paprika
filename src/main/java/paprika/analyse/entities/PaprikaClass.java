@@ -34,7 +34,7 @@ public class PaprikaClass extends Entity {
 
     private PaprikaApp paprikaApp;
     private PaprikaClass parent;
-    // parent name to cover library case
+    // Parent name to cover library case
     private String parentName;
     private int complexity;
     private int children;
@@ -56,7 +56,7 @@ public class PaprikaClass extends Entity {
         this.modifier = modifier;
     }
 
-    public static PaprikaClass createPaprikaClass(String name, PaprikaApp paprikaApp, PaprikaModifier modifier) {
+    public static PaprikaClass create(String name, PaprikaApp paprikaApp, PaprikaModifier modifier) {
         PaprikaClass paprikaClass = new PaprikaClass(name, paprikaApp, modifier);
         paprikaApp.addPaprikaClass(paprikaClass);
         return paprikaClass;
@@ -169,7 +169,7 @@ public class PaprikaClass extends Entity {
         for (PaprikaVariable paprikaVariable : paprikaVariables) {
             if (paprikaVariable.getName().equals(name)) return paprikaVariable;
         }
-        //otherwise we return null
+        // otherwise we return null
         return null;
     }
 }

@@ -21,6 +21,7 @@ package paprika.query.neo4j;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
+import paprika.DatabaseManager;
 import paprika.launcher.arg.PaprikaArgParser;
 import paprika.query.neo4j.queries.PaprikaQuery;
 import paprika.query.neo4j.queries.QueryPropertiesReader;

@@ -53,7 +53,7 @@ public class PaprikaExternalClass extends Entity {
         this.paprikaExternalMethods = new HashSet<>();
     }
 
-    public static PaprikaExternalClass createPaprikaExternalClass(String name, PaprikaApp paprikaApp) {
+    public static PaprikaExternalClass create(String name, PaprikaApp paprikaApp) {
         PaprikaExternalClass paprikaClass = new PaprikaExternalClass(name, paprikaApp);
         paprikaApp.addPaprikaExternalClass(paprikaClass);
         return paprikaClass;

@@ -20,7 +20,7 @@ package paprika.query.neo4j.queries;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
-import paprika.query.neo4j.DatabaseManager;
+import paprika.DatabaseManager;
 
 import java.util.List;
 import java.util.Map;

@@ -30,8 +30,8 @@ public class IsSynchronized extends MethodCondition {
     }
 
     @Override
-    public boolean matches(SootMethod sootItem) {
-        return sootItem.isSynchronized();
+    public boolean matches(SootMethod item) {
+        return item.isSynchronized();
     }
 
 }

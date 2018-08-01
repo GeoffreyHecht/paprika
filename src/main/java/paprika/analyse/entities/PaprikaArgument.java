@@ -36,8 +36,7 @@ public class PaprikaArgument extends Entity {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    public static PaprikaArgument createPaprikaArgument(String name, int position,
-                                                        PaprikaMethod paprikaMethod) {
+    public static PaprikaArgument create(String name, int position, PaprikaMethod paprikaMethod) {
         PaprikaArgument paprikaArgument = new PaprikaArgument(name, position);
         paprikaMethod.addArgument(paprikaArgument);
         return paprikaArgument;

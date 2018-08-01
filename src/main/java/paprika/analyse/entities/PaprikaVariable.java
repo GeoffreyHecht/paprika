@@ -42,9 +42,8 @@ public class PaprikaVariable extends Entity {
         this.modifier = modifier;
     }
 
-    public static PaprikaVariable createPaprikaVariable(String name, String type,
-                                                        PaprikaModifier modifier,
-                                                        PaprikaClass paprikaClass) {
+    public static PaprikaVariable create(String name, String type, PaprikaModifier modifier,
+                                         PaprikaClass paprikaClass) {
         PaprikaVariable paprikaVariable = new PaprikaVariable(name, type, modifier);
         paprikaClass.addPaprikaVariable(paprikaVariable);
         return paprikaVariable;

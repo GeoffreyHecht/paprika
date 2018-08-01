@@ -33,18 +33,18 @@ public class IsOverride extends MethodCondition {
     }
 
     @Override
-    public boolean matches(SootMethod sootMethod) {
-        SootClass sootClass = sootMethod.getDeclaringClass();
+    public boolean matches(SootMethod item) {
+        SootClass sootClass = item.getDeclaringClass();
         for (SootClass inter : sootClass.getInterfaces()) {
-            if (classContainsMethod(inter, sootMethod)) return true;
+            if (classContainsMethod(inter, item)) return true;
             while (inter.hasSuperclass()) {
                 inter = inter.getSuperclass();
-                if (classContainsMethod(inter, sootMethod)) return true;
+                if (classContainsMethod(inter, item)) return true;
             }
         }
         while (sootClass.hasSuperclass()) {
             sootClass = sootClass.getSuperclass();
-            if (classContainsMethod(sootClass, sootMethod)) return true;
+            if (classContainsMethod(sootClass, item)) return true;
         }
         return false;
     }

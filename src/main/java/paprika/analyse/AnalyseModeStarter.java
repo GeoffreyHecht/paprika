@@ -18,12 +18,12 @@
 
 package paprika.analyse;
 
-import paprika.analyse.analyzer.Analyzer;
+import paprika.analyse.analyzer.AnalyzerException;
 import paprika.analyse.analyzer.SootAnalyzer;
 import paprika.analyse.entities.PaprikaApp;
+import paprika.analyse.neo4j.ModelToGraph;
 import paprika.launcher.PaprikaStarter;
 import paprika.launcher.arg.PaprikaArgParser;
-import paprika.query.neo4j.ModelToGraph;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -44,60 +44,78 @@ public class AnalyseModeStarter extends PaprikaStarter {
 
     @Override
     public void start() {
-        try {
-            ModelToGraph modelToGraph = new ModelToGraph(argParser.getArg(DATABASE_ARG));
-            List<String> appsPaths = argParser.getAppsPaths();
-            if (argParser.isFolderMode()) {
-                out.println("Analyzing all apps in folder " + argParser.getArg(APK_ARG));
-                ApkPropertiesParser propsParser = new ApkPropertiesParser(out, argParser.getArg(APK_ARG) + "/"
+        ModelToGraph modelToGraph = new ModelToGraph(argParser.getArg(DATABASE_ARG));
+        List<String> appsPaths = argParser.getAppsPaths();
+        if (argParser.isFolderMode()) {
+            out.println("Analyzing all apps in folder " + argParser.getArg(APK_ARG));
+            ApkPropertiesParser propsParser = null;
+            try {
+                propsParser = new ApkPropertiesParser(out, argParser.getArg(APK_ARG) + "/"
                         + ApkPropertiesParser.PROPS_FILENAME, argParser.getAppsFilenames(appsPaths));
                 propsParser.readProperties();
-                for (String apk : appsPaths) {
-                    PaprikaApp app = analyzeApp(apk, propsParser);
-                    saveIntoDatabase(app, modelToGraph);
-                    out.println("Done");
-                }
-            } else {
-                PaprikaApp app = analyzeApp(argParser.getArg(APK_ARG), null);
-                saveIntoDatabase(app, modelToGraph);
+            } catch (PropertiesException | IOException e) {
+                e.printStackTrace(out);
+            }
+            for (String apk : appsPaths) {
+                processApp(apk, modelToGraph, propsParser);
                 out.println("Done");
             }
-        } catch (PropertiesException | IOException | NoSuchAlgorithmException e) {
-            e.printStackTrace(out);
+        } else {
+            processApp(argParser.getArg(APK_ARG), modelToGraph, null);
+            out.println("Done");
         }
     }
 
+    private void processApp(String apk, ModelToGraph modelToGraph, @Nullable ApkPropertiesParser propsParser) {
+        try {
+            PaprikaApp app = analyzeApp(apk, propsParser);
+            saveIntoDatabase(app, modelToGraph);
+        } catch (AnalyzerException e) {
+            notifyAnalysisFailure(apk, e);
+        }
+    }
+
+    private void notifyAnalysisFailure(String apk, AnalyzerException e) {
+        out.println("Failed to analyze " + apk);
+        e.printStackTrace(out);
+    }
+
     public PaprikaApp analyzeApp(String apkPath, @Nullable ApkPropertiesParser propsParser)
-            throws IOException, NoSuchAlgorithmException {
+            throws AnalyzerException {
         return analyze(apkPath, propsParser, 0);
     }
 
     private PaprikaApp analyze(String apkPath, @Nullable ApkPropertiesParser propsParser, int retries)
-            throws IOException, NoSuchAlgorithmException {
-        out.println("Analyzing " + new File(apkPath).getName());
-        out.println("Collecting metrics");
-        Analyzer analyzer = new SootAnalyzer(apkPath, argParser.getArg(ANDROID_JARS_ARG));
-        PaprikaAppCreator creator = new PaprikaAppCreator(argParser, apkPath);
-        analyzer.prepareSoot();
-        creator.readAppInfo();
-        creator.fetchMissingAppInfo();
-        if (propsParser != null) {
-            creator.addApkProperties(propsParser);
-        }
+            throws AnalyzerException {
         try {
-            analyzer.runAnalysis(creator.createApp(), argParser.getFlagArg(ONLY_MAIN_PACKAGE_ARG));
-        } catch (RuntimeException e) {
-            if (retries < SOOT_RETRIES) {
-                // Soot, please stop crashing randomly. We'll try this again.
-                out.println("Encountered soot issue on app " + apkPath);
-                out.println("Restarting soot analysis...");
-                return analyze(apkPath, propsParser, retries + 1);
-            } else {
-                e.printStackTrace(out);
-                return null;
+            out.println("Analyzing " + new File(apkPath).getName());
+            out.println("Collecting metrics");
+            SootAnalyzer analyzer = new SootAnalyzer(apkPath, argParser.getArg(ANDROID_JARS_ARG));
+            PaprikaAppCreator creator = new PaprikaAppCreator(argParser, apkPath);
+            analyzer.prepareSoot();
+            creator.readAppInfo();
+            creator.fetchMissingAppInfo();
+            if (propsParser != null) {
+                creator.addApkProperties(propsParser);
             }
+            try {
+                analyzer.runAnalysis(creator.createApp(), argParser.getFlagArg(ONLY_MAIN_PACKAGE_ARG));
+            } catch (RuntimeException e) {
+                if (retries < SOOT_RETRIES) {
+                    // Soot, please stop crashing randomly. We'll try this again.
+                    out.println("Encountered soot issue on app " + apkPath);
+                    out.println("Restarting soot analysis...");
+                    return analyze(apkPath, propsParser, retries + 1);
+                } else {
+                    out.println("Soot could not analyze " + apkPath);
+                    e.printStackTrace(out);
+                    return null;
+                }
+            }
+            return analyzer.getPaprikaApp();
+        } catch (IOException | NoSuchAlgorithmException e) {
+            throw new AnalyzerException(apkPath, e);
         }
-        return analyzer.getPaprikaApp();
     }
 
     public void saveIntoDatabase(PaprikaApp app, ModelToGraph modelToGraph) {

@@ -30,8 +30,9 @@ import java.util.*;
 /**
  * Created by Geoffrey Hecht on 20/05/14.
  */
-public class SootAnalyzer extends Analyzer {
+public class SootAnalyzer {
 
+    private String apk;
     private String androidJAR;
     private PaprikaContainer container;
 
@@ -48,9 +49,8 @@ public class SootAnalyzer extends Analyzer {
         this.androidJAR = androidJAR;
     }
 
-    @Override
     public void prepareSoot() {
-        //Hack to prevent soot to print on System.out
+        // Hack to prevent soot to print on System.out
         PrintStream originalStream = System.out;
         System.setOut(new PrintStream(new OutputStream() {
             public void write(int b) {
@@ -82,11 +82,12 @@ public class SootAnalyzer extends Analyzer {
         System.setOut(originalStream);
     }
 
-    @Override
-    public void runAnalysis(PaprikaApp app, boolean mainPackageOnly) {
+    public void runAnalysis(PaprikaApp app, boolean mainPackageOnly) throws AnalyzerException {
         this.container = new PaprikaContainer(app);
+        ManifestProcessor manifestProcessor = new ManifestProcessor(container.getPaprikaApp(), apk);
         ClassProcessor classProcessor = new ClassProcessor(container, mainPackageOnly);
         MethodProcessor methodProcessor = new MethodProcessor(container);
+        manifestProcessor.parseManifest();
         classProcessor.processClasses();
         PackManager.v().getPack("gop").add(new Transform("gop.myInstrumenter", new BodyTransformer() {
             @Override
@@ -100,7 +101,6 @@ public class SootAnalyzer extends Analyzer {
     }
 
 
-    @Override
     public PaprikaApp getPaprikaApp() {
         return container.getPaprikaApp();
     }

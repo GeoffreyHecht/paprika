@@ -30,7 +30,7 @@ public class NumberOfDirectCalls extends UnaryMetric<Integer> {
         super("number_of_direct_calls", paprikaMethod, value);
     }
 
-    public static void createNumberOfDirectCalls(PaprikaMethod paprikaMethod, int value) {
+    public static void createMetric(PaprikaMethod paprikaMethod, int value) {
         NumberOfDirectCalls numberOfDirectCalls = new NumberOfDirectCalls(paprikaMethod, value);
         numberOfDirectCalls.updateEntity();
     }

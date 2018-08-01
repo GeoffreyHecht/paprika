@@ -32,7 +32,7 @@ public class NumberOfCallers extends UnaryMetric<Integer> {
         super(NAME, paprikaMethod, value);
     }
 
-    public static void createNumberOfCallers(PaprikaMethod paprikaMethod, int value) {
+    public static void createMetric(PaprikaMethod paprikaMethod, int value) {
         NumberOfCallers numberOfCallers = new NumberOfCallers(paprikaMethod, value);
         numberOfCallers.updateEntity();
     }

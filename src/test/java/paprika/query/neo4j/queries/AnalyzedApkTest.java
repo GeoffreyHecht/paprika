@@ -20,6 +20,7 @@ package paprika.query.neo4j.queries;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import paprika.TestUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -33,16 +34,16 @@ import static org.junit.jupiter.api.Assertions.*;
 public abstract class AnalyzedApkTest {
 
     public static final String DB_PATH = "/witness/db";
-    public static final String DEFAULT_KEY_LABEL = "app_key";
 
     public static final int DEFAULT_VERSION = 27;
 
     protected TestEngine engine;
+    protected TestUtil util = new TestUtil();
 
     @BeforeEach
     public void setUp() {
-        assertNotNull(getClass().getResource(DB_PATH).getFile(), "Failed to find test resources db folder");
-        engine = new TestEngine(getClass().getResource(DB_PATH).getFile());
+        assertNotNull(util.getPath(DB_PATH), "Failed to find test resources db folder");
+        engine = new TestEngine(util.getPath(DB_PATH));
     }
 
     @AfterEach
@@ -50,9 +51,9 @@ public abstract class AnalyzedApkTest {
         engine.stop();
     }
 
-    protected List<Map<String, Object>> filterResult(List<Map<String, Object>> original, int version, String appKeyLabel) {
+    protected List<Map<String, Object>> filterResult(List<Map<String, Object>> original, int version) {
         return original.stream()
-                .filter(item -> Integer.valueOf(item.get(appKeyLabel).toString()) == version)
+                .filter(item -> Integer.valueOf(item.get("app_key").toString()) == version)
                 .collect(Collectors.toList());
     }
 
@@ -77,15 +78,24 @@ public abstract class AnalyzedApkTest {
         return resultContains(result, "full_name", method + "#" + aClass);
     }
 
-    protected void checkMethodEntries(List<Map<String, Object>> results, String[][] expected, String[][] unexpected) {
+    protected void checkClassEntries(List<Map<String, Object>> results, String[] expected, String[] absent) {
+        assertThat(results.size(), is(greaterThanOrEqualTo(expected.length)));
+        for (String aClass : expected) {
+            assertTrue(foundInClass(results, aClass), aClass);
+        }
+        for (String aClass : absent) {
+            assertFalse(foundInClass(results, aClass), aClass);
+        }
+    }
+
+    protected void checkMethodEntries(List<Map<String, Object>> results, String[][] expected, String[][] absent) {
         assertThat(results.size(), is(greaterThanOrEqualTo(expected.length)));
         for (String[] entry : expected) {
             assertTrue(foundInMethod(results, entry[0], entry[1]), entry[0] + "#" + entry[1]);
         }
-        for (String[] entry : unexpected) {
+        for (String[] entry : absent) {
             assertFalse(foundInMethod(results, entry[0], entry[1]), entry[0] + "#" + entry[1]);
         }
-
     }
 
 }

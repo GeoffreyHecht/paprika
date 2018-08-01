@@ -52,8 +52,7 @@ public class PaprikaExternalMethod extends Entity {
         this.paprikaExternalArguments = new ArrayList<>();
     }
 
-    public static PaprikaExternalMethod createPaprikaExternalMethod(String name, String returnType,
-                                                                    PaprikaExternalClass paprikaClass) {
+    public static PaprikaExternalMethod create(String name, String returnType, PaprikaExternalClass paprikaClass) {
         PaprikaExternalMethod paprikaMethod = new PaprikaExternalMethod(name, returnType, paprikaClass);
         paprikaClass.addPaprikaExternalMethod(paprikaMethod);
         return paprikaMethod;

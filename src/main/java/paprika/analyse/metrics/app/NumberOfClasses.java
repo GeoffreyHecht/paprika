@@ -32,7 +32,7 @@ public class NumberOfClasses extends UnaryMetric<Integer> {
         super(NAME, paprikaApp, value);
     }
 
-    public static void createNumberOfClasses(PaprikaApp paprikaApp, int value) {
+    public static void createMetric(PaprikaApp paprikaApp, int value) {
         NumberOfClasses numberOfClasses = new NumberOfClasses(paprikaApp, value);
         numberOfClasses.updateEntity();
     }

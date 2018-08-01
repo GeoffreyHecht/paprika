@@ -25,144 +25,200 @@ import paprika.analyse.metrics.methods.stat.CyclomaticComplexity;
 import paprika.query.neo4j.QueryEngine;
 import paprika.query.neo4j.queries.PaprikaQuery;
 import paprika.query.neo4j.queries.QueryPropertiesReader;
-import paprika.query.neo4j.queries.antipatterns.*;
+import paprika.query.neo4j.queries.antipatterns.LongParameterList;
+import paprika.query.neo4j.queries.antipatterns.adoctor.*;
 import paprika.query.neo4j.queries.antipatterns.fuzzy.*;
+import paprika.query.neo4j.queries.antipatterns.memory.HashMapUsage;
+import paprika.query.neo4j.queries.antipatterns.memory.LeakingInnerClass;
+import paprika.query.neo4j.queries.antipatterns.memory.NoLowMemoryResolver;
+import paprika.query.neo4j.queries.antipatterns.memory.UnsuitedLRUCache;
+import paprika.query.neo4j.queries.antipatterns.optimization.InitOnDraw;
+import paprika.query.neo4j.queries.antipatterns.optimization.InternalGetterSetter;
+import paprika.query.neo4j.queries.antipatterns.optimization.MemberIgnoringMethod;
+import paprika.query.neo4j.queries.antipatterns.ui.InvalidateWithoutRect;
+import paprika.query.neo4j.queries.antipatterns.ui.Overdraw;
+import paprika.query.neo4j.queries.antipatterns.ui.UHA;
 import paprika.query.neo4j.queries.stats.*;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-import static paprika.query.neo4j.ModelToGraph.CLASS_TYPE;
-import static paprika.query.neo4j.ModelToGraph.METHOD_TYPE;
+import static paprika.analyse.neo4j.ModelToGraph.CLASS_TYPE;
+import static paprika.analyse.neo4j.ModelToGraph.METHOD_TYPE;
 
 public enum PaprikaRequest {
 
-    HMU(HashMapUsageQuery.KEY) {
+    HMU(HashMapUsage.KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
-            return getSimpleCommand(engine, new HashMapUsageQuery());
+            return getSimpleCommand(engine, new HashMapUsage());
         }
     },
 
-    IGS(IGSQuery.KEY) {
+    IGS(InternalGetterSetter.KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
-            return getSimpleCommand(engine, new IGSQuery());
+            return getSimpleCommand(engine, new InternalGetterSetter());
         }
     },
 
-    IOD(InitOnDrawQuery.KEY) {
+    IOD(InitOnDraw.KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
-            return getSimpleCommand(engine, new InitOnDrawQuery());
+            return getSimpleCommand(engine, new InitOnDraw());
         }
     },
 
-    IWR(InvalidateWithoutRectQuery.KEY) {
+    IWR(InvalidateWithoutRect.KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
-            return getSimpleCommand(engine, new InvalidateWithoutRectQuery());
+            return getSimpleCommand(engine, new InvalidateWithoutRect());
         }
     },
 
-    LIC(LICQuery.KEY) {
+    LIC(LeakingInnerClass.KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
-            return getSimpleCommand(engine, new LICQuery());
+            return getSimpleCommand(engine, new LeakingInnerClass());
         }
     },
 
-    MIM(MIMQuery.KEY) {
+    MIM(MemberIgnoringMethod.KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
-            return getSimpleCommand(engine, new MIMQuery());
+            return getSimpleCommand(engine, new MemberIgnoringMethod());
         }
     },
 
-    NLMR(NLMRQuery.KEY) {
+    NLMR(NoLowMemoryResolver.KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
-            return getSimpleCommand(engine, new NLMRQuery());
+            return getSimpleCommand(engine, new NoLowMemoryResolver());
         }
     },
 
-    UIO(OverdrawQuery.KEY) {
+    UIO(Overdraw.KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
-            return getSimpleCommand(engine, new OverdrawQuery());
+            return getSimpleCommand(engine, new Overdraw());
         }
     },
 
-    UHA(UHAQuery.KEY) {
+    UHA_CMD(UHA.KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
-            return getSimpleCommand(engine, new UHAQuery());
+            return getSimpleCommand(engine, new UHA());
         }
     },
 
-    UCS(UnsuitedLRUCacheSizeQuery.KEY) {
+    UCS(UnsuitedLRUCache.KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
-            return getSimpleCommand(engine, new UnsuitedLRUCacheSizeQuery());
+            return getSimpleCommand(engine, new UnsuitedLRUCache());
         }
     },
 
-    BLOB(BLOBQuery.KEY) {
+    BLOB_CMD(BLOB.KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
-            return getFuzzyCommand(engine, new BLOBQuery(engine.getPropsReader()));
+            return getFuzzyCommand(engine, new BLOB(engine.getPropsReader()));
         }
     },
 
-    CC(CCQuery.KEY) {
+    CC_CMD(ComplexClass.KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
-            return getFuzzyCommand(engine, new CCQuery(engine.getPropsReader()));
+            return getFuzzyCommand(engine, new ComplexClass(engine.getPropsReader()));
         }
     },
 
-    HAS(HeavyAsyncTaskStepsQuery.KEY) {
+    HAS(HeavyAsyncTaskSteps.KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
-            return getFuzzyCommand(engine, new HeavyAsyncTaskStepsQuery(engine.getPropsReader()));
+            return getFuzzyCommand(engine, new HeavyAsyncTaskSteps(engine.getPropsReader()));
         }
     },
 
-    HBR(HeavyBroadcastReceiverQuery.KEY) {
+    HBR(HeavyBroadcastReceiver.KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
-            return getFuzzyCommand(engine, new HeavyBroadcastReceiverQuery(engine.getPropsReader()));
+            return getFuzzyCommand(engine, new HeavyBroadcastReceiver(engine.getPropsReader()));
         }
     },
 
-    HSS(HeavyServiceStartQuery.KEY) {
+    HSS(HeavyServiceStart.KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
-            return getFuzzyCommand(engine, new HeavyServiceStartQuery(engine.getPropsReader()));
+            return getFuzzyCommand(engine, new HeavyServiceStart(engine.getPropsReader()));
         }
     },
 
-    LM(LMQuery.KEY) {
+    LM(LongMethod.KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
-            return getFuzzyCommand(engine, new LMQuery(engine.getPropsReader()));
+            return getFuzzyCommand(engine, new LongMethod(engine.getPropsReader()));
         }
     },
 
-    SAK(SAKQuery.KEY) {
+    SAK(SwissArmyKnife.KEY) {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
-            return getFuzzyCommand(engine, new SAKQuery(engine.getPropsReader()));
+            return getFuzzyCommand(engine, new SwissArmyKnife(engine.getPropsReader()));
         }
     },
+
+    DR(DebuggableRelease.KEY) {
+        @Override
+        public PaprikaCommand getCommand(QueryEngine engine) {
+            return getSimpleCommand(engine, new DebuggableRelease());
+        }
+    },
+
+    DW(DurableWakelock.KEY) {
+        @Override
+        public PaprikaCommand getCommand(QueryEngine engine) {
+            return getSimpleCommand(engine, new DurableWakelock());
+        }
+    },
+
+    PD(PublicData.KEY) {
+        @Override
+        public PaprikaCommand getCommand(QueryEngine engine) {
+            return getSimpleCommand(engine, new PublicData());
+        }
+    },
+
+    RAM(RigidAlarmManager.KEY) {
+        @Override
+        public PaprikaCommand getCommand(QueryEngine engine) {
+            return getSimpleCommand(engine, new RigidAlarmManager());
+        }
+    },
+
+    UC(UnclosedCloseable.KEY) {
+        @Override
+        public PaprikaCommand getCommand(QueryEngine engine) {
+            return getSimpleCommand(engine, new UnclosedCloseable());
+        }
+    },
+
+    LPL(LongParameterList.KEY) {
+        @Override
+        public PaprikaCommand getCommand(QueryEngine engine) {
+            return getSimpleCommand(engine, new LongParameterList());
+        }
+    },
+
+
+    // -----------------------------------------------------------------------------------
 
     ALL_HEAVY("ALLHEAVY") {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
             return new QueriesCommand(engine, Arrays.asList(
-                    new HeavyAsyncTaskStepsQuery(engine.getPropsReader()),
-                    new HeavyBroadcastReceiverQuery(engine.getPropsReader()),
-                    new HeavyServiceStartQuery(engine.getPropsReader())
+                    new HeavyAsyncTaskSteps(engine.getPropsReader()),
+                    new HeavyBroadcastReceiver(engine.getPropsReader()),
+                    new HeavyServiceStart(engine.getPropsReader())
             ));
         }
     },
@@ -242,10 +298,13 @@ public enum PaprikaRequest {
         @Override
         public PaprikaCommand getCommand(QueryEngine engine) {
             return new QueriesCommand(engine, Arrays.asList(
-                    new IGSQuery(), new MIMQuery(), new LICQuery(), new NLMRQuery(),
-                    new OverdrawQuery(), new UnsuitedLRUCacheSizeQuery(),
-                    new InitOnDrawQuery(), new UHAQuery(), new HashMapUsageQuery(),
-                    new InvalidateWithoutRectQuery()));
+                    new InternalGetterSetter(), new MemberIgnoringMethod(), new LeakingInnerClass(),
+                    new NoLowMemoryResolver(), new Overdraw(), new UnsuitedLRUCache(),
+                    new InitOnDraw(), new UHA(), new HashMapUsage(),
+                    new InvalidateWithoutRect(), new DebuggableRelease(), new DurableWakelock(),
+                    new PublicData(), new RigidAlarmManager(), new UnclosedCloseable(),
+                    new LongParameterList()
+            ));
         }
     },
 
@@ -254,10 +313,10 @@ public enum PaprikaRequest {
         public PaprikaCommand getCommand(QueryEngine engine) {
             QueryPropertiesReader reader = engine.getPropsReader();
             return new FuzzyCommand(engine, Arrays.asList(
-                    new CCQuery(reader), new LMQuery(reader), new SAKQuery(reader),
-                    new BLOBQuery(reader), new HeavyServiceStartQuery(reader),
-                    new HeavyBroadcastReceiverQuery(reader),
-                    new HeavyAsyncTaskStepsQuery(reader)
+                    new ComplexClass(reader), new LongMethod(reader), new SwissArmyKnife(reader),
+                    new BLOB(reader), new HeavyServiceStart(reader),
+                    new HeavyBroadcastReceiver(reader),
+                    new HeavyAsyncTaskSteps(reader)
             ));
         }
     },
@@ -274,9 +333,9 @@ public enum PaprikaRequest {
         public PaprikaCommand getCommand(QueryEngine engine) {
             QueryPropertiesReader reader = engine.getPropsReader();
             return new QueriesCommand(engine, Arrays.asList(
-                    new CCQuery(reader), new LMQuery(reader), new SAKQuery(reader), new BLOBQuery(reader),
-                    new HeavyServiceStartQuery(reader), new HeavyBroadcastReceiverQuery(reader),
-                    new HeavyAsyncTaskStepsQuery(reader)
+                    new ComplexClass(reader), new LongMethod(reader), new SwissArmyKnife(reader), new BLOB(reader),
+                    new HeavyServiceStart(reader), new HeavyBroadcastReceiver(reader),
+                    new HeavyAsyncTaskSteps(reader)
             ));
         }
     };

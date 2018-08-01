@@ -32,7 +32,7 @@ public class NumberOfVariables extends UnaryMetric<Integer> {
         super(NAME, paprikaApp, value);
     }
 
-    public static void createNumberOfVariables(PaprikaApp paprikaApp, int value) {
+    public static void createMetric(PaprikaApp paprikaApp, int value) {
         NumberOfVariables numberOfVariables = new NumberOfVariables(paprikaApp, value);
         numberOfVariables.updateEntity();
     }

@@ -53,7 +53,8 @@ public class PaprikaMethod extends Entity {
     }
 
 
-    public static PaprikaMethod createPaprikaMethod(String name, PaprikaModifier modifier, String returnType, PaprikaClass paprikaClass) {
+    public static PaprikaMethod create(String name, PaprikaModifier modifier, String returnType,
+                                       PaprikaClass paprikaClass) {
         PaprikaMethod paprikaMethod = new PaprikaMethod(name, modifier, returnType, paprikaClass);
         paprikaClass.addPaprikaMethod(paprikaMethod);
         return paprikaMethod;

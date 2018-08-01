@@ -46,15 +46,17 @@ public class MethodProcessor {
             new IsAbstract()
     };
 
-    private IsSynchronized isSynchronized = new IsSynchronized();
-    private NumberOfParameters parameters = new NumberOfParameters();
+    private IsSynchronized isSynchronized;
+    private NumberOfParameters parameters;
 
 
     public MethodProcessor(PaprikaContainer container) {
         this.container = container;
         this.methodMap = container.getMethodMap();
         this.externalMethodMap = container.getExternalMethodMap();
-        bodyProcessor = new BodyProcessor();
+        this.isSynchronized = new IsSynchronized();
+        this.parameters = new NumberOfParameters();
+        this.bodyProcessor = new BodyProcessor();
     }
 
     public void processMethods() {
@@ -107,21 +109,21 @@ public class MethodProcessor {
             Edge e = edgeIntoIterator.next();
             if (e.isExplicit()) edgeIntoCount++;
         }
-        NumberOfDirectCalls.createNumberOfDirectCalls(paprikaMethod, edgeOutCount);
-        NumberOfCallers.createNumberOfCallers(paprikaMethod, edgeIntoCount);
+        NumberOfDirectCalls.createMetric(paprikaMethod, edgeOutCount);
+        NumberOfCallers.createMetric(paprikaMethod, edgeIntoCount);
     }
 
     private void analyzeExternalCall(SootMethod target, Edge edgeOut, PaprikaMethod paprikaMethod) {
         PaprikaExternalMethod externalTgtMethod = externalMethodMap.get(target);
         if (externalTgtMethod == null) {
             PaprikaExternalClass paprikaExternalClass = container.getOrCreateExternalClass(target.getDeclaringClass());
-            externalTgtMethod = PaprikaExternalMethod.createPaprikaExternalMethod(target.getName(),
+            externalTgtMethod = PaprikaExternalMethod.create(target.getName(),
                     target.getReturnType().toString(), paprikaExternalClass);
             int i = 0;
             for (Type type : target.getParameterTypes()) {
                 i++;
                 PaprikaExternalArgument paprikaExternalArgument = PaprikaExternalArgument
-                        .createPaprikaExternalArgument(type.toString(), i, externalTgtMethod);
+                        .create(type.toString(), i, externalTgtMethod);
 
             }
             externalMethodMap.put(target, externalTgtMethod);

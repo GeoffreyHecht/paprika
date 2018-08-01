@@ -60,7 +60,7 @@ public class PaprikaContainer {
     }
 
     public PaprikaClass addClass(SootClass sootClass) {
-        PaprikaClass paprikaClass = PaprikaClass.createPaprikaClass(sootClass.getName(),
+        PaprikaClass paprikaClass = PaprikaClass.create(sootClass.getName(),
                 paprikaApp, PaprikaModifier.getModifier(sootClass));
         if (sootClass.hasSuperclass()) {
             paprikaClass.setParentName(sootClass.getSuperclass().getName());
@@ -70,7 +70,7 @@ public class PaprikaContainer {
     }
 
     public PaprikaVariable addField(PaprikaClass paprikaClass, SootField sootField) {
-        return PaprikaVariable.createPaprikaVariable(
+        return PaprikaVariable.create(
                 sootField.getName(), sootField.getType().toString(), PaprikaModifier.getModifier(sootField),
                 paprikaClass);
     }
@@ -88,7 +88,7 @@ public class PaprikaContainer {
             }
             return;
         }
-        PaprikaMethod paprikaMethod = PaprikaMethod.createPaprikaMethod(sootMethod.getName(),
+        PaprikaMethod paprikaMethod = PaprikaMethod.create(sootMethod.getName(),
                 PaprikaModifier.getModifier(sootMethod),
                 sootMethod.getReturnType().toString(), paprikaClass);
         methodMap.put(sootMethod, paprikaMethod);
@@ -97,7 +97,7 @@ public class PaprikaContainer {
     public PaprikaExternalClass getOrCreateExternalClass(SootClass sootClass) {
         PaprikaExternalClass paprikaExternalClass = externalClassMap.get(sootClass);
         if (paprikaExternalClass == null) {
-            paprikaExternalClass = PaprikaExternalClass.createPaprikaExternalClass(sootClass.getName(), paprikaApp);
+            paprikaExternalClass = PaprikaExternalClass.create(sootClass.getName(), paprikaApp);
             externalClassMap.put(sootClass, paprikaExternalClass);
         }
         return paprikaExternalClass;

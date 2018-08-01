@@ -19,6 +19,7 @@
 package paprika.query.neo4j.queries;
 
 import org.junit.jupiter.api.Test;
+import paprika.TestUtil;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -27,11 +28,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class QueryPropertiesTest {
 
     private static final String PROPERTIES_FOLDER = "/properties";
+    private TestUtil util = new TestUtil();
 
     @Test
     public void validProperties() throws Exception {
         QueryPropertiesReader reader = new QueryPropertiesReader();
-        reader.loadProperties(getClass().getResource(PROPERTIES_FOLDER + "/correct.properties").getFile());
+        reader.loadProperties(util.getPath(PROPERTIES_FOLDER + "/correct.properties"));
         assertThat(reader.get("double_props"), is(closeTo(5.6, 0.1)));
         assertThat(reader.get("int_props"), is(closeTo(3, 0.1)));
         String testStr = "whatever double_props bla int_props";
@@ -42,7 +44,7 @@ public class QueryPropertiesTest {
     public void cantParseProperties() {
         QueryPropertiesReader reader = new QueryPropertiesReader();
         assertThrows(QueryPropertiesException.class, () ->
-                reader.loadProperties(getClass().getResource(PROPERTIES_FOLDER + "/invalid.properties").getFile()));
+                reader.loadProperties(util.getPath(PROPERTIES_FOLDER + "/invalid.properties")));
     }
 
 }

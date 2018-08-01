@@ -11,13 +11,14 @@ Paprika is a powerful toolkit to detect some code smells in analysed Android app
 
 ### <a name="code_smells_detection"></a>Code smells detection
 
-Paprika supports currently 16 Object-Oriented (OO) and Android code smells.
+Paprika currently supports the following Object-Oriented (OO) and Android code smells.
 
 **Object-Oriented** code smells:
 * Blob Class (BLOB),
 * Swiss Army Knife (SAK),
 * Long Method (LM),
-* Complex Class (CC).
+* Complex Class (CC),
+* Long Parameter List (LPL).
 
 **Android** code smells:
 * Internal Getter/Setter (IGS),
@@ -32,6 +33,13 @@ Paprika supports currently 16 Object-Oriented (OO) and Android code smells.
 * Init OnDraw (IOD),
 * Hashmap Usage (HMU),
 * Unsupported Hardware Acceleration (UHA),
+* Debuggable Release (DR),
+* Durable Wakelock (DW),
+* Public Data (PD),
+* Rigid AlarmManager (RAM),
+* Unclosed Closeable (CL).
+
+A more detailed description of most of the antipatterns is available [here](Antipatterns.md).
 
 ### <a name="hoz_to_use_it"></a>How to use it ?
 
@@ -227,11 +235,13 @@ GNU AFFERO GENERAL PUBLIC LICENSE (version 3)
 
 ### <a name="credits"></a>Credits
 
-Developed by [Geoffrey Hecht](http://geoffreyhecht.github.io/), [SOMCA](http://sofa.uqam.ca/somca.php), [SPIRALS](https://team.inria.fr/spirals/) - [LATECE](http://www.latece.uqam.ca/)
+Developed by [Geoffrey Hecht](http://geoffreyhecht.github.io/), 
+[SOMCA](http://sofa.uqam.ca/somca.php),
+[SPIRALS](https://team.inria.fr/spirals/) - [LATECE](http://www.latece.uqam.ca/)
 
 ### <a name="publications"></a>Publications
 
-If you want to read more about how Paprika work, how you can use it or to cite us, we recommend you to read :
+If you want to read more about how Paprika works, how you can use it or to cite us, we recommend you to read :
 
 [__Tracking the Software Quality of Android Applications along their Evolution__](https://hal.inria.fr/hal-01178734)
 

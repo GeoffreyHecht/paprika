@@ -22,14 +22,16 @@ import paprika.analyse.entities.PaprikaClass;
 import paprika.analyse.entities.PaprikaVariable;
 import paprika.analyse.metrics.app.NumberOfClasses;
 import paprika.analyse.metrics.app.NumberOfVariables;
-import paprika.analyse.metrics.classes.condition.CountedClassCondition;
-import paprika.analyse.metrics.classes.condition.IsAbstractClass;
-import paprika.analyse.metrics.classes.condition.IsInnerClassStatic;
-import paprika.analyse.metrics.classes.condition.IsInterface;
-import paprika.analyse.metrics.classes.condition.subclass.*;
+import paprika.analyse.metrics.classes.condition.ClassCondition;
+import paprika.analyse.metrics.classes.condition.IsCloseable;
+import paprika.analyse.metrics.classes.condition.counted.CountedClassCondition;
+import paprika.analyse.metrics.classes.condition.counted.IsAbstractClass;
+import paprika.analyse.metrics.classes.condition.counted.IsInnerClassStatic;
+import paprika.analyse.metrics.classes.condition.counted.IsInterface;
+import paprika.analyse.metrics.classes.condition.counted.subclass.*;
 import paprika.analyse.metrics.classes.stat.soot.DepthOfInheritance;
+import paprika.analyse.metrics.classes.stat.soot.ImplementedInterfaces;
 import paprika.analyse.metrics.classes.stat.soot.NumberOfAttributes;
-import paprika.analyse.metrics.classes.stat.soot.NumberOfImplementedInterfaces;
 import paprika.analyse.metrics.classes.stat.soot.SootClassStatistic;
 import paprika.analyse.metrics.common.CommonCondition;
 import paprika.analyse.metrics.common.IsFinal;
@@ -68,9 +70,11 @@ public class ClassProcessor {
     private SootClassStatistic[] statistics = {
             new DepthOfInheritance(),
             new NumberOfAttributes(),
-            new NumberOfImplementedInterfaces(),
+            new ImplementedInterfaces(),
             new NumberOfMethods()
     };
+
+    private ClassCondition isCloseable;
 
     private PaprikaContainer container;
     private Map<SootClass, PaprikaClass> classMap;
@@ -81,6 +85,7 @@ public class ClassProcessor {
         this.container = container;
         this.classMap = container.getClassMap();
         this.mainPackageOnly = mainPackageOnly;
+        this.isCloseable = new IsCloseable();
     }
 
     public void processClasses() {
@@ -122,6 +127,7 @@ public class ClassProcessor {
         for (CountedClassCondition condition : classConditions) {
             condition.createIfMatching(sootClass, paprikaClass);
         }
+        isCloseable.createIfMatching(sootClass, paprikaClass);
         // Field analysis
         sootClass.getFields().forEach(field -> registerField(paprikaClass, field));
         // Numerical stats
@@ -142,8 +148,8 @@ public class ClassProcessor {
      * Should be called after all classes have been processed once
      */
     private void collectAppMetrics() {
-        NumberOfClasses.createNumberOfClasses(container.getPaprikaApp(), classMap.size());
-        NumberOfVariables.createNumberOfVariables(container.getPaprikaApp(), varCount);
+        NumberOfClasses.createMetric(container.getPaprikaApp(), classMap.size());
+        NumberOfVariables.createMetric(container.getPaprikaApp(), varCount);
         for (CountedClassCondition condition : classConditions) {
             condition.createNumberMetric(container.getPaprikaApp());
         }

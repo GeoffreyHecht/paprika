@@ -21,10 +21,7 @@ package paprika.analyse.analyzer;
 import paprika.analyse.entities.PaprikaArgument;
 import paprika.analyse.entities.PaprikaMethod;
 import paprika.analyse.entities.PaprikaVariable;
-import paprika.analyse.metrics.methods.condition.IsGetterOrSetter;
-import paprika.analyse.metrics.methods.condition.IsInit;
-import paprika.analyse.metrics.methods.condition.IsOverride;
-import paprika.analyse.metrics.methods.condition.MethodCondition;
+import paprika.analyse.metrics.methods.condition.*;
 import paprika.analyse.metrics.methods.stat.CyclomaticComplexity;
 import paprika.analyse.metrics.methods.stat.MethodStatistic;
 import paprika.analyse.metrics.methods.stat.NumberOfDeclaredLocals;
@@ -45,9 +42,17 @@ public class BodyProcessor {
             complexity
     };
 
-    private MethodCondition isInit = new IsInit();
-    private MethodCondition isOverride = new IsOverride();
-    private IsGetterOrSetter isGetterOrSetter = new IsGetterOrSetter();
+    private MethodCondition isInit;
+    private MethodCondition isOverride;
+    private IsGetterOrSetter isGetterOrSetter;
+    private MethodCondition usesPublicData;
+
+    public BodyProcessor() {
+        this.usesPublicData = new UsesPublicData();
+        this.isInit = new IsInit();
+        this.isGetterOrSetter = new IsGetterOrSetter();
+        this.isOverride = new IsOverride();
+    }
 
     public void processMethodBody(SootMethod sootMethod, PaprikaMethod paprikaMethod) {
         registerArgs(sootMethod, paprikaMethod);
@@ -61,19 +66,19 @@ public class BodyProcessor {
             isOverride.createIfMatching(sootMethod, paprikaMethod);
             isGetterOrSetter.createIfMatching(sootMethod, paprikaMethod, complexity.lastMethodHadASingleBranch());
         }
+        usesPublicData.createIfMatching(sootMethod, paprikaMethod);
     }
 
     private void registerArgs(SootMethod sootMethod, PaprikaMethod paprikaMethod) {
         int i = 0;
         for (Type type : sootMethod.getParameterTypes()) {
             i++;
-            PaprikaArgument.createPaprikaArgument(type.toString(), i, paprikaMethod);
+            PaprikaArgument.create(type.toString(), i, paprikaMethod);
         }
     }
 
     private void computeLackOfCohesion(SootMethod sootMethod, PaprikaMethod paprikaMethod) {
         for (Unit sootUnit : sootMethod.getActiveBody().getUnits()) {
-            // LCOM
             List<ValueBox> boxes = sootUnit.getUseAndDefBoxes();
             for (ValueBox valueBox : boxes) {
                 Value value = valueBox.getValue();

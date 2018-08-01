@@ -30,8 +30,11 @@ versions = [10, 13, 15, 16, 17, 22, 27]
 
 
 def register_apk():
-    clean_folder(db_out)
-    shutil.rmtree(db_out)
+    try:
+        clean_folder(db_out)
+        shutil.rmtree(db_out)
+    except FileNotFoundError:
+        print("Folder " + db_out + " not found, unable to delete.")
     clean_folder(db_folder)
     for version in versions:
         print("Analyzing witness with android api " + str(version))
