@@ -18,6 +18,7 @@
 
 package paprika.analyse;
 
+import org.neo4j.graphdb.TransactionFailureException;
 import paprika.analyse.analyzer.AnalyzerException;
 import paprika.analyse.analyzer.SootAnalyzer;
 import paprika.analyse.entities.PaprikaApp;
@@ -28,6 +29,7 @@ import paprika.launcher.arg.PaprikaArgParser;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -37,9 +39,27 @@ import static paprika.launcher.arg.Argument.*;
 public class AnalyseModeStarter extends PaprikaStarter {
 
     private static final int SOOT_RETRIES = 3;
+    private static final int NEO4J_RETRIES = 3;
+
+    private PrintStream originalOut;
+    private PrintStream originalErr;
 
     public AnalyseModeStarter(PaprikaArgParser argParser, PrintStream out) {
         super(argParser, out);
+        originalOut = System.out;
+        // Hack to prevent soot to print on System.out
+        System.setOut(new PrintStream(new OutputStream() {
+            public void write(int b) {
+                // NO-OP
+            }
+        }));
+        originalErr = System.err;
+        System.setErr(new PrintStream(new OutputStream() {
+            @Override
+            public void write(int b) {
+                // NO-OP
+            }
+        }));
     }
 
     @Override
@@ -59,25 +79,50 @@ public class AnalyseModeStarter extends PaprikaStarter {
             for (String apk : appsPaths) {
                 processApp(apk, modelToGraph, propsParser);
                 out.println("Done");
+                restoreDefaultStreams();
             }
         } else {
             processApp(argParser.getArg(APK_ARG), modelToGraph, null);
             out.println("Done");
+            restoreDefaultStreams();
         }
+    }
+
+    private void restoreDefaultStreams() {
+        System.setOut(originalOut);
+        System.setErr(originalErr);
     }
 
     private void processApp(String apk, ModelToGraph modelToGraph, @Nullable ApkPropertiesParser propsParser) {
         try {
             PaprikaApp app = analyzeApp(apk, propsParser);
-            saveIntoDatabase(app, modelToGraph);
+            saveIntoDatabase(app, modelToGraph, 0);
         } catch (AnalyzerException e) {
             notifyAnalysisFailure(apk, e);
         }
     }
 
-    private void notifyAnalysisFailure(String apk, AnalyzerException e) {
+    private void saveIntoDatabase(PaprikaApp app, ModelToGraph modelToGraph, int retries) {
+        try {
+            out.println("Saving into database " + argParser.getArg(DATABASE_ARG));
+            modelToGraph.insertApp(app);
+        } catch (TransactionFailureException e) {
+            if (retries < NEO4J_RETRIES) {
+                out.println("Failed to insert into database");
+                out.println("Trying again...");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException interrupt) {
+                    out.println("Interrupted while waiting to try a new transaction");
+                }
+                saveIntoDatabase(app, modelToGraph, retries + 1);
+            }
+        }
+    }
+
+    private void notifyAnalysisFailure(String apk, Exception e) {
         out.println("Failed to analyze " + apk);
-        e.printStackTrace(out);
+        out.println(e.getCause().getMessage());
     }
 
     public PaprikaApp analyzeApp(String apkPath, @Nullable ApkPropertiesParser propsParser)
@@ -116,11 +161,5 @@ public class AnalyseModeStarter extends PaprikaStarter {
             throw new AnalyzerException(apkPath, e);
         }
     }
-
-    public void saveIntoDatabase(PaprikaApp app, ModelToGraph modelToGraph) {
-        out.println("Saving into database " + argParser.getArg(DATABASE_ARG));
-        modelToGraph.insertApp(app);
-    }
-
 
 }

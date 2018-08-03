@@ -23,8 +23,6 @@ import paprika.analyse.metrics.classes.stat.paprika.*;
 import soot.*;
 import soot.options.Options;
 
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.*;
 
 /**
@@ -50,13 +48,6 @@ public class SootAnalyzer {
     }
 
     public void prepareSoot() {
-        // Hack to prevent soot to print on System.out
-        PrintStream originalStream = System.out;
-        System.setOut(new PrintStream(new OutputStream() {
-            public void write(int b) {
-                // NO-OP
-            }
-        }));
         G.reset();
         Options.v().set_allow_phantom_refs(true);
         Options.v().set_whole_program(true);
@@ -79,7 +70,6 @@ public class SootAnalyzer {
         excludeList.add("javax.servlet.*");
         Options.v().set_exclude(excludeList);
         Scene.v().loadNecessaryClasses();
-        System.setOut(originalStream);
     }
 
     public void runAnalysis(PaprikaApp app, boolean mainPackageOnly) throws AnalyzerException {
