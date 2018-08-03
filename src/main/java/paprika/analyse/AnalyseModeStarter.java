@@ -108,8 +108,7 @@ public class AnalyseModeStarter extends PaprikaStarter {
                     return analyze(apkPath, propsParser, retries + 1);
                 } else {
                     out.println("Soot could not analyze " + apkPath);
-                    e.printStackTrace(out);
-                    return null;
+                    throw new AnalyzerException(apkPath, e);
                 }
             }
             return analyzer.getPaprikaApp();
