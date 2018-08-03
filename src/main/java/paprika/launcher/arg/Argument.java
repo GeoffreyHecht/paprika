@@ -314,6 +314,15 @@ public enum Argument {
                     .setDefault((String) null)
                     .help("Path to .properties file containing android thresholds");
         }
+    },
+
+    NO_NAMES_ARG("noNames", QUERY_MODE) {
+        @Override
+        public void setup(Subparser subparser) {
+            subparser.addArgument("-nn", prefixArg(toString())).type(Boolean.class)
+                    .setDefault(false).action(Arguments.storeTrue())
+                    .help("Disable app names in output");
+        }
     };
 
     public static final Argument[] ANALYSE_PROPS_ARGS = {

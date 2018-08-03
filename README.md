@@ -168,6 +168,8 @@ optional arguments:
                          Package of the applications to delete
   -d, --details
                          Show the concerned entity in the results
+  -nn, --noNames
+                         Disable app names in output
   -thr PATH, --thresholds PATH
                          Read fuzzy patterns thresholds from properties file
 ```

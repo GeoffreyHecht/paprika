@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static paprika.launcher.arg.Argument.DATABASE_ARG;
+import static paprika.launcher.arg.Argument.NO_NAMES_ARG;
 
 /**
  * Created by Geoffrey Hecht on 12/01/15.
@@ -81,12 +82,13 @@ public class QueryEngine {
         executeAndWriteToCSV(query.getQuery(details), query.getCSVSuffix(), details);
     }
 
-    public void executeAndWriteToCSV(String request, String suffix, boolean details) throws IOException {
+    public void executeAndWriteToCSV(String request, String suffix, boolean details)
+            throws IOException {
         try (Transaction ignored = graphDatabaseService.beginTx()) {
             Result result = graphDatabaseService.execute(request);
             List<Map<String, Object>> rows = result.stream().map(HashMap::new).collect(Collectors.toList());
             List<String> columns = new ArrayList<>(result.columns());
-            if (details) {
+            if (!arg.getFlagArg(NO_NAMES_ARG)) {
                 addAppNamesToResult(rows, columns);
             }
             new CSVWriter(csvPrefix).resultToCSV(rows, columns, suffix);
@@ -98,7 +100,7 @@ public class QueryEngine {
             Result result = graphDatabaseService.execute(query.getFuzzyQuery(details));
             List<Map<String, Object>> rows = result.stream().map(HashMap::new).collect(Collectors.toList());
             List<String> columns = new ArrayList<>(result.columns());
-            if (details) {
+            if (!arg.getFlagArg(NO_NAMES_ARG)) {
                 addAppNamesToResult(rows, columns);
             }
             columns.add("fuzzy_value");
@@ -108,6 +110,9 @@ public class QueryEngine {
     }
 
     private void addAppNamesToResult(List<Map<String, Object>> rows, List<String> columns) {
+        if (rows.isEmpty() || rows.get(0).get("app_key") == null) {
+            return;
+        }
         columns.add("app_name");
         if (keysToNames == null) {
             fillKeysToNames();
