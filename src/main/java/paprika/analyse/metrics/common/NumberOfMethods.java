@@ -27,6 +27,8 @@ import soot.SootClass;
 
 /**
  * Created by Geoffrey Hecht on 20/05/14.
+ * <p>
+ * Can be applied to a class or an application.
  */
 public class NumberOfMethods implements SootClassStatistic {
 

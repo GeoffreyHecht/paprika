@@ -24,9 +24,9 @@ package paprika.analyse.entities;
 public class PaprikaExternalArgument extends Entity {
 
     // Neo4J attributes names
-    public static final String APP_KEY = PaprikaApp.APP_KEY;
-    public static final String NAME = "name";
-    public static final String POSITION = "position";
+    public static final String N4J_APP_KEY = PaprikaApp.N4J_APP_KEY;
+    public static final String N4J_NAME = "name";
+    public static final String N4J_POSITION = "position";
 
     private int position;
 

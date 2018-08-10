@@ -72,20 +72,18 @@ public class CSVWriter {
 
     public void statsToCSV(Map<String, Double> stats, String csvSuffix) throws IOException {
         String name = csvPrefix + csvSuffix;
-        FileWriter fw = new FileWriter(name);
-        BufferedWriter writer = new BufferedWriter(fw);
-        Set<String> keys = stats.keySet();
-        for (String key : keys) {
-            writer.write(key);
-            writer.write(',');
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(name))) {
+            Set<String> keys = stats.keySet();
+            for (String key : keys) {
+                writer.write(key);
+                writer.write(',');
+            }
+            writer.newLine();
+            for (String key : keys) {
+                writer.write(String.valueOf(stats.get(key)));
+                writer.write(',');
+            }
         }
-        writer.newLine();
-        for (String key : keys) {
-            writer.write(String.valueOf(stats.get(key)));
-            writer.write(',');
-        }
-        writer.close();
-        fw.close();
     }
 
 }

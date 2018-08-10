@@ -22,6 +22,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import paprika.DatabaseManager;
+import paprika.analyse.entities.PaprikaApp;
 import paprika.launcher.arg.PaprikaArgParser;
 import paprika.query.neo4j.queries.PaprikaQuery;
 import paprika.query.neo4j.queries.QueryPropertiesReader;
@@ -44,6 +45,8 @@ public class QueryEngine {
 
     private static final String APP_NAMES_QUERY =
             "MATCH (n:App) RETURN n.app_key AS app_key, n.name AS app_name";
+
+    private static final String APP_NAME_COLUMN = "app_name";
 
     private Map<String, String> keysToNames;
 
@@ -79,10 +82,10 @@ public class QueryEngine {
     }
 
     public void execute(PaprikaQuery query, boolean details) throws IOException {
-        executeAndWriteToCSV(query.getQuery(details), query.getCSVSuffix(), details);
+        executeAndWriteToCSV(query.getQuery(details), query.getCSVSuffix());
     }
 
-    public void executeAndWriteToCSV(String request, String suffix, boolean details)
+    public void executeAndWriteToCSV(String request, String suffix)
             throws IOException {
         try (Transaction ignored = graphDatabaseService.beginTx()) {
             Result result = graphDatabaseService.execute(request);
@@ -95,7 +98,7 @@ public class QueryEngine {
         }
     }
 
-    public void executeFuzzy(FuzzyQuery query, boolean details) throws IOException {
+    public void executeFuzzyAndWriteToCSV(FuzzyQuery query, boolean details) throws IOException {
         try (Transaction ignored = graphDatabaseService.beginTx()) {
             Result result = graphDatabaseService.execute(query.getFuzzyQuery(details));
             List<Map<String, Object>> rows = result.stream().map(HashMap::new).collect(Collectors.toList());
@@ -110,14 +113,14 @@ public class QueryEngine {
     }
 
     private void addAppNamesToResult(List<Map<String, Object>> rows, List<String> columns) {
-        if (rows.isEmpty() || rows.get(0).get("app_key") == null) {
+        if (rows.isEmpty() || rows.get(0).get(PaprikaApp.N4J_APP_KEY) == null) {
             return;
         }
-        columns.add("app_name");
+        columns.add(APP_NAME_COLUMN);
         if (keysToNames == null) {
             fillKeysToNames();
         }
-        rows.forEach(row -> row.put("app_name", keysToNames.get(row.get("app_key").toString())));
+        rows.forEach(row -> row.put(APP_NAME_COLUMN, keysToNames.get(row.get(PaprikaApp.N4J_APP_KEY).toString())));
     }
 
     private void fillKeysToNames() {
@@ -130,7 +133,7 @@ public class QueryEngine {
 
     private Map<String, String> namesResultToMap(List<Map<String, Object>> rows) {
         Map<String, String> result = new HashMap<>();
-        rows.forEach(row -> result.put(row.get("app_key").toString(), row.get("app_name").toString()));
+        rows.forEach(row -> result.put(row.get(PaprikaApp.N4J_APP_KEY).toString(), row.get(APP_NAME_COLUMN).toString()));
         return result;
     }
 
@@ -140,10 +143,6 @@ public class QueryEngine {
             transaction.success();
             return Integer.valueOf(result.next().get(countLabel).toString());
         }
-    }
-
-    public PaprikaArgParser getArgParser() {
-        return arg;
     }
 
     public void shutDown() {

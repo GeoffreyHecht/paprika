@@ -47,7 +47,7 @@ You can find the correct folder structure for Android platforms in [this Github 
 To compile Paprika into a jar with its dependencies, run `gradle shadowjar`.
 You can find the built java application in ```build/libs/Paprika.jar```.
 
-Note that Paprika might not work properly on apk files using a minimum sdk version superior or equal to 26.
+Note that Paprika might not work properly on apk files using a minimum or target sdk version superior or equal to 26.
 
 Paprika has multiple execution modes depending on the first argument.
 

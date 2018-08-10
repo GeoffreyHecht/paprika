@@ -37,9 +37,11 @@ import java.util.stream.Collectors;
 import static paprika.launcher.PaprikaMode.ANALYSE_MODE;
 import static paprika.launcher.arg.Argument.*;
 
+/**
+ * Parses Paprika arguments and stores their value for future use.
+ */
 public class PaprikaArgParser {
 
-    private static final String JSON_PROPS_FILENAME = "apk-properties.json";
     private static final String SUB_PARSER = "sub_command";
     private static final String DATE_REGEX =
             "^([0-9]{4})-([0-1][0-9])-([0-3][0-9])\\s([0-1][0-9]|[2][0-3]):([0-5][0-9]):([0-5][0-9]).([0-9]*)$";
@@ -55,6 +57,13 @@ public class PaprikaArgParser {
         }
     }
 
+    /**
+     * Parse the given Strings as Paprika arguments.
+     *
+     * @param args the args to parse
+     * @throws ArgumentParserException if one of the String does not match an argument
+     * @throws PaprikaArgException     if the argument checking for the date fails
+     */
     public void parseArgs(String[] args) throws ArgumentParserException, PaprikaArgException {
         res = parser.parseArgs(args);
         if (isAnalyseMode() && res.get(UNSAFE_ARG.toString()) == null) {
@@ -66,12 +75,20 @@ public class PaprikaArgParser {
         return res.getString(SUB_PARSER).equals(ANALYSE_MODE.toString());
     }
 
-    public void checkArgs() throws PaprikaArgException {
+    private void checkArgs() throws PaprikaArgException {
         if (!res.getString(DATE_ARG.toString()).matches(DATE_REGEX)) {
             throw new PaprikaArgException("Date should be formatted : yyyy-mm-dd hh:mm:ss.S");
         }
     }
 
+    /**
+     * Computes the SHA-256 of a file contents.
+     *
+     * @param path the file to process
+     * @return the SHA-256 of the file contents
+     * @throws IOException              if failing to find or read the file
+     * @throws NoSuchAlgorithmException if no algorithm is found to process SHA-256
+     */
     public String computeSha256(String path) throws IOException, NoSuchAlgorithmException {
         byte[] buffer = new byte[2048];
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -93,6 +110,13 @@ public class PaprikaArgParser {
         return sb.toString();
     }
 
+    /**
+     * Gets an instance of the main execution class corresponding to the parameters loaded with
+     * {@link #parseArgs(String[])}
+     *
+     * @param out a PrintStream used for user feedback
+     * @return the class to use to start the Paprika session
+     */
     public PaprikaStarter getSelectedStarter(PrintStream out) {
         PaprikaMode selectedMode = PaprikaMode.getMode(res.getString(SUB_PARSER));
         if (selectedMode == null) {
@@ -103,7 +127,7 @@ public class PaprikaArgParser {
     }
 
     public void handleError(ArgumentParserException e) {
-        // All subparsers error handling are the same
+        // All subparsers error handlers are the same
         ANALYSE_MODE.getSubparser().handleError(e);
     }
 
@@ -123,6 +147,14 @@ public class PaprikaArgParser {
         return res.getBoolean(arg.toString());
     }
 
+    /**
+     * Returns the key to use when analyzing a single apk.
+     *
+     * @return the value of the --key argument, or the SHA-256 of the apk content if this argument
+     * was not used
+     * @throws IOException              if failing to find or read the file
+     * @throws NoSuchAlgorithmException if no algorithm is found to process SHA-256
+     */
     public String getSha() throws IOException, NoSuchAlgorithmException {
         if (res.getString(KEY_ARG.toString()) == null) {
             return computeSha256(res.getString(APK_ARG.toString()));
@@ -131,6 +163,9 @@ public class PaprikaArgParser {
         }
     }
 
+    /**
+     * Returns the path of all the apks in the folder passed as Argument.
+     */
     public List<String> getAppsPaths() {
         List<String> apps = new ArrayList<>();
         File apkFolder = new File(res.getString(APK_ARG.toString()));
@@ -156,9 +191,14 @@ public class PaprikaArgParser {
         }
     }
 
+    /**
+     * Returns the filenames of all the apks in the folder passed as Argument.
+     *
+     * @param appsPaths the paths to the apks in the folder from {@link #getAppsPaths()}
+     */
     public List<String> getAppsFilenames(List<String> appsPaths) {
         return appsPaths.stream()
-                .map((item) -> removeAPKExtension(new File(item).getName()))
+                .map(item -> removeAPKExtension(new File(item).getName()))
                 .collect(Collectors.toList());
     }
 
@@ -166,6 +206,11 @@ public class PaprikaArgParser {
         return original.substring(0, original.length() - 4);
     }
 
+    /**
+     * Checks whether the file passed to Paprika analyse mode was a folder or not.
+     *
+     * @return true if the file was a folder, false otherwise
+     */
     public boolean isFolderMode() {
         File apkFolder = new File(res.getString(APK_ARG.toString()));
         return apkFolder.isDirectory();

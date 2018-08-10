@@ -93,7 +93,9 @@ public class BLOB extends FuzzyQuery {
 
     @Override
     public List<Map<String, Object>> getFuzzyResult(List<Map<String, Object>> result, FIS fis) {
-        int lcom, noa, nom;
+        int lcom;
+        int noa;
+        int nom;
         List<Map<String, Object>> fuzzyResult = new ArrayList<>();
         FunctionBlock fb = fis.getFunctionBlock(null);
         for (Map<String, Object> res : result) {

@@ -37,7 +37,7 @@ public class FuzzyCommand implements PaprikaCommand {
     @Override
     public void run(boolean details) throws IOException {
         for (FuzzyQuery query : queries) {
-            engine.executeFuzzy(query, details);
+            engine.executeFuzzyAndWriteToCSV(query, details);
         }
     }
 

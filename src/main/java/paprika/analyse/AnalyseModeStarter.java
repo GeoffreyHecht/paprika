@@ -36,6 +36,9 @@ import java.util.List;
 
 import static paprika.launcher.arg.Argument.*;
 
+/**
+ * Starts and manages a Paprika analysis session.
+ */
 public class AnalyseModeStarter extends PaprikaStarter {
 
     private static final int SOOT_RETRIES = 3;
@@ -44,10 +47,17 @@ public class AnalyseModeStarter extends PaprikaStarter {
     private PrintStream originalOut;
     private PrintStream originalErr;
 
+    /**
+     * Constructor. Mutes System.out and System.err standard outputs until the method
+     * {@link #start()} is done executing.
+     *
+     * @param argParser the argument manager for this session
+     * @param out       a stream to display user feedback
+     */
     public AnalyseModeStarter(PaprikaArgParser argParser, PrintStream out) {
         super(argParser, out);
+        // Hack to prevent soot from spamming System.out and System.err
         originalOut = System.out;
-        // Hack to prevent soot to print on System.out
         System.setOut(new PrintStream(new OutputStream() {
             public void write(int b) {
                 // NO-OP
@@ -62,6 +72,10 @@ public class AnalyseModeStarter extends PaprikaStarter {
         }));
     }
 
+    /**
+     * Start the analysis of one or multiple apks.
+     * Restores System.out and System.err once done.
+     */
     @Override
     public void start() {
         ModelToGraph modelToGraph = new ModelToGraph(argParser.getArg(DATABASE_ARG));
@@ -102,29 +116,15 @@ public class AnalyseModeStarter extends PaprikaStarter {
         }
     }
 
-    private void saveIntoDatabase(PaprikaApp app, ModelToGraph modelToGraph, int retries) {
-        try {
-            out.println("Saving into database " + argParser.getArg(DATABASE_ARG));
-            modelToGraph.insertApp(app);
-        } catch (TransactionFailureException e) {
-            if (retries < NEO4J_RETRIES) {
-                out.println("Failed to insert into database");
-                out.println("Trying again...");
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException interrupt) {
-                    out.println("Interrupted while waiting to try a new transaction");
-                }
-                saveIntoDatabase(app, modelToGraph, retries + 1);
-            }
-        }
-    }
-
-    private void notifyAnalysisFailure(String apk, Exception e) {
-        out.println("Failed to analyze " + apk);
-        out.println(e.getCause().getMessage());
-    }
-
+    /**
+     * Analyze a single apk and convert it to its corresponding Paprika application model.
+     *
+     * @param apkPath     the path to the Android apk
+     * @param propsParser the json parser used to insert app properties such as a key or a name,
+     *                    or null if no such parsing is to be done
+     * @return a PaprikaApp corresponding to the given apk
+     * @throws AnalyzerException if Soot fails to analyze the apk
+     */
     public PaprikaApp analyzeApp(String apkPath, @Nullable ApkPropertiesParser propsParser)
             throws AnalyzerException {
         return analyze(apkPath, propsParser, 0);
@@ -160,6 +160,30 @@ public class AnalyseModeStarter extends PaprikaStarter {
         } catch (IOException | NoSuchAlgorithmException e) {
             throw new AnalyzerException(apkPath, e);
         }
+    }
+
+    private void saveIntoDatabase(PaprikaApp app, ModelToGraph modelToGraph, int retries) {
+        try {
+            out.println("Saving into database " + argParser.getArg(DATABASE_ARG));
+            modelToGraph.insertApp(app);
+        } catch (TransactionFailureException e) {
+            if (retries < NEO4J_RETRIES) {
+                out.println("Failed to insert into database");
+                out.println("Trying again...");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException interrupt) {
+                    out.println("Interrupted while waiting to try a new transaction");
+                    Thread.currentThread().interrupt();
+                }
+                saveIntoDatabase(app, modelToGraph, retries + 1);
+            }
+        }
+    }
+
+    private void notifyAnalysisFailure(String apk, Exception e) {
+        out.println("Failed to analyze " + apk);
+        out.println(e.getCause().getMessage());
     }
 
 }

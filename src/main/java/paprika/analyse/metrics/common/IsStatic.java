@@ -42,7 +42,7 @@ public class IsStatic extends CommonCondition {
 
     @Override
     public boolean matches(SootClass sootClass) {
-        throw new RuntimeException("SootClass.isStatic() does not behave as expected, " +
+        throw new UnsupportedOperationException("SootClass.isStatic() does not behave as expected, " +
                 "perform your own custom check instead");
     }
 

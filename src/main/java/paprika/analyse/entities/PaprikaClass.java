@@ -27,12 +27,11 @@ import java.util.Set;
 public class PaprikaClass extends Entity {
 
     // Neo4J attributes names
-    public static final String APP_KEY = PaprikaApp.APP_KEY;
-    public static final String NAME = "name";
-    public static final String MODIFIER = "modifier";
-    public static final String PARENT = "parent_name";
+    public static final String N4J_APP_KEY = PaprikaApp.N4J_APP_KEY;
+    public static final String N4J_NAME = "name";
+    public static final String N4J_MODIFIER = "modifier";
+    public static final String N4J_PARENT = "parent_name";
 
-    private PaprikaApp paprikaApp;
     private PaprikaClass parent;
     // Parent name to cover library case
     private String parentName;
@@ -44,9 +43,8 @@ public class PaprikaClass extends Entity {
     private Set<PaprikaClass> interfaces;
     private PaprikaModifier modifier;
 
-    private PaprikaClass(String name, PaprikaApp paprikaApp, PaprikaModifier modifier) {
+    private PaprikaClass(String name, PaprikaModifier modifier) {
         this.setName(name);
-        this.paprikaApp = paprikaApp;
         this.complexity = 0;
         this.children = 0;
         this.paprikaMethods = new HashSet<>();
@@ -57,7 +55,7 @@ public class PaprikaClass extends Entity {
     }
 
     public static PaprikaClass create(String name, PaprikaApp paprikaApp, PaprikaModifier modifier) {
-        PaprikaClass paprikaClass = new PaprikaClass(name, paprikaApp, modifier);
+        PaprikaClass paprikaClass = new PaprikaClass(name, modifier);
         paprikaApp.addPaprikaClass(paprikaClass);
         return paprikaClass;
     }
@@ -98,14 +96,6 @@ public class PaprikaClass extends Entity {
         paprikaMethods.add(paprikaMethod);
     }
 
-    public PaprikaApp getPaprikaApp() {
-        return paprikaApp;
-    }
-
-    public void setPaprikaApp(PaprikaApp paprikaApp) {
-        this.paprikaApp = paprikaApp;
-    }
-
     public void addComplexity(int value) {
         complexity += value;
     }
@@ -132,24 +122,6 @@ public class PaprikaClass extends Entity {
 
     public int getCouplingValue() {
         return coupled.size();
-    }
-
-    public int computeLCOM() {
-        Object methods[] = paprikaMethods.toArray();
-        int methodCount = methods.length;
-        int haveFieldInCommon = 0;
-        int noFieldInCommon = 0;
-        for (int i = 0; i < methodCount; i++) {
-            for (int j = i + 1; j < methodCount; j++) {
-                if (((PaprikaMethod) methods[i]).haveCommonFields((PaprikaMethod) methods[j])) {
-                    haveFieldInCommon++;
-                } else {
-                    noFieldInCommon++;
-                }
-            }
-        }
-        int LCOM = noFieldInCommon - haveFieldInCommon;
-        return LCOM > 0 ? LCOM : 0;
     }
 
     /**

@@ -47,29 +47,12 @@ public class DatabaseManager {
         });
     }
 
-    private static void deleteFileOrDirectory(File file) {
-        if (file.exists()) {
-            if (file.isDirectory()) {
-                //noinspection ConstantConditions
-                for (File child : file.listFiles()) {
-                    deleteFileOrDirectory(child);
-                }
-            }
-            file.delete();
-        }
-    }
-
     public void start() {
         File dbFile = new File(dbPath);
         graphDatabaseService = new GraphDatabaseFactory()
                 .newEmbeddedDatabaseBuilder(dbFile)
                 .newGraphDatabase();
         registerShutdownHook(graphDatabaseService);
-    }
-
-    public void deleteDB() {
-        shutDown();
-        deleteFileOrDirectory(new File(dbPath));
     }
 
     public void shutDown() {

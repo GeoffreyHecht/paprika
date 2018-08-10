@@ -27,6 +27,10 @@ import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 
+/**
+ * A condition that can be checked on multiple Soot objects, and applied to
+ * the matching Paprika entities.
+ */
 @SuppressWarnings("UnusedReturnValue")
 public abstract class CommonCondition {
 
@@ -37,15 +41,15 @@ public abstract class CommonCondition {
     }
 
     public boolean matches(SootClass sootClass) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     public boolean matches(SootField sootField) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     public boolean matches(SootMethod sootMethod) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     public boolean createIfMatching(SootClass sootClass, PaprikaClass paprikaClass) {

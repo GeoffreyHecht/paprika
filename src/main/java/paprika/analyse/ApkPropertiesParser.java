@@ -33,11 +33,15 @@ import java.util.Map;
 
 import static paprika.launcher.arg.Argument.*;
 
+/**
+ * Reads app properties from a properly formatted json file.
+ * See the Readme for details on the json format.
+ */
 public class ApkPropertiesParser {
 
     public static final String PROPS_FILENAME = "apk-properties.json";
 
-    private static List<String> PROPS_KEYS = Arrays.asList(
+    private static final List<String> PROPS_KEYS = Arrays.asList(
             NAME_ARG.toString(), PACKAGE_ARG.toString(), KEY_ARG.toString(), DEVELOPER_ARG.toString(), CATEGORY_ARG.toString(),
             NB_DOWNLOAD_ARG.toString(), DATE_ARG.toString(), RATING_ARG.toString(), SIZE_ARG.toString(), VERSION_CODE_ARG.toString(),
             VERSION_NAME_ARG.toString(), TARGET_SDK_VERSION_ARG.toString(), SDK_VERSION_ARG.toString(),
@@ -48,6 +52,15 @@ public class ApkPropertiesParser {
     private String jsonPath;
     private PrintStream out;
 
+    /**
+     * Constructor.
+     *
+     * @param out      a stream used for user feedback
+     * @param jsonPath the path to the json properties file
+     * @param apps     the list of filenames of all the apks
+     * @throws PropertiesException if one of the apps has an invalid name
+     *                             (like "rating" or another Paprika app property)
+     */
     public ApkPropertiesParser(PrintStream out, String jsonPath, List<String> apps) throws PropertiesException {
         this.jsonPath = jsonPath;
         this.out = out;
@@ -61,6 +74,12 @@ public class ApkPropertiesParser {
         }
     }
 
+    /**
+     * Loads the properties from the json file.
+     *
+     * @throws IOException         if failing to read or open the file
+     * @throws PropertiesException if trying to set the property of an apk that does not exist
+     */
     public void readProperties() throws IOException, PropertiesException {
         File jsonFile = new File(jsonPath);
         if (!jsonFile.exists()) {
@@ -120,6 +139,15 @@ public class ApkPropertiesParser {
         }
     }
 
+    /**
+     * Get an app property that was read from the json file.
+     * Must be called after {@link #readProperties()}.
+     *
+     * @param app      the name of the apk
+     * @param property the property to fetch: rating, etc.
+     * @return the correct property, or null if it was not set in the JSON
+     * or null if the app does not match any app
+     */
     public String getAppProperty(String app, String property) {
         Map<String, String> requestedProps = appProperties.get(app);
         if (requestedProps == null) {
@@ -128,6 +156,13 @@ public class ApkPropertiesParser {
         return requestedProps.get(property);
     }
 
+    /**
+     * Checks if an app has properties set in the json file.
+     * Must be called after {@link #readProperties()}.
+     *
+     * @param app the name of the apk
+     * @return true if the app has properties in the json, false otherwise
+     */
     public boolean hasProperties(String app) {
         Map<String, String> props = appProperties.get(app);
         if (props == null) {

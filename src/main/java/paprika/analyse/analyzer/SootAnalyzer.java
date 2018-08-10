@@ -27,6 +27,8 @@ import java.util.*;
 
 /**
  * Created by Geoffrey Hecht on 20/05/14.
+ * <p>
+ * Analyzes an Android apk, adding the whole application model to a {@link PaprikaApp} object.
  */
 public class SootAnalyzer {
 
@@ -42,11 +44,20 @@ public class SootAnalyzer {
             new NumberOfChildren()
     );
 
+    /**
+     * Constructor
+     *
+     * @param apk        the path to the Android apk
+     * @param androidJAR the path to the android platforms
+     */
     public SootAnalyzer(String apk, String androidJAR) {
         this.apk = apk;
         this.androidJAR = androidJAR;
     }
 
+    /**
+     * Loads Soot arguments.
+     */
     public void prepareSoot() {
         G.reset();
         Options.v().set_allow_phantom_refs(true);
@@ -72,6 +83,14 @@ public class SootAnalyzer {
         Scene.v().loadNecessaryClasses();
     }
 
+    /**
+     * Analyzes an Android apk and links the application model and its metrics to the given PaprikaApp.
+     *
+     * @param app             the PaprikaApp corresponding to the apk
+     * @param mainPackageOnly whether to analyze only the classes from the main package
+     *                        (excluding library classes) or not
+     * @throws AnalyzerException if failing to analyze the apk
+     */
     public void runAnalysis(PaprikaApp app, boolean mainPackageOnly) throws AnalyzerException {
         this.container = new PaprikaContainer(app);
         ManifestProcessor manifestProcessor = new ManifestProcessor(container.getPaprikaApp(), apk);
@@ -90,13 +109,8 @@ public class SootAnalyzer {
         computeFinalMetrics();
     }
 
-
-    public PaprikaApp getPaprikaApp() {
-        return container.getPaprikaApp();
-    }
-
     /**
-     * Should be called last
+     * Should be called after all other elements of the application model have been processed.
      */
     public void computeFinalMetrics() {
         container.computeInheritance();
@@ -106,5 +120,8 @@ public class SootAnalyzer {
                         .forEach(metric -> metric.collectMetric(paprikaClass)));
     }
 
+    public PaprikaApp getPaprikaApp() {
+        return container.getPaprikaApp();
+    }
 
 }

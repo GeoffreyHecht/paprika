@@ -21,10 +21,20 @@ package paprika.analyse.metrics.classes.condition.counted.subclass;
 import paprika.analyse.metrics.classes.condition.counted.CountedClassCondition;
 import soot.SootClass;
 
+/**
+ * Metric used to count subclasses of specific Android classes: Activities, Views...
+ */
 public abstract class IsSubClass extends CountedClassCondition {
 
     private String androidClass;
 
+    /**
+     * Constructor.
+     *
+     * @param conditionMetric the name of the metric created on a PaprikaClass
+     * @param numberMetric    the name of the count metric created on a PaprikaApp
+     * @param androidClass    the name of the Android class to check
+     */
     public IsSubClass(String conditionMetric, String numberMetric, String androidClass) {
         super(conditionMetric, numberMetric);
         this.androidClass = androidClass;

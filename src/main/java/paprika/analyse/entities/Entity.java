@@ -28,6 +28,7 @@ import java.util.List;
  * Created by Geoffrey Hecht on 20/05/14.
  */
 public abstract class Entity {
+
     protected String name;
     protected List<Metric> metrics = new ArrayList<>();
 

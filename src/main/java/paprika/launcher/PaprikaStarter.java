@@ -28,16 +28,28 @@ import java.io.PrintStream;
 
 import static paprika.launcher.arg.Argument.THRESHOLDS_ARG;
 
+/**
+ * Abstraction for the main execution class of each Paprika mode.
+ */
 public abstract class PaprikaStarter {
 
     protected PaprikaArgParser argParser;
     protected PrintStream out;
 
+    /**
+     * Constructor.
+     *
+     * @param argParser the parser for the Paprika argulents
+     * @param out       a PrintStream used for user feedback
+     */
     public PaprikaStarter(PaprikaArgParser argParser, PrintStream out) {
         this.argParser = argParser;
         this.out = out;
     }
 
+    /**
+     * Main execution method to override.
+     */
     public abstract void start();
 
     protected QueryEngine createQueryEngine() throws IOException, QueryPropertiesException {

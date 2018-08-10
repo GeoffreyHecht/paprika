@@ -22,6 +22,8 @@ import paprika.analyse.entities.Entity;
 
 /**
  * Created by Geoffrey Hecht on 20/05/14.
+ * <p>
+ * A metric stored in a single entity.
  */
 public class UnaryMetric<E> extends Metric<E> {
 

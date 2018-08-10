@@ -18,8 +18,17 @@
 
 package paprika.analyse.analyzer;
 
+/**
+ * Exception thrown to signal apk analysis failure.
+ */
 public class AnalyzerException extends Exception {
 
+    /**
+     * Constructor.
+     *
+     * @param apk   the apk the error occurred on
+     * @param cause the underlying exception that caused analysis failure
+     */
     public AnalyzerException(String apk, Throwable cause) {
         super("Unable to analyze " + apk, cause);
     }

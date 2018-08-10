@@ -28,6 +28,9 @@ import paprika.query.QueryModeStarter;
 
 import java.io.PrintStream;
 
+/**
+ * Enum for the various Paprika execution modes.
+ */
 public enum PaprikaMode {
 
     ANALYSE_MODE("analyse", "Analyse an app") {
@@ -51,10 +54,14 @@ public enum PaprikaMode {
         }
     },
 
+    /**
+     * Shortcut used to avoid repeating argument that belong to all Paprika modes,
+     * such as -db.
+     */
     ALL("all", "all-help") {
         @Override
         public PaprikaStarter getStarter(PaprikaArgParser parser, PrintStream out) {
-            throw new RuntimeException(this.name + " is not a valid Paprika argument");
+            throw new UnsupportedOperationException(this.name + " is not a valid Paprika argument");
         }
 
         @Override
@@ -68,13 +75,30 @@ public enum PaprikaMode {
     private String help;
     private Subparser subparser;
 
+    /**
+     * Constructor.
+     *
+     * @param name the name of the Paprika mode, used as an arg
+     * @param help the help message describing what this mode does
+     */
     PaprikaMode(String name, String help) {
         this.name = name;
         this.help = help;
     }
 
+    /**
+     * Returns an instance of the main execution class for the mode.
+     *
+     * @param parser the parser of the Paprika arguments
+     * @param out    a PrintStream used for user feedback
+     */
     public abstract PaprikaStarter getStarter(PaprikaArgParser parser, PrintStream out);
 
+    /**
+     * Sets up all the args able to be parsed by Paprika.
+     *
+     * @param subparsers the subparsers to insert the arguments into
+     */
     public void setupAllArgs(Subparsers subparsers) {
         subparser = subparsers.addParser(name).help(help);
         for (Argument arg : Argument.getAllArguments(this)) {
@@ -82,6 +106,11 @@ public enum PaprikaMode {
         }
     }
 
+    /**
+     * Returns the execution mode whose name matches the given String.
+     *
+     * @param modeName the name of the mode
+     */
     public static PaprikaMode getMode(String modeName) {
         for (PaprikaMode mode : values()) {
             if (mode.name.equals(modeName)) {

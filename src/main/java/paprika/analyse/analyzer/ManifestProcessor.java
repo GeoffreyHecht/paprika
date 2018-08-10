@@ -35,6 +35,9 @@ import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+/**
+ * Processes the Android manifest of an application.
+ */
 public class ManifestProcessor {
 
     private static final String APP_NODE = "/manifest/application";
@@ -43,11 +46,22 @@ public class ManifestProcessor {
     private String apkPath;
     private PaprikaApp app;
 
+    /**
+     * Constructor.
+     *
+     * @param app     the app the manifest belongs to
+     * @param apkPath the path to the app apk
+     */
     public ManifestProcessor(PaprikaApp app, String apkPath) {
         this.apkPath = apkPath;
         this.app = app;
     }
 
+    /**
+     * Extracts and parse the manifest of the application.
+     *
+     * @throws ManifestException if failing to parse the manifest
+     */
     public void parseManifest() throws ManifestException {
         try (ApkFile apkFile = new ApkFile(apkPath)) {
             parseManifestText(apkFile.getManifestXml());
@@ -56,6 +70,13 @@ public class ManifestProcessor {
         }
     }
 
+    /**
+     * Parses the String representation of the manifest.
+     * Public for testing purposes.
+     *
+     * @param text the String representation of the manifest XML
+     * @throws ManifestException if failing to parse the manifest
+     */
     public void parseManifestText(String text) throws ManifestException {
         try {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();

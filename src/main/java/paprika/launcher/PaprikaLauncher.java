@@ -24,11 +24,21 @@ import paprika.launcher.arg.PaprikaArgParser;
 
 import java.io.PrintStream;
 
+/**
+ * Launches a Paprika session.
+ */
 public class PaprikaLauncher {
 
     private PaprikaArgParser argParser;
     private PrintStream out;
 
+    /**
+     * Constructor.
+     *
+     * @param args the args for this Paprika session
+     * @param out  a PrintStream used for user feedback
+     * @throws PaprikaArgException if the arguments used were invalid
+     */
     public PaprikaLauncher(String[] args, PrintStream out) throws PaprikaArgException {
         this.out = out;
         this.argParser = new PaprikaArgParser();

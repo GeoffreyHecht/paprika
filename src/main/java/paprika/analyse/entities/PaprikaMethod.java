@@ -29,11 +29,11 @@ import java.util.Set;
 public class PaprikaMethod extends Entity {
 
     // Neo4J attributes names
-    public static final String APP_KEY = PaprikaApp.APP_KEY;
-    public static final String NAME = "name";
-    public static final String MODIFIER = "modifier";
-    public static final String FULL_NAME = "full_name";
-    public static final String RETURN_TYPE = "return_type";
+    public static final String N4J_APP_KEY = PaprikaApp.N4J_APP_KEY;
+    public static final String N4J_NAME = "name";
+    public static final String N4J_MODIFIER = "modifier";
+    public static final String N4J_FULL_NAME = "full_name";
+    public static final String N4J_RETURN_TYPE = "return_type";
 
     private PaprikaClass paprikaClass;
     private String returnType;

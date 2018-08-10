@@ -18,8 +18,17 @@
 
 package paprika.analyse.analyzer;
 
+/**
+ * Exception thrown when failing to parse the manifest of an application.
+ */
 public class ManifestException extends AnalyzerException {
 
+    /**
+     * Constructor.
+     *
+     * @param apk   the apk that could not be analyzed
+     * @param cause the underlying cause of the exception
+     */
     public ManifestException(String apk, Throwable cause) {
         super("The manifest from " + apk + " could not be parsed.", cause);
     }

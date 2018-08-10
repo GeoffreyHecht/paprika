@@ -20,8 +20,17 @@ package paprika.query.commands;
 
 import java.io.IOException;
 
+/**
+ * A command for a request on the databse in Paprika query mode.
+ */
 public interface PaprikaCommand {
 
+    /**
+     * Run the command
+     *
+     * @param details whether to add details to the antipatterns query or not
+     * @throws IOException if failing to access the database
+     */
     void run(boolean details) throws IOException;
 
 }

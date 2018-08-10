@@ -24,11 +24,21 @@ import paprika.analyse.metrics.UnaryMetric;
 import paprika.analyse.metrics.classes.condition.ClassCondition;
 import soot.SootClass;
 
+/**
+ * A class condition that also includes a metric on the Paprika application to count the number
+ * of times it was created.
+ */
 public abstract class CountedClassCondition extends ClassCondition {
 
     private String numberMetric;
     private int count = 0;
 
+    /**
+     * Constructor.
+     *
+     * @param conditionMetric the name of the metric created on a PaprikaClass
+     * @param numberMetric    the name of the count metric created on a PaprikaApp
+     */
     public CountedClassCondition(String conditionMetric, String numberMetric) {
         super(conditionMetric);
         this.numberMetric = numberMetric;
@@ -43,6 +53,11 @@ public abstract class CountedClassCondition extends ClassCondition {
         return false;
     }
 
+    /**
+     * Creates the count metric on the given application.
+     *
+     * @param app the app to bind the count metric to
+     */
     public void createNumberMetric(PaprikaApp app) {
         UnaryMetric<Integer> metric = new UnaryMetric<>(numberMetric, app, count);
         metric.updateEntity();

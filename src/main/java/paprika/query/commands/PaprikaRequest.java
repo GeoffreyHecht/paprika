@@ -49,6 +49,9 @@ import java.util.Collections;
 import static paprika.analyse.neo4j.ModelToGraph.CLASS_TYPE;
 import static paprika.analyse.neo4j.ModelToGraph.METHOD_TYPE;
 
+/**
+ * Enum for all of the available commands.
+ */
 public enum PaprikaRequest {
 
     HMU(HashMapUsage.KEY) {
@@ -338,10 +341,20 @@ public enum PaprikaRequest {
 
     private String key;
 
+    /**
+     * Constructor.
+     *
+     * @param key the key used to call this command in Paprika query mode
+     */
     PaprikaRequest(String key) {
         this.key = key;
     }
 
+    /**
+     * Get an instance of the request matching the given name.
+     *
+     * @param command the name to search
+     */
     public static PaprikaRequest getRequest(String command) {
         for (PaprikaRequest request : PaprikaRequest.values()) {
             if (request.key.equals(command)) {
@@ -351,14 +364,30 @@ public enum PaprikaRequest {
         return null;
     }
 
+    /**
+     * Creates a simple command that will run a single PaprikaQuery once executed.
+     *
+     * @param engine the engine to run the query
+     * @param query  the query to run
+     * @return the command that will execute the query on the given engine when running
+     */
     public static PaprikaCommand getSimpleCommand(QueryEngine engine, PaprikaQuery query) {
         return new QueriesCommand(engine, Collections.singletonList(query));
     }
 
+    /**
+     * See {@link #getSimpleCommand(QueryEngine, PaprikaQuery)}.
+     * Creates a simple command that will run a single FuzzyQuery once executed.
+     */
     public static PaprikaCommand getFuzzyCommand(QueryEngine engine, FuzzyQuery query) {
         return new FuzzyCommand(engine, Collections.singletonList(query));
     }
 
+    /**
+     * Create the command matching the request.
+     *
+     * @param engine the engine to run the query on
+     */
     public abstract PaprikaCommand getCommand(QueryEngine engine);
 
 }

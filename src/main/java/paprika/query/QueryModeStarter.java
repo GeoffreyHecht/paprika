@@ -68,9 +68,9 @@ public class QueryModeStarter extends PaprikaStarter {
 
     private String getCSVPrefix(String csvPath) {
         Calendar cal = new GregorianCalendar();
-        String csvDate = String.valueOf(cal.get(Calendar.YEAR)) + "_" +
-                String.valueOf(cal.get(Calendar.MONTH) + 1) + "_" + String.valueOf(cal.get(Calendar.DAY_OF_MONTH)) +
-                "_" + String.valueOf(cal.get(Calendar.HOUR_OF_DAY)) + "_" + String.valueOf(cal.get(Calendar.MINUTE));
+        String csvDate = cal.get(Calendar.YEAR) + "_" + cal.get(Calendar.MONTH) + 1
+                + "_" + cal.get(Calendar.DAY_OF_MONTH) + "_" + cal.get(Calendar.HOUR_OF_DAY)
+                + "_" + cal.get(Calendar.MINUTE);
         return csvPath + csvDate;
     }
 

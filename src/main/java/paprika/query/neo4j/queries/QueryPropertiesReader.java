@@ -25,12 +25,24 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * Used to read and fetch the properties in fuzzy queries from a .properties file.
+ * All properties included in the file will automatically be loaded.
+ * All properties must be able to be interpreted as a double.
+ */
 public class QueryPropertiesReader {
 
     public static final String DEFAULT_PROPS = "thresholds.properties";
 
     private Map<String, Double> properties = new HashMap<>();
 
+    /**
+     * Load fuzzy properties from a file.
+     *
+     * @param propsArg the path to the file, or null if using the default jar properties
+     * @throws IOException              if failing to find or read the file
+     * @throws QueryPropertiesException if one of the properties cannot be parse as a double
+     */
     public void loadProperties(@Nullable String propsArg) throws IOException, QueryPropertiesException {
         Properties props = new Properties();
         if (propsArg != null) {
@@ -48,15 +60,30 @@ public class QueryPropertiesReader {
         }
     }
 
+    /**
+     * Replace all String occurrences of one of the properties name by its value in a given String.
+     * The method {@link #loadProperties(String)} must be called beforehand.
+     * For instance, the String (Class_complexity_high, 0) will be converted to (28, 0).
+     *
+     * @param function the text with the properties names to replace
+     * @return the same text with the properties names as values
+     */
     public String replaceProperties(String function) {
-        for (String key : properties.keySet()) {
-            if (function.contains(key)) {
-                function = function.replaceAll(key, Double.toString(properties.get(key)));
+        for (Map.Entry<String, Double> entry : properties.entrySet()) {
+            if (function.contains(entry.getKey())) {
+                function = function.replaceAll(entry.getKey(), Double.toString(entry.getValue()));
             }
         }
         return function;
     }
 
+    /**
+     * Fetch a loaded property from its name.
+     *
+     * @param name the name of the property
+     * @return the double value of the property, or null if not found
+     * @throws NullPointerException if properties wre not loaded earlier
+     */
     public double get(String name) {
         return properties.get(name);
     }

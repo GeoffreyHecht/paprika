@@ -33,12 +33,15 @@ import soot.jimple.toolkits.callgraph.Edge;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * Processes the methods of an application after the call graph has been built.
+ */
 public class MethodProcessor {
 
     private PaprikaContainer container;
     private Map<SootMethod, PaprikaMethod> methodMap;
     private Map<SootMethod, PaprikaExternalMethod> externalMethodMap;
-    private BodyProcessor bodyProcessor;
+    private MethodBodyProcessor bodyProcessor;
 
     private CommonCondition[] commonConditions = {
             new IsStatic(),
@@ -50,15 +53,25 @@ public class MethodProcessor {
     private NumberOfParameters parameters;
 
 
+    /**
+     * Constructor.
+     *
+     * @param container the container of the analyzed application
+     */
     public MethodProcessor(PaprikaContainer container) {
         this.container = container;
         this.methodMap = container.getMethodMap();
         this.externalMethodMap = container.getExternalMethodMap();
         this.isSynchronized = new IsSynchronized();
         this.parameters = new NumberOfParameters();
-        this.bodyProcessor = new BodyProcessor();
+        this.bodyProcessor = new MethodBodyProcessor();
     }
 
+    /**
+     * Processes all methods of an application. Must be called only after the Soot call graph has
+     * been built and all methods have been registered in the Paprika container with
+     * {@link PaprikaContainer#addMethod(SootMethod)}
+     */
     public void processMethods() {
         CallGraph callGraph = Scene.v().getCallGraph();
         for (Map.Entry<SootMethod, PaprikaMethod> entry : methodMap.entrySet()) {
@@ -68,6 +81,12 @@ public class MethodProcessor {
         NumberOfMethods.createNumberOfMethods(container.getPaprikaApp(), methodMap.size());
     }
 
+    /**
+     * Collect metrics for a method that do not depend on the call graph.
+     *
+     * @param sootMethod    the Soot representation of the method
+     * @param paprikaMethod the Paprika representation of the method
+     */
     private void collectStandardMetrics(SootMethod sootMethod, PaprikaMethod paprikaMethod) {
         for (CommonCondition condition : commonConditions) {
             condition.createIfMatching(sootMethod, paprikaMethod);
@@ -79,8 +98,16 @@ public class MethodProcessor {
         }
     }
 
+    /**
+     * Collect method metrics related to the Soot call graph.
+     *
+     * @param callGraph     the Soot call graph
+     * @param sootMethod    the Soot representation of the method
+     * @param paprikaMethod the Paprika representation of the method
+     */
     private void collectCallGraphMetrics(CallGraph callGraph, SootMethod sootMethod, PaprikaMethod paprikaMethod) {
-        int edgeOutCount = 0, edgeIntoCount = 0;
+        int edgeOutCount = 0;
+        int edgeIntoCount = 0;
         Iterator<Edge> edgeOutIterator = callGraph.edgesOutOf(sootMethod);
         Iterator<Edge> edgeIntoIterator = callGraph.edgesInto(sootMethod);
         PaprikaClass currentClass = paprikaMethod.getPaprikaClass();
@@ -91,7 +118,7 @@ public class MethodProcessor {
             PaprikaMethod targetMethod = methodMap.get(target);
             // In the case we are calling an external method (sdk or library)
             if (targetMethod == null) {
-                analyzeExternalCall(target, edgeOut, paprikaMethod);
+                analyzeExternalCall(target, paprikaMethod);
             } else {
                 paprikaMethod.callMethod(targetMethod);
             }
@@ -113,7 +140,13 @@ public class MethodProcessor {
         NumberOfCallers.createMetric(paprikaMethod, edgeIntoCount);
     }
 
-    private void analyzeExternalCall(SootMethod target, Edge edgeOut, PaprikaMethod paprikaMethod) {
+    /**
+     * Add an external call to a library to the Paprika application model.
+     *
+     * @param target        the Soot representation of the library method that was called
+     * @param paprikaMethod the Paprika method calling the library method
+     */
+    private void analyzeExternalCall(SootMethod target, PaprikaMethod paprikaMethod) {
         PaprikaExternalMethod externalTgtMethod = externalMethodMap.get(target);
         if (externalTgtMethod == null) {
             PaprikaExternalClass paprikaExternalClass = container.getOrCreateExternalClass(target.getDeclaringClass());
@@ -122,15 +155,12 @@ public class MethodProcessor {
             int i = 0;
             for (Type type : target.getParameterTypes()) {
                 i++;
-                PaprikaExternalArgument paprikaExternalArgument = PaprikaExternalArgument
-                        .create(type.toString(), i, externalTgtMethod);
-
+                PaprikaExternalArgument.create(type.toString(), i, externalTgtMethod);
             }
             externalMethodMap.put(target, externalTgtMethod);
         }
         paprikaMethod.callMethod(externalTgtMethod);
     }
-
 
 
 }

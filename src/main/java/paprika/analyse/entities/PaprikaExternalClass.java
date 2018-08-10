@@ -27,9 +27,9 @@ import java.util.Set;
 public class PaprikaExternalClass extends Entity {
 
     // Neo4J attributes names
-    public static final String APP_KEY = PaprikaApp.APP_KEY;
-    public static final String NAME = "name";
-    public static final String PARENT = "parent_name";
+    public static final String N4J_APP_KEY = PaprikaApp.N4J_APP_KEY;
+    public static final String N4J_NAME = "name";
+    public static final String N4J_PARENT = "parent_name";
 
     private PaprikaApp paprikaApp;
     private String parentName;

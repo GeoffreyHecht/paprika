@@ -32,6 +32,9 @@ import java.util.stream.Collectors;
 import static paprika.analyse.entities.PaprikaApp.NO_SDK;
 import static paprika.launcher.PaprikaMode.*;
 
+/**
+ * Enum for all the Paprika arguments.
+ */
 public enum Argument {
 
     APK_ARG("apk", ANALYSE_MODE) {
@@ -334,22 +337,52 @@ public enum Argument {
     private String name;
     private PaprikaMode category;
 
+    /**
+     * Constructor.
+     *
+     * @param name     the long name of the argument, without its prefix "--"
+     * @param category the Paprika execution mode this argument is used in
+     */
     Argument(String name, PaprikaMode category) {
         this.name = name;
         this.category = category;
     }
 
+    /**
+     * Returns all arguments belonging to a specific mode.
+     */
     public static List<Argument> getAllArguments(PaprikaMode category) {
         return Arrays.stream(values())
                 .filter(arg -> arg.category.equals(category) || arg.category.equals(ALL))
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Adds an arguments to a subparser.
+     *
+     * @param subparser the subparser to add the argument to
+     */
     public abstract void setup(Subparser subparser);
 
+    /**
+     * Reads a property corresponding to an argument (like rating, size, etc.) from
+     * the json parser, a,d adds it to the builder if the property is available.
+     *
+     * @param parser  the json parser for the properties
+     * @param builder the builder to insert the property into
+     */
     public void insertAppProperty(ApkPropertiesParser parser, PaprikaAppBuilder builder) {
+        throw new UnsupportedOperationException("This argument cannot be passed as an app property.");
     }
 
+    /**
+     * Attempts to read a property matching the Argument name in the parser.
+     * Applies the given function with the property if found.
+     *
+     * @param parser         the json parser for the properties
+     * @param builder        the builder to insert the property into
+     * @param applyIfPresent the function to apply if the property is found
+     */
     protected void readArgProperty(ApkPropertiesParser parser, PaprikaAppBuilder builder,
                                    Function<String, PaprikaAppBuilder> applyIfPresent) {
         String elem = parser.getAppProperty(builder.getName(), toString());
@@ -362,6 +395,7 @@ public enum Argument {
         return "--" + arg;
     }
 
+    @Override
     public String toString() {
         return name;
     }

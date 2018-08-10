@@ -32,18 +32,39 @@ import java.security.NoSuchAlgorithmException;
 
 import static paprika.launcher.arg.Argument.*;
 
+/**
+ * Fetches information various sources to create a PaprikaApp with the correct attributes.
+ * These sources include:
+ * - The arguments given to Paprika
+ * - The json properties file
+ * - The information fetched from the filename of the application and its manifest
+ */
 public class PaprikaAppCreator {
 
     private PaprikaAppBuilder builder;
     private String apkPath;
     private PaprikaArgParser argParser;
 
+    /**
+     * Constructor.
+     *
+     * @param argParser the parser of the Paprika arguments
+     * @param apkPath   the path to the apk of the application
+     */
     public PaprikaAppCreator(PaprikaArgParser argParser, String apkPath) {
         this.apkPath = apkPath;
         this.argParser = argParser;
         this.builder = new PaprikaAppBuilder();
     }
 
+    /**
+     * Reads the application attributes from the arguments given to Paprika.
+     * Overrides existing attributes if they exist (but this should usually be called first).
+     * Also computes the SHA-256 of the application apk, used as an unique key.
+     *
+     * @throws IOException              if failing to open the apk file
+     * @throws NoSuchAlgorithmException if failing to compute the SHA-256 of the apk file contents
+     */
     public void readAppInfo() throws IOException, NoSuchAlgorithmException {
         builder.name(argParser.getArg(NAME_ARG))
                 .pack(argParser.getArg(PACKAGE_ARG))
@@ -68,7 +89,15 @@ public class PaprikaAppCreator {
     }
 
     /**
+     * Read missing attributes of the PaprikaApp necessary for analysis if not found.
+     * This includes:
+     * - The target SDK, read from the manifest
+     * - The application main package, read from te manifest
+     * - The application name, defaulting to the apk filename
+     * <p>
      * Run only after Soot has been given the apk path.
+     *
+     * @throws IOException if the apk cannot be found, or if failing to read its manifest
      */
     public void fetchMissingAppInfo() throws IOException {
         if (!builder.hasTargetSDK()) {
@@ -90,6 +119,9 @@ public class PaprikaAppCreator {
     }
 
     /**
+     * Read an app properties from the json properties file.
+     * This overrides the existing PaprikaApp attributes.
+     * <p>
      * Run only after the app name has already been read from its filename.
      */
     public void addApkProperties(ApkPropertiesParser propsParser) {

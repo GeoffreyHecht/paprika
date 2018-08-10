@@ -18,6 +18,9 @@
 
 package paprika.analyse;
 
+/**
+ * Exception thrown when an issue occurs with the json properties file.
+ */
 public class PropertiesException extends Exception {
 
     public PropertiesException(Throwable cause) {
@@ -27,4 +30,5 @@ public class PropertiesException extends Exception {
     public PropertiesException(String message) {
         super(message);
     }
+
 }

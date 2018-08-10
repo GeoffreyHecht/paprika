@@ -41,7 +41,7 @@ public class StatsCommand implements PaprikaCommand {
         quartileCalculator.calculateNumberOfAttributesQuartile();
         quartileCalculator.calculateNumberOfImplementedInterfacesQuartile();
         quartileCalculator.calculateNumberOfMethodsQuartile();
-        quartileCalculator.calculateNumberofInstructionsQuartile();
+        quartileCalculator.calculateNumberOfInstructionsQuartile();
         quartileCalculator.calculateCyclomaticComplexityQuartile();
         quartileCalculator.calculateNumberOfMethodsForInterfacesQuartile();
     }

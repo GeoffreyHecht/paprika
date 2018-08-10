@@ -20,6 +20,8 @@ package paprika.query.neo4j.queries;
 
 /**
  * Created by Geoffrey Hecht on 17/08/15.
+ *
+ * A query to execute on the Neo4J database.
  */
 public abstract class PaprikaQuery {
 

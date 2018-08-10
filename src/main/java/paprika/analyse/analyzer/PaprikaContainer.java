@@ -26,6 +26,10 @@ import soot.SootMethod;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Container used to store the various data structures holding the Soot and Paprika
+ * objects while an application is being analyzed.
+ */
 public class PaprikaContainer {
 
     private Map<SootClass, PaprikaClass> classMap;
@@ -35,6 +39,11 @@ public class PaprikaContainer {
 
     private PaprikaApp paprikaApp;
 
+    /**
+     * Constructor.
+     *
+     * @param app the app that will be analyzed
+     */
     public PaprikaContainer(PaprikaApp app) {
         this.paprikaApp = app;
         this.classMap = new HashMap<>();
@@ -59,6 +68,12 @@ public class PaprikaContainer {
         return externalMethodMap;
     }
 
+    /**
+     * Registers a new class in the application model.
+     *
+     * @param sootClass the Soot representation of the class
+     * @return the Paprika representation of the same class
+     */
     public PaprikaClass addClass(SootClass sootClass) {
         PaprikaClass paprikaClass = PaprikaClass.create(sootClass.getName(),
                 paprikaApp, PaprikaModifier.getModifier(sootClass));
@@ -69,12 +84,25 @@ public class PaprikaContainer {
         return paprikaClass;
     }
 
+    /**
+     * Registers a new field into the application model.
+     *
+     * @param paprikaClass the class to add the field to
+     * @param sootField    the Soot representation fo the field
+     * @return the created Paprika representation of the field
+     */
     public PaprikaVariable addField(PaprikaClass paprikaClass, SootField sootField) {
         return PaprikaVariable.create(
                 sootField.getName(), sootField.getType().toString(), PaprikaModifier.getModifier(sootField),
                 paprikaClass);
     }
 
+    /**
+     * Adds a new method to the application model. This step is required for all the methods
+     * before analysis with a {@link MethodProcessor} is possible.
+     *
+     * @param sootMethod the Soot representation of the method
+     */
     public void addMethod(SootMethod sootMethod) {
         SootClass sootClass = sootMethod.getDeclaringClass();
         PaprikaClass paprikaClass = classMap.get(sootClass);
@@ -84,7 +112,6 @@ public class PaprikaContainer {
                 sootClass.setLibraryClass();
             } catch (NullPointerException e) {
                 // Soot issue. Can be safely ignored.
-                return;
             }
             return;
         }
@@ -94,6 +121,12 @@ public class PaprikaContainer {
         methodMap.put(sootMethod, paprikaMethod);
     }
 
+    /**
+     * Fetches an external class from the application model, adding it to the model if not found.
+     *
+     * @param sootClass the Soot representation of the external class
+     * @return the Paprika representation of the class
+     */
     public PaprikaExternalClass getOrCreateExternalClass(SootClass sootClass) {
         PaprikaExternalClass paprikaExternalClass = externalClassMap.get(sootClass);
         if (paprikaExternalClass == null) {
@@ -103,6 +136,9 @@ public class PaprikaContainer {
         return paprikaExternalClass;
     }
 
+    /**
+     * Builds the class hierarchy of the application.
+     */
     public void computeInheritance() {
         for (Map.Entry entry : classMap.entrySet()) {
             SootClass sClass = (SootClass) entry.getKey();
@@ -115,6 +151,9 @@ public class PaprikaContainer {
         }
     }
 
+    /**
+     * Links the interfaces of the application to the classes that implement them.
+     */
     public void computeInterface() {
         for (Map.Entry entry : classMap.entrySet()) {
             SootClass sClass = (SootClass) entry.getKey();

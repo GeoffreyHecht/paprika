@@ -19,7 +19,10 @@
 package paprika.analyse.metrics.classes.stat.paprika;
 
 import paprika.analyse.entities.PaprikaClass;
+import paprika.analyse.entities.PaprikaMethod;
 import paprika.analyse.metrics.UnaryMetric;
+
+import java.util.Set;
 
 /**
  * Created by Geoffrey Hecht on 20/05/14.
@@ -32,8 +35,27 @@ public class LackOfCohesionInMethods implements PaprikaClassStatistic {
     @Override
     public void collectMetric(PaprikaClass paprikaClass) {
         UnaryMetric<Integer> metric = new UnaryMetric<>(NAME, paprikaClass,
-                paprikaClass.computeLCOM());
+                computeLCOM(paprikaClass));
         metric.updateEntity();
+    }
+
+    private int computeLCOM(PaprikaClass paprikaClass) {
+        Set<PaprikaMethod> methodSet = paprikaClass.getPaprikaMethods();
+        PaprikaMethod[] methods = methodSet.toArray(new PaprikaMethod[0]);
+        int methodCount = methods.length;
+        int haveFieldInCommon = 0;
+        int noFieldInCommon = 0;
+        for (int i = 0; i < methodCount; i++) {
+            for (int j = i + 1; j < methodCount; j++) {
+                if (methods[i].haveCommonFields(methods[j])) {
+                    haveFieldInCommon++;
+                } else {
+                    noFieldInCommon++;
+                }
+            }
+        }
+        int lcom = noFieldInCommon - haveFieldInCommon;
+        return lcom > 0 ? lcom : 0;
     }
 
 }

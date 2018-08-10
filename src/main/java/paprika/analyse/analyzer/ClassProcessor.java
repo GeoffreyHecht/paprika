@@ -22,8 +22,6 @@ import paprika.analyse.entities.PaprikaClass;
 import paprika.analyse.entities.PaprikaVariable;
 import paprika.analyse.metrics.app.NumberOfClasses;
 import paprika.analyse.metrics.app.NumberOfVariables;
-import paprika.analyse.metrics.classes.condition.ClassCondition;
-import paprika.analyse.metrics.classes.condition.IsCloseable;
 import paprika.analyse.metrics.classes.condition.counted.CountedClassCondition;
 import paprika.analyse.metrics.classes.condition.counted.IsAbstractClass;
 import paprika.analyse.metrics.classes.condition.counted.IsInnerClassStatic;
@@ -44,6 +42,9 @@ import soot.util.Chain;
 
 import java.util.Map;
 
+/**
+ * Processes Soot classes before the whole application CallGraph has been built.
+ */
 public class ClassProcessor {
 
     private CountedClassCondition[] classConditions = {
@@ -74,20 +75,28 @@ public class ClassProcessor {
             new NumberOfMethods()
     };
 
-    private ClassCondition isCloseable;
-
     private PaprikaContainer container;
     private Map<SootClass, PaprikaClass> classMap;
     private boolean mainPackageOnly;
     private int varCount = 0;
 
+    /**
+     * Constructor.
+     *
+     * @param container       the container used to store application information
+     * @param mainPackageOnly whether to analyse classes outside of the main package
+     *                        of the application or not
+     */
     public ClassProcessor(PaprikaContainer container, boolean mainPackageOnly) {
         this.container = container;
         this.classMap = container.getClassMap();
         this.mainPackageOnly = mainPackageOnly;
-        this.isCloseable = new IsCloseable();
     }
 
+    /**
+     * Processes all classes of the application.
+     * Once done, collects statistics on all classes and links their child classes.
+     */
     public void processClasses() {
         Chain<SootClass> sootClasses = Scene.v().getApplicationClasses();
         String pack = container.getPaprikaApp().getPackage();
@@ -114,6 +123,12 @@ public class ClassProcessor {
         collectAppMetrics();
     }
 
+    /**
+     * Registers a new class into the Paprika application and collects various metrics if
+     * they apply.
+     *
+     * @param sootClass the Soot class object
+     */
     private void collectClassMetrics(SootClass sootClass) {
         PaprikaClass paprikaClass = container.addClass(sootClass);
         // Checking if the class is final
@@ -127,7 +142,6 @@ public class ClassProcessor {
         for (CountedClassCondition condition : classConditions) {
             condition.createIfMatching(sootClass, paprikaClass);
         }
-        isCloseable.createIfMatching(sootClass, paprikaClass);
         // Field analysis
         sootClass.getFields().forEach(field -> registerField(paprikaClass, field));
         // Numerical stats
@@ -136,6 +150,13 @@ public class ClassProcessor {
         }
     }
 
+    /**
+     * Add a class field to the application and add the relevant metrics about this field
+     * if they apply.
+     *
+     * @param paprikaClass the class owning the field
+     * @param sootField    the soot field object
+     */
     private void registerField(PaprikaClass paprikaClass, SootField sootField) {
         PaprikaVariable paprikaVariable = container.addField(paprikaClass, sootField);
         varCount++;
@@ -145,7 +166,8 @@ public class ClassProcessor {
     }
 
     /**
-     * Should be called after all classes have been processed once
+     * Collect various statistics about all classes.
+     * Should only be called after all classes have been processed once.
      */
     private void collectAppMetrics() {
         NumberOfClasses.createMetric(container.getPaprikaApp(), classMap.size());

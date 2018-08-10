@@ -27,21 +27,21 @@ import java.util.List;
 public class PaprikaApp extends Entity {
 
     // Neo4J attributes names
-    public static final String APP_KEY = "app_key";
-    public static final String NAME = "name";
-    public static final String CATEGORY = "category";
-    public static final String PACKAGE = "package";
-    public static final String DEVELOPER = "developer";
-    public static final String RATING = "rating";
-    public static final String NB_DOWN = "nb_download";
-    public static final String DATE_DOWN = "date_download";
-    public static final String VERSION_CODE = "version_code";
-    public static final String VERSION_NAME = "version_name";
-    public static final String SDK = "sdk";
-    public static final String TARGET_SDK = "target_sdk";
-    public static final String DATE_ANALYSIS = "date_analysis";
-    public static final String SIZE = "size";
-    public static final String PRICE = "price";
+    public static final String N4J_APP_KEY = "app_key";
+    public static final String N4J_NAME = "name";
+    public static final String N4J_CATEGORY = "category";
+    public static final String N4J_PACKAGE = "package";
+    public static final String N4J_DEVELOPER = "developer";
+    public static final String N4J_RATING = "rating";
+    public static final String N4J_NB_DOWN = "nb_download";
+    public static final String N4J_DATE_DOWN = "date_download";
+    public static final String N4J_VERSION_CODE = "version_code";
+    public static final String N4J_VERSION_NAME = "version_name";
+    public static final String N4J_SDK = "sdk";
+    public static final String N4J_TARGET_SDK = "target_sdk";
+    public static final String N4J_DATE_ANALYSIS = "date_analysis";
+    public static final String N4J_SIZE = "size";
+    public static final String N4J_PRICE = "price";
 
     public static final int NO_SDK = -1;
 
