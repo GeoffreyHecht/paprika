@@ -8,7 +8,7 @@ apk_path = "paprika-witness.apk"
 platform_folder = "../android-platforms"
 jar_location = "../../../../build/libs/Paprika.jar"
 java_cmd = ["java", "-Xmx2G", "-XX:+UseConcMarkSweepGC", "-jar", jar_location]
-analyse_args = ["analyse", "-a", platform_folder, "-db", db_folder, "-omp", "-u", "-p", "com.antipatterns.app"]
+analyse_args = ["analyse", "-a", platform_folder, "-db", db_folder, "-omp", "-u", "-f", "-p", "com.antipatterns.app"]
 
 
 def clean_folder(folder):

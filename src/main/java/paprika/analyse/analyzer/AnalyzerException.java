@@ -33,4 +33,8 @@ public class AnalyzerException extends Exception {
         super("Unable to analyze " + apk, cause);
     }
 
+    public AnalyzerException(String apk) {
+        super("Unable to analyze " + apk);
+    }
+
 }

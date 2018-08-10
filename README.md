@@ -47,7 +47,10 @@ You can find the correct folder structure for Android platforms in [this Github 
 To compile Paprika into a jar with its dependencies, run `gradle shadowjar`.
 You can find the built java application in ```build/libs/Paprika.jar```.
 
-Note that Paprika might not work properly on apk files using a minimum or target sdk version superior or equal to 26.
+Note that Paprika will not work properly on apk files using a minimum or target sdk version superior or equal to 26,
+due to Soot issues with such apps. If you still want to attempt their analysis, use the -f argument.
+Because Soot analysis tends to be unstable, and may block Paprika infinitely, it is recommended that you do not
+attempt to analyze more than roughly 100 apps at once.
 
 Paprika has multiple execution modes depending on the first argument.
 
@@ -110,6 +113,7 @@ optional arguments:
                          SDK version, empty by default
   -omp, --onlyMainPackage
                          Analyze only the main package of the application
+  -f, --force            Force the analysis of the app event if its Android version may cause Soot issues
 ```
 
 #### Analyzing multiple applications at once

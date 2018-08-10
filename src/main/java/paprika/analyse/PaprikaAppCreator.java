@@ -103,10 +103,15 @@ public class PaprikaAppCreator {
         if (!builder.hasTargetSDK()) {
             builder.targetSdkVersion(Scene.v().getAndroidAPIVersion());
         }
-        if (!builder.hasPackage()) {
+        if (!builder.hasPackage() || !builder.hasSDK()) {
             try (ApkFile apkFile = new ApkFile(new File(apkPath))) {
                 ApkMeta apkMeta = apkFile.getApkMeta();
-                builder.pack(apkMeta.getPackageName());
+                if (!builder.hasPackage()) {
+                    builder.pack(apkMeta.getPackageName());
+                }
+                if (!builder.hasSDK()) {
+                    builder.sdkVersion(Integer.parseInt(apkMeta.getMinSdkVersion()));
+                }
             }
         }
         if (!builder.hasName()) {

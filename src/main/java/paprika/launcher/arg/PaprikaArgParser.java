@@ -183,8 +183,7 @@ public class PaprikaArgParser {
             for (File file : files) {
                 if (file.isDirectory()) {
                     searchApkInFolder(file, appsPath);
-                }
-                if (file.getName().endsWith(".apk")) {
+                } else if (file.getName().endsWith(".apk")) {
                     appsPath.add(file.getPath());
                 }
             }

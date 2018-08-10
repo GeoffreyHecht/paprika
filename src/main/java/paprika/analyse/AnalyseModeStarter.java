@@ -137,14 +137,31 @@ public class AnalyseModeStarter extends PaprikaStarter {
             out.println("Collecting metrics");
             SootAnalyzer analyzer = new SootAnalyzer(apkPath, argParser.getArg(ANDROID_JARS_ARG));
             PaprikaAppCreator creator = new PaprikaAppCreator(argParser, apkPath);
-            analyzer.prepareSoot();
+            try {
+                analyzer.prepareSoot();
+            } catch (RuntimeException e) {
+                out.println("Soot could not parse the path of the apk.");
+                throw new AnalyzerException(apkPath, e);
+            }
             creator.readAppInfo();
-            creator.fetchMissingAppInfo();
+            try {
+                creator.fetchMissingAppInfo();
+            } catch (NumberFormatException e) {
+                out.println("The Android minimum or target sdk could not be parsed");
+                throw new AnalyzerException(apkPath, e);
+            }
             if (propsParser != null) {
                 creator.addApkProperties(propsParser);
             }
+            PaprikaApp app = creator.createApp();
+            if (!argParser.getFlagArg(FORCE_ANALYSIS_ARG)
+                    && (app.getTargetSdkVersion() >= 26 || app.getSdkVersion() >= 26)) {
+                out.println("As of 08/2018, Soot has issues analyzing apps using an sdk >= 26");
+                out.println("The app " + apkPath + " will not be analyzed.");
+                throw new AnalyzerException(apkPath);
+            }
             try {
-                analyzer.runAnalysis(creator.createApp(), argParser.getFlagArg(ONLY_MAIN_PACKAGE_ARG));
+                analyzer.runAnalysis(app, argParser.getFlagArg(ONLY_MAIN_PACKAGE_ARG));
             } catch (RuntimeException e) {
                 if (retries < SOOT_RETRIES) {
                     // Soot, please stop crashing randomly. We'll try this again.
@@ -183,7 +200,9 @@ public class AnalyseModeStarter extends PaprikaStarter {
 
     private void notifyAnalysisFailure(String apk, Exception e) {
         out.println("Failed to analyze " + apk);
-        out.println(e.getCause().getMessage());
+        if (e.getCause() != null) {
+            out.println(e.getCause().getMessage());
+        }
     }
 
 }

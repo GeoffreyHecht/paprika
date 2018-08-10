@@ -78,6 +78,15 @@ public enum Argument {
         }
     },
 
+    FORCE_ANALYSIS_ARG("forceAnalysis", ANALYSE_MODE) {
+        @Override
+        public void setup(Subparser subparser) {
+            subparser.addArgument("-f", prefixArg(toString()))
+                    .action(Arguments.storeTrue())
+                    .help("Attempt to analyze even if Soot may not handle this Android API version");
+        }
+    },
+
     // --------------------------------------------------------------
     // ------------------- APP PROPS ARGS ---------------------------
     // --------------------------------------------------------------

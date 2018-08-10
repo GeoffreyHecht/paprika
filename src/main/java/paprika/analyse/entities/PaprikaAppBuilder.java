@@ -35,8 +35,8 @@ public class PaprikaAppBuilder {
     private int nbDownload;
     private String versionCode;
     private String versionName;
-    private int sdkVersion;
-    private int targetSdkVersion;
+    private int sdkVersion = NO_SDK;
+    private int targetSdkVersion = NO_SDK;
 
     public String getName() {
         return name;
@@ -110,6 +110,10 @@ public class PaprikaAppBuilder {
     public PaprikaAppBuilder targetSdkVersion(int targetSdkVersion) {
         this.targetSdkVersion = targetSdkVersion;
         return this;
+    }
+
+    public boolean hasSDK() {
+        return sdkVersion != NO_SDK;
     }
 
     public boolean hasTargetSDK() {

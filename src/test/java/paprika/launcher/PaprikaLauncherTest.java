@@ -55,7 +55,7 @@ public class PaprikaLauncherTest {
     @Test
     public void minimalArgsTest() throws Exception {
         String[] args = {"analyse", "-a", util.getPath(PLATFORMS_PATH),
-                "-db", util.getPath(AnalyzedApkTest.DB_PATH), "-omp",
+                "-db", util.getPath(AnalyzedApkTest.DB_PATH), "-omp", "-f",
                 getClass().getResource(APK).getFile()
         };
         PaprikaApp app = getAnalyzedApp(args);
@@ -94,7 +94,7 @@ public class PaprikaLauncherTest {
     @Test
     public void apkPropertiesTest() throws Exception {
         String[] args = {"analyse", "-a", util.getPath(PLATFORMS_PATH),
-                "-db", util.getPath(AnalyzedApkTest.DB_PATH), "-omp",
+                "-db", util.getPath(AnalyzedApkTest.DB_PATH), "-omp", "-f",
                 util.getPath(WITNESS_PROPS)
         };
         ApkPropertiesParser propsParser = new ApkPropertiesParser(silent,
