@@ -1,0 +1,39 @@
+{
+  "name": [
+    {
+      "value": "myCustomName",
+      "apps": [
+        "test_apk_1",
+        "test_apk_2"
+      ]
+    }
+  ],
+  "package": [
+    {
+      "value": "custom.package",
+      "apps": [
+        "test_apk_1"
+      ]
+    },
+    {
+      "value": "other.package",
+      "apps": [
+        "test_apk_2"
+      ]
+    }
+  ],
+  "key": [
+    {
+      "value": "customKey",
+      "apps": [
+        "test_apk_1"
+      ]
+    },
+    {
+      "value": "otherKey",
+      "apps": [
+        "test_apk_2"
+      ]
+    }
+  ]
+}

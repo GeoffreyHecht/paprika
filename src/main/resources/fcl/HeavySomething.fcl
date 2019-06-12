@@ -1,0 +1,33 @@
+FUNCTION_BLOCK HEAVY
+
+VAR_INPUT
+	number_of_instructions : REAL;
+	cyclomatic_complexity : REAL;
+END_VAR
+
+VAR_OUTPUT
+	res : REAL;
+END_VAR
+
+FUZZIFY number_of_instructions
+	TERM high := (Heavy_class_high_noi, 0) (Heavy_class_veryHigh_noi, 1);
+END_FUZZIFY
+
+FUZZIFY cyclomatic_complexity
+	TERM high := (Heavy_class_high_cc, 0) (Heavy_class_veryHigh_cc, 1);
+END_FUZZIFY
+
+DEFUZZIFY res
+	METHOD : LM;
+	TERM heavy := (0, 0) (1, 1);
+	DEFAULT := 0;
+END_DEFUZZIFY
+
+RULEBLOCK No1
+	AND : PROD;
+	ACT : MIN;
+	ACCU : MAX;
+	RULE 1 : IF number_of_instructions IS high  AND cyclomatic_complexity IS high THEN res IS heavy;
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK

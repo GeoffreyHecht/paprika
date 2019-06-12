@@ -1,0 +1,46 @@
+{
+  "package": [
+    {
+      "value": "old.package",
+      "apps": [
+        "test_apk_1",
+        "test_apk_2"
+      ]
+    }
+  ],
+  "key": [
+    {
+      "value": "customKey",
+      "apps": [
+        "test_apk_1"
+      ]
+    },
+    {
+      "value": "otherKey",
+      "apps": [
+        "test_apk_2"
+      ]
+    }
+  ],
+  "test_apk_1": {
+    "name": "myCustomName",
+    "package": "override.package",
+    "key": "customKey",
+    "developer": "myDev",
+    "category": "myCustomCategory",
+    "nbDownload": "58",
+    "date": "customDate",
+    "rating": "3.0",
+    "size": "1556",
+    "versionCode": "5.6",
+    "versionName": "myVN",
+    "targetSdkVersion": "89",
+    "sdkVersion": "55",
+    "price": "25"
+  },
+  "test_apk_2": {
+    "name": "OverrideName",
+    "package": "other.package",
+    "key": "otherKey"
+  }
+}

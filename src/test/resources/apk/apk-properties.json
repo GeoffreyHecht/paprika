@@ -1,0 +1,29 @@
+{
+  "dosbox": {
+    "key": "dosbox"
+  },
+  "opengpx": {
+    "key": "opengpx"
+  },
+  "openmanager": {
+    "key": "openmanager"
+  },
+  "passandroid": {
+    "key": "passandroid"
+  },
+  "tint": {
+    "key": "tint"
+  },
+  "tof": {
+    "key": "tof"
+  },
+  "wikipedia": {
+    "key": "wikipedia"
+  },
+  "witness": {
+    "key": "witness"
+  },
+  "wordpress": {
+    "key": "wordpress"
+  }
+}

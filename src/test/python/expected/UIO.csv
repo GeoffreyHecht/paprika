@@ -1,0 +1,4 @@
+app_key,full_name
+openmanager,onDraw#org.brandroid.openmanager.views.SpriteAnimatorSurfaceView
+witness,onDraw#com.antipatterns.app.NotSoGoodView
+wordpress,onDraw#org.wordpress.android.util.LinePageIndicator

@@ -1,0 +1,39 @@
+FUNCTION_BLOCK BLOB
+
+VAR_INPUT
+	lack_of_cohesion_in_methods : REAL;
+	number_of_methods : REAL;
+	number_of_attributes : REAL;
+END_VAR
+
+VAR_OUTPUT
+	res : REAL;
+END_VAR
+
+FUZZIFY lack_of_cohesion_in_methods
+    TERM high := (Blob_high_lcom, 0) (Blob_veryHigh_lcom, 1);
+END_FUZZIFY
+
+FUZZIFY number_of_methods
+    TERM high := (Blob_high_nom, 0) (Blob_veryHigh_nom, 1);
+END_FUZZIFY
+
+FUZZIFY number_of_attributes
+    TERM high := (Blob_high_noa, 0) (Blob_veryHigh_noa, 1);
+END_FUZZIFY
+
+
+DEFUZZIFY res
+	METHOD : LM;
+	TERM blob := (0, 0) (1, 1);
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+RULEBLOCK No1
+	AND : PROD;
+	ACT : MIN;
+	ACCU : MAX;
+	RULE 1 : IF lack_of_cohesion_in_methods IS high AND number_of_methods IS high AND number_of_attributes IS high THEN res IS blob;
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK

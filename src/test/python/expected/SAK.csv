@@ -1,0 +1,10 @@
+app_key,number_of_methods,full_name,fuzzy_value
+opengpx,9,org.opengpx.lib.map.MapViewer,0.112
+openmanager,15,org.brandroid.openmanager.interfaces.OpenContextProvider,1
+openmanager,17,org.brandroid.openmanager.interfaces.OpenApp,1
+passandroid,16,org.ligi.passandroid.model.PassStore,1
+passandroid,29,org.ligi.passandroid.model.Pass,1
+tint,50,org.tint.ui.managers.UIManager,1
+tint,26,org.tint.addons.framework.IAddon,1
+wikipedia,13,org.wikipedia.page.PageLoadStrategy,1
+wordpress,18,org.wordpress.android.widgets.photoview.IPhotoView,1

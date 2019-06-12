@@ -1,115 +1,234 @@
 # paprika
 
-Paprika is a powerfull toolkit to detect some code smells in analysed Android applications.
+Paprika is a powerful toolkit to detect some code smells in analysed Android applications.
 
 # Table of contents
 *   [Code smells detection](#code_smells_detection)
 *   [How to use it?](#how_to_use_it)
-*   [Troubleshootings](#troubleshootings)
+*   [Troubleshooting](#troubleshootings)
 *   [Credits](#credits)
+*   [Publications](#publications)
 
 ### <a name="code_smells_detection"></a>Code smells detection
 
-Paprika supports currently 16 Object-Oriented (OO) and Android code smells.
+Paprika currently supports the following Object-Oriented (OO) and Android code smells.
 
 **Object-Oriented** code smells:
-* Blob Class,
-* Swiss Army Knife,
-* Long Method,
-* Complex Class.
+* Blob Class (BLOB),
+* Swiss Army Knife (SAK),
+* Long Method (LM),
+* Complex Class (CC),
+* Long Parameter List (LPL).
 
 **Android** code smells:
-* Internal Getter/Setter,
-* Member Ignoring Method,
-* No Low Memory Resolver,
-* Leaking Inner Class,
-* UI Overdraw,
-* Invalidate Without Rect,
-* Heavy AsyncTask,
-* Heavy Service Start,
-* Heavy Broadcast Receiver,
-* Init OnDraw,
-* Hashmap Usage,
-* Unsupported Hardware Acceleration,
-* Bitmap Format Usage.
+* Internal Getter/Setter (IGS),
+* Member Ignoring Method (MIM),
+* No Low Memory Resolver (NLMR),
+* Leaking Inner Class (LIC),
+* UI Overdraw (UIO),
+* Invalidate Without Rect (IWR),
+* Heavy AsyncTask (HAS),
+* Heavy Service Start (HSS),
+* Heavy Broadcast Receiver (HBR),
+* Init OnDraw (IOD),
+* Hashmap Usage (HMU),
+* Unsupported Hardware Acceleration (UHA),
+* Debuggable Release (DR),
+* Durable Wakelock (DW),
+* Public Data (PD),
+* Rigid AlarmManager (RAM).
+
+A more detailed description of most of the antipatterns is available [here](Antipatterns.md).
 
 ### <a name="hoz_to_use_it"></a>How to use it ?
 
-Paprika needs an Android plaftorm to works.  
-You can find many Android platforms in [this Github repository](https://github.com/Sable/android-platforms).  
-You can find the java application in ```paprika/out/artifacts/Paprika_jar```.
+Paprika needs an Android platform to works. It also requires a 64 bits version of Java.
+You can find the correct folder structure for Android platforms in [this Github repository](https://github.com/Sable/android-platforms).
+To compile Paprika into a jar with its dependencies, run `gradle shadowjar`.
+You can find the built java application in ```build/libs/Paprika.jar```.
 
-You can choose between two modes: **analyse** and **query**.
-The **analyse** mode will allows you to scan with [Soot](https://sable.github.io/soot/) your Application application, to detect contained code smells.
-You can use after the **query** mode on your Neo4J graph to request how much code smells your application contains.
+Note that Paprika will not work properly on apk files using a minimum or target sdk version superior or equal to 26,
+due to Soot issues with such apps. If you still want to attempt their analysis, use the -f argument.
+Because Soot analysis tends to be unstable, and may block Paprika infinitely, it is recommended that you do not
+attempt to analyze more than roughly 100 apps at once.
 
-#### Analyse mode usage
+Paprika has multiple execution modes depending on the first argument.
+
+The **analyse** mode will allows you to scan with [Soot](https://sable.github.io/soot/) your Application application,
+to detect contained code smells.
+If analyzing multiple apks, it is recommended to put them in a folder and pass the folder path to Paprika rather 
+than executing it multiple times, for better performance.
+While in "folder mode", the arguments used to set a specific name (-n), key (-k) or package (-p) will be ignored.
+
+After analyzing, you can use the **query** mode on your Neo4J graph to request how much code smells your application contains.
+
+You may also use the **delete** mode to remove an application from the database.
+
+#### Analyzing a single app
+
+The `-omp` optional argument is recommended to avoid analyzing the libraries used by an application.
 
 ```
-usage: paprika analyse [-h] -a ANDROIDJARS -db DATABASE -n NAME -p PACKAGE -k KEY -dev DEVELOPER
-               -cat CATEGORY -nd NBDOWNLOAD -d DATE -r RATING [-pr PRICE] -s SIZE [-u UNSAFE]
+usage: paprika analyse [-h] -a ANDROIDJARS -db DATABASE [-n NAME] [-p PACKAGE] [-k KEY] [-dev DEVELOPER]
+               [-cat CATEGORY] [-nd NBDOWNLOAD] [-d DATE] [-r RATING] [-pr PRICE] [-s SIZE] [-u]
                [-vc VERSIONCODE] [-vn VERSIONNAME] [-tsdk TARGETSDKVERSION] [-sdk SDKVERSION]
-               [-omp ONLYMAINPACKAGE] apk
+               [-omp] apk
 
 positional arguments:
   apk                    Path of the APK to analyze
 
-optional arguments:
-  -h, --help             show this help message and exit
+required arguments:
   -a ANDROIDJARS, --androidJars ANDROIDJARS
                          Path to android platforms jars
   -db DATABASE, --database DATABASE
                          Path to neo4J Database folder
-  -n NAME, --name NAME   Name of the application
-  -p PACKAGE, --package PACKAGE
-                         Application main package
-  -k KEY, --key KEY      sha256 of the apk used as identifier
-  -dev DEVELOPER, --developer DEVELOPER
-                         Application developer
-  -cat CATEGORY, --category CATEGORY
-                         Application category
-  -nd NBDOWNLOAD, --nbDownload NBDOWNLOAD
-                         Numbers of downloads for the app
-  -d DATE, --date DATE   Date of download
-  -r RATING, --rating RATING
-                         application rating
-  -pr PRICE, --price PRICE
-                         Price of the application
-  -s SIZE, --size SIZE   Size of the application
-  -u UNSAFE, --unsafe UNSAFE
-                         Unsafe mode (no args checking)
-  -vc VERSIONCODE, --versionCode VERSIONCODE
-                         Version Code of the application (extract from manifest)
-  -vn VERSIONNAME, --versionName VERSIONNAME
-                         Version Name of the application (extract from manifest)
-  -tsdk TARGETSDKVERSION, --targetSdkVersion TARGETSDKVERSION
-                         Target SDK Version (extract from manifest)
-  -sdk SDKVERSION, --sdkVersion SDKVERSION
-                         sdk version (extract from manifest)
-  -omp ONLYMAINPACKAGE, --onlyMainPackage ONLYMAINPACKAGE
-                         Analyze only the main package of the application
-```
-
-#### Query mode usage
-
-```
-usage: paprika query [-h] -db DATABASE [-r REQUEST] [-c CSV] [-k KEY] [-p PACKAGE] [-d DETAILS]
 
 optional arguments:
-  -h, --help             show this help message and exit
+  -h, --help             Show help message and exit
+  -n NAME, --name NAME   Name of the application, defaults to apk filename
+  -p PACKAGE, --package PACKAGE
+                           Application main package (extracted from manifest)
+  -k KEY, --key KEY      Key of the application
+  -dev DEVELOPER, --developer DEVELOPER
+                         Application developer, defaults to "default-dev"
+  -cat CATEGORY, --category CATEGORY
+                         Application category, defaults to "default-category"
+  -nd NBDOWNLOAD, --nbDownload NBDOWNLOAD
+                         Numbers of downloads for the app, defaults to 0
+  -d DATE, --date DATE   Date of download, defaults to "2017-01-28 00:00:00.000000"
+  -r RATING, --rating RATING
+                         Application rating, defaults to 1.0
+  -pr PRICE, --price PRICE
+                         Price of the application, defaults to Free
+  -s SIZE, --size SIZE   Size of the application, defaults to 1
+  -u UNSAFE, --unsafe
+                         Unsafe mode (no args checking)
+  -vc VERSIONCODE, --versionCode VERSIONCODE
+                         Version Code of the application, empty by default
+  -vn VERSIONNAME, --versionName VERSIONNAME
+                         Version Name of the application, empty by default
+  -tsdk TARGETSDKVERSION, --targetSdkVersion TARGETSDKVERSION
+                         Target SDK Version (extracted from manifest)
+  -sdk SDKVERSION, --sdkVersion SDKVERSION
+                         SDK version, empty by default
+  -omp, --onlyMainPackage
+                         Analyze only the main package of the application
+  -f, --force            Force the analysis of the app event if its Android version may cause Soot issues
+```
+
+#### Analyzing multiple applications at once
+
+When using a folder in place of the **apk** parameter, Paprika will look into the contents of the folder and analyze every
+.apk file it finds. The Paprika arguments used to set an application property (such as `-dev, --developer` or `-cat, --category`) will be
+applied to every application analyzed (every app will have the same category). Note that the arguments used to set the name, key
+or package of the application will not work (`-n, --name / -k, --key / -p, --package`).
+
+If you want to edit the properties of the applications individually, you'll have to include a JSON file in the folder, 
+named `apk-properties.json`. The properties read from this file will override the values read from the standard
+Paprika arguments.
+
+Below is an example of the expected JSON format. The ids of the properties (name, category...) correspond to the Paprika argument names.
+You do not have to include all the properties - if one is missing, the default value will be used.
+
+```
+{ 
+	// Standard syntax
+	apk_filename_without_extension: {
+		name: "myCustomName"
+		category: "myCustomCategory"
+		nbDownload: "58"
+		...
+	}
+	
+	// Alternative syntax to avoid repetition
+	category: [
+		{ value:"myCustomCategory",  apps:[ "anApk", "anotherApk" ] },
+		{ value:"myOtherCategory", apps:[ "anApk" ] },
+	]
+	rating: [
+		{ value:"3.5", apps:[ "anApk", "anotherApk"] }
+	]
+	
+	// If you're using both syntaxes, the standard one has priority over the alternative.
+}
+```
+
+
+#### Querying the database
+
+```
+usage: paprika query [-h] -db DATABASE -r REQUEST [-c CSV] [-k KEY] [-p PACKAGE] [-d] [-thr PATH]
+
+required arguments:
   -db DATABASE, --database DATABASE
                          Path to neo4J Database folder
   -r REQUEST, --request REQUEST
                          Request to execute
-  -c CSV, --csv CSV      path to register csv files
-  -k KEY, --key KEY      key to delete
+
+optional arguments:
+  -h, --help             Show help message and exit
+  -c CSV, --csv CSV      Path to register csv files, defaults to working directory
   -p PACKAGE, --package PACKAGE
                          Package of the applications to delete
-  -d DETAILS, --details DETAILS
+  -d, --details
                          Show the concerned entity in the results
+  -nn, --noNames
+                         Disable app names in output
+  -thr PATH, --thresholds PATH
+                         Read fuzzy patterns thresholds from properties file
 ```
 
-### <a name="troubleshootings"></a>Troubleshootings
+There are several requests available:
+* One for each of the antipatterns codes (NLMR, MIM...)
+* All antipatterns at once (ALLAP)
+* All heavy antipatterns at once: HAS, HSS, HBR (ALLHEAVY)
+* Basic information about all apps analyzed (ANALYZED)
+
+* Various statistics about applications (STATS)
+* Lack of cohesion in methods of all classes (ALLLCOM)
+* Class complexity of all classes (ALLCC)
+* Cyclomatic complexity of all methods (ALLCYCLO)
+* Number of methods of all classes (ALLNUMMETHODS)
+
+* Count variables (COUNTVAR)
+* Count inner classes (COUNTINNER)
+* Count AsyncTasks (COUNTASYNC)
+* Count Views (COUNTVIEWS)
+
+* Only non fuzzy antipatterns: excludes OO code smells and HAS, HSS, HBR (NONFUZZY)
+* Only fuzzy antipatterns (FUZZY)
+* Only fuzzy antipatterns without fuzzing (FORCENOFUZZY)
+
+#### Deleting an application from the database
+
+```
+usage: paprika delete [-h] -db DATABASE -dk KEY
+
+required arguments:
+  -db DATABASE, --database DATABASE
+                         Path to neo4J Database folder
+  -dk KEY, --deleteKey KEY
+                         Key of the app to delete
+                         
+optional arguments:
+  -h, --help             Show help message and exit
+```
+
+
+#### Example of usage
+First, we analyze an app:
+
+```
+java -Xmx2G -XX:+UseConcMarkSweepGC -jar  Paprika.jar analyse -a "/path/to/android-platforms" -db "/path/to/database"
+ -omp /path/to/apk.apk
+```
+
+Then we can launch queries on the database using query mode. For example:
+```
+java -Xmx2G -XX:+UseConcMarkSweepGC -jar  Paprika.jar query -db "/path/to/database" -d -r ALLAP
+```
+
+### <a name="troubleshootings"></a>Troubleshooting
 
 **paprika** is still in development.  
 Found a bug? We'd love to know about it!  
@@ -121,4 +240,20 @@ GNU AFFERO GENERAL PUBLIC LICENSE (version 3)
 
 ### <a name="credits"></a>Credits
 
-Developed by [Geoffrey Hecht](http://geoffreyhecht.github.io/), [SOMCA](http://sofa.uqam.ca/somca.php), [SPIRALS](https://team.inria.fr/spirals/) - [LATECE](http://www.latece.uqam.ca/)
+Developed by [Geoffrey Hecht](http://geoffreyhecht.github.io/), 
+[SOMCA](http://sofa.uqam.ca/somca.php),
+[SPIRALS](https://team.inria.fr/spirals/) - [LATECE](http://www.latece.uqam.ca/)
+
+### <a name="publications"></a>Publications
+
+If you want to read more about how Paprika works, how you can use it or to cite us, we recommend you to read :
+
+[__Tracking the Software Quality of Android Applications along their Evolution__](https://hal.inria.fr/hal-01178734)
+
+[Detecting Antipatterns in Android Apps](https://hal.inria.fr/hal-01122754)
+
+[An Empirical Study of the Performance Impacts of Android Code Smells](https://hal.inria.fr/hal-01276904)
+
+[Investigating the Energy Impact of Android Smells](https://hal.inria.fr/hal-01403485)
+
+[Détection et analyse de l’impact des défauts de code dans les applications mobiles (in French)](https://hal.inria.fr/tel-01418158)

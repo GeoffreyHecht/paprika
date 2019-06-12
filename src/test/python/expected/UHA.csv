@@ -1,0 +1,8 @@
+m.app_key,full_name
+opengpx,definePaintStyles#org.opengpx.lib.map.OsmLineNavigationOverlay
+opengpx,draw#org.opengpx.lib.map.OsmLineNavigationOverlay
+opengpx,createNavLayoutPicture#org.opengpx.lib.map.OsmLineNavigationOverlay
+tof,buildText#org.tof.gl.sprite.SpriteFontBuilder
+tof,buildFont#org.tof.gl.sprite.SpriteFontBuilder
+witness,onDraw#com.antipatterns.app.NotSoGoodView
+witness,onDraw#com.antipatterns.app.NotSoGoodView

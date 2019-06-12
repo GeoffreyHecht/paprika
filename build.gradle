@@ -1,0 +1,79 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '2.0.4'
+    id 'java'
+}
+
+compileJava {
+    options.compilerArgs += '-proc:none'
+}
+
+compileTestJava {
+    options.compilerArgs += '-proc:none'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+
+    maven {
+        name = "soot-snapshot"
+        url = "https://soot-build.cs.uni-paderborn.de/nexus/repository/soot-snapshot"
+    }
+
+    maven {
+        name = "soot-release"
+        url = "https://soot-build.cs.uni-paderborn.de/nexus/repository/soot-release"
+    }
+
+    flatDir {
+        dirs 'lib'
+    }
+}
+
+shadowJar {
+    archiveName = "Paprika.jar"
+    manifest {
+        attributes 'Manifest-Version': '1.0',
+                'Main-Class': 'paprika.Main'
+    }
+}
+
+test {
+    useJUnitPlatform()
+    setClasspath(sourceSets.test.runtimeClasspath)
+}
+
+task pythonTest(type: Exec) {
+    workingDir 'src/test/python'
+    commandLine 'python', '-u', 'testDataset.py'
+}
+
+test.dependsOn pythonTest
+pythonTest.dependsOn shadowJar
+
+sourceSets.test {
+    resources.srcDirs = ["src/test/resources"]
+}
+
+task copyTestResources(type: Copy) {
+    from "${projectDir}/src/test/resources"
+    into "${buildDir}/classes/test"
+}
+processTestResources.dependsOn copyTestResources
+
+dependencies {
+    compile 'ca.mcgill.sable:soot:3.1.0-SNAPSHOT'
+    compile 'org.neo4j:neo4j-kernel:3.4.1'
+    compile 'org.neo4j:neo4j-cypher:3.4.1'
+    compile 'net.sourceforge.argparse4j:argparse4j:0.8.1'
+    compile 'org.slf4j:slf4j-nop:1.7.25'
+    compile 'net.dongliu:apk-parser:2.6.1'
+    compile 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
+
+    testCompile("org.junit.jupiter:junit-jupiter-api:5.2.0")
+    testCompile("org.hamcrest:hamcrest-all:1.3")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.2.0")
+
+    // Not on maven central
+    compile 'net.sourceforge.jFuzzyLogic:JFuzzyLogic'
+}
