@@ -16,18 +16,13 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package paprika;
+package paprika
 
-import paprika.launcher.PaprikaLauncher;
+import paprika.launcher.PaprikaLauncher
 
 /**
  * Created by Geoffrey Hecht on 19/05/14.
  */
-
-public class Main {
-
-    public static void main(String[] args) throws Exception {
-        new PaprikaLauncher(args, System.out).startPaprika();
-    }
-
+fun main(args: Array<String>) {
+    PaprikaLauncher(args, System.out).startPaprika()
 }

@@ -62,7 +62,7 @@ task copyTestResources(type: Copy) {
 processTestResources.dependsOn copyTestResources
 
 dependencies {
-    compile 'ca.mcgill.sable:soot:3.1.0-SNAPSHOT'
+    compile 'ca.mcgill.sable:soot:3.3.0'
     compile 'org.neo4j:neo4j-kernel:3.4.1'
     compile 'org.neo4j:neo4j-cypher:3.4.1'
     compile 'net.sourceforge.argparse4j:argparse4j:0.8.1'
@@ -75,5 +75,5 @@ dependencies {
     testRuntime("org.junit.jupiter:junit-jupiter-engine:5.2.0")
 
     // Not on maven central
-    compile 'net.sourceforge.jFuzzyLogic:JFuzzyLogic'
+    compile 'net.sourceforge.jFuzzyLogic:jFuzzyLogic'
 }
