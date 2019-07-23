@@ -70,6 +70,7 @@ public class SootAnalyzer {
         Options.v().set_process_multiple_dex(true);
         Options.v().set_throw_analysis(Options.throw_analysis_dalvik);
         Options.v().set_no_bodies_for_excluded(true);
+        PhaseOptions.v().setPhaseOption("cg.spark", "on");
         PhaseOptions.v().setPhaseOption("cg", "all-reachable:true");
         PhaseOptions.v().setPhaseOption("gop", "enabled:true");
         List<String> excludeList = new LinkedList<>();
